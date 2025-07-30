@@ -15,8 +15,9 @@ const app=express();
         app.use(bodyParser.urlencoded({extends:true}));
         app.use(express.json());
         app.use(express.static('public'));
-        app.set('views',path.join('/views','views'));
+        
         app.set('view engine','ejs');
+        app.set('views',path.join('/views','views'));
         app.use('/',routes);
         app.use((req,res)=>{
             res.status(404).render('error',{message:'Page Not Found Custom'});
