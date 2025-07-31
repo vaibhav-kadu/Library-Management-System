@@ -18,3 +18,15 @@ exports.findAdminByEmail=(email)=>{
     });
 };
 
+exports.updateAdmin=(admin_id,name,contact,email,password)=>{
+    return new Promise((resolve,reject)=>{
+        db.query('update admin set name=?,contact=?,email=?,password=? where admin_id=?',[name,contact,email,password,admin_id],(err,result)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("UPDATED");
+            }
+        });
+    });
+};
+

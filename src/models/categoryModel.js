@@ -9,11 +9,45 @@ exports.addCategory=(name)=>{
     }); 
 };
 
+exports.getCategory=()=>{
+    return new Promise((resolve,reject)=>{
+        db.query("select * from categories",(err,result)=>{
+            if(err) return reject(err);
+            resolve(result);
+        });
+    });
+}
+
 exports.findCategoryByName=(name)=>{
     return new Promise((resolve,reject)=>{
         db.query('select * from categories where name=? ',[name],(err,results)=>{
             if(err) return reject("category Not Get because= "+err);
-            resolve(results[0]);
+           resolve(results[0]);
+        });
+    });
+};
+
+exports.updateCategory=(category_id,name)=>{
+    return new Promise((resolve,reject)=>{
+        db.query('update categories set name=? where category_id=?',[name,category_id],(err,result)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("UPDATED");
+            }
+        });
+    });
+};
+
+exports.deleteCategory=(category_id)=>{
+    return new Promise((resolve,reject)=>{
+        console.log(category_id);
+        db.query('delete from categories where category_id=?',[category_id],(err,result)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(result);
+            }
         });
     });
 };
