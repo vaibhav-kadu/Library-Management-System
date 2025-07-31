@@ -5,6 +5,9 @@ exports.landingPage=(req,res)=>{
     console.log("Login ctrl");
 };
 
+
+// ADMIN
+
 exports.registerAdmin= async(req,res)=>{
     try{
         const {name,contact,email,password}=req.body;
@@ -62,5 +65,66 @@ exports.updateAdmin=async(req,res)=>{
             promise.catch((err)=>{
                 res.status(500).json({message:err});
             });
+};
+
+
+
+
+// LIBRARIANS
+
+
+exports.addLibrarian= async(req,res)=>{
+    let {name,contact,email,password}=req.body;
+
+    const existEmail=await authModel.findLibrarianByEmail(email);
+
+        if(existEmail){
+            return res.status(400).json({message:'Email Already Exist'});
+        }
+
+    let promise=authModel.addLibrarian(name,contact,email,password);
+        promise.then((result)=>{
+            res.status(201).json({message:'Librarian Register Successfully'});
+        });
+
+        promise.catch((err)=>{
+            res.status(500).json({message:'Internal Server Error = '+err});
+        });  
+
+};
+
+exports.getLibrarians=(req,res)=>{
+    let promise=authModel.getLibrarians();
+        promise.then((result)=>{
+            res.status(200).json({message:result});
+        });
+        promise.catch((err)=>{
+            res.status(500).json({message:'Internal Server Error = '+err});
+        });
+}
+
+exports.updateLibrarian=(req,res)=>{
+    let {librarian_id,name,contact,email,password}=req.body;
+
+    let promise=authModel.updateLibrarian(librarian_id,name,contact,email,password);
+        promise.then((result)=>{
+            res.status(200).json({message:'Update Successfully'});
+        });
+        promise.catch((err)=>{
+            res.status(500).json({message:'Internal Server Error = '+err});
+        });
+};
+
+exports.deleteLibrarian=(req,res)=>{
+    //200.500
+    const {librarian_id}=req.body;
+
+    let promise=authModel.deleteLibrarian(librarian_id);
+        promise.then((result)=>{
+            res.status(200).json({message:'Librarian Deleted'});
+        });
+        promise.catch((err)=>{
+            res.status(500).json({message:'Internal Server Error = '+err});
+        });
 };
 
