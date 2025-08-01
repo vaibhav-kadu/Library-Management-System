@@ -68,15 +68,14 @@ function initializeTables() {
             title VARCHAR(255) NOT NULL,
             author VARCHAR(100) DEFAULT NULL,
             isbn VARCHAR(30) DEFAULT NULL UNIQUE,
+            publisher VARCHAR(100) DEFAULT NULL,
             category_id INT DEFAULT NULL,
             total_copies INT NOT NULL,
-            status ENUM('available','issued') DEFAULT 'available',
+            issued_copies INT ,
             image VARCHAR(255) DEFAULT NULL,
-            added_by INT DEFAULT NULL,
             added_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (book_id),
-            FOREIGN KEY (category_id) REFERENCES categories(category_id),
-            FOREIGN KEY (added_by) REFERENCES librarians(librarian_id)
+            FOREIGN KEY (category_id) REFERENCES categories(category_id)
         )`,
 
         `CREATE TABLE IF NOT EXISTS transactions (

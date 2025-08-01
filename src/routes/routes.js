@@ -1,6 +1,7 @@
 let express=require("express");
 let authctrl=require("../controllers/authCtrl.js");
 let catCtrl=require('../controllers/categoryCtrl.js');
+let bookCtrl=require('../controllers/bookCtrl.js');
 
 let routes=express.Router();
 console.log("Router Started");
@@ -25,8 +26,17 @@ routes.get("/getCategory",catCtrl.getCategory);
 routes.put("/updateCategory",catCtrl.updateCategory);
 routes.delete("/deleteCategory",catCtrl.deleteCategory);
 
+//Books
+routes.post('/addBook',bookCtrl.addBook);
+routes.get('/getBooks',bookCtrl.getBooks);
+routes.get('/getBookBy',bookCtrl.getBookBy);  // Category_id or Title
+routes.put('/updateBook',bookCtrl.updateBook);
+routes.delete('/deleteBook',bookCtrl.deleteBook);
+
 
 /*
+
+
 
 */
 
