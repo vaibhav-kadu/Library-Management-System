@@ -33,11 +33,12 @@ exports.updateAdmin=(admin_id,name,contact,email,password)=>{
 };
 
 
-// LIBRARIANS
 
-exports.findLibrarianByEmail=(email)=>{
+//Students Model
+
+exports.findStudentByEmail=(email)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from librarians where email=?',[email],(err,results)=>{
+        db.query('select * from students where email=?',[email],(err,results)=>{
             if(err) return reject("Data Not Get Because"+err);
             resolve(results[0]);
         });
@@ -45,36 +46,36 @@ exports.findLibrarianByEmail=(email)=>{
 };
 
 
-exports.addLibrarian=(name,contact,email,password)=>{
+exports.addStudent=(name,contact,email,password,address,librarian_id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('insert into librarians (name,contact,email,password) values(?,?,?,?)',[name,contact,email,password],(err,result)=>{
-            if(err) return reject('Librarian Not Added Because = '+err);
+        db.query('insert into students (name,contact,email,password,address,created_by) values(?,?,?,?,?,?)',[name,contact,email,password,address,librarian_id],(err,result)=>{
+            if(err) return reject('Student Not Added Because = '+err);
             resolve(result);
         });
     });
 };
 
-exports.getLibrarians=()=>{
+exports.getStudents=()=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from librarians',(err,result)=>{
+        db.query('select * from students',(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });
     });
 };
 
-exports.updateLibrarian=(librarian_id,name,contact,email,password)=>{
+exports.updateStudent=(student_id,name,contact,email,password,address)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update librarians set name=?,contact=?,email=?,password=? where librarian_id=?',[name,contact,email,password,librarian_id],(err,result)=>{
+        db.query('update students set name=?,contact=?,email=?,password=?,address=? where student_id=?',[name,contact,email,password,address,student_id],(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });
     });
 };
 
-exports.deleteLibrarian=(librarian_id)=>{
+exports.deleteStudent=(students_id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('delete from librarians where librarian_id=?',[librarian_id],(err,result)=>{
+        db.query('delete from students where students_id=?',[students_id],(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });

@@ -11,11 +11,13 @@ routes.post("/registerAdmin",authctrl.registerAdmin);
 routes.get("/getAdmin",authctrl.getAdmin);
 routes.put('/updateAdmin',authctrl.updateAdmin);
 
-//Librarians
-routes.post('/addLibrarian',authctrl.addLibrarian);
-routes.get('/getLibrarians',authctrl.getLibrarians);
-routes.put('/updateLibrarian',authctrl.updateLibrarian);
-routes.delete('/deleteLibrarian',authctrl.deleteLibrarian);
+
+
+//Students
+routes.post('/addStudent',authctrl.addStudent);
+routes.get('/getStudents',authctrl.getStudents);
+routes.put('/updateStudent',authctrl.updateStudent);
+routes.delete('/deleteStudent',authctrl.deleteStudent);
 
 //Category
 routes.post('/addCategory',catCtrl.addCategory);

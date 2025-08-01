@@ -70,21 +70,22 @@ exports.updateAdmin=async(req,res)=>{
 
 
 
-// LIBRARIANS
 
 
-exports.addLibrarian= async(req,res)=>{
-    let {name,contact,email,password}=req.body;
+//Students Controller
 
-    const existEmail=await authModel.findLibrarianByEmail(email);
+exports.addStudent= async(req,res)=>{
+    let {name,contact,email,password,address,librarian_id}=req.body;
+
+    const existEmail=await authModel.findStudentByEmail(email);
 
         if(existEmail){
             return res.status(400).json({message:'Email Already Exist'});
         }
 
-    let promise=authModel.addLibrarian(name,contact,email,password);
+    let promise=authModel.addStudent(name,contact,email,password,address,librarian_id);
         promise.then((result)=>{
-            res.status(201).json({message:'Librarian Register Successfully'});
+            res.status(201).json({message:'Student Register Successfully'});
         });
 
         promise.catch((err)=>{
@@ -93,8 +94,8 @@ exports.addLibrarian= async(req,res)=>{
 
 };
 
-exports.getLibrarians=(req,res)=>{
-    let promise=authModel.getLibrarians();
+exports.getStudents=(req,res)=>{
+    let promise=authModel.getStudents();
         promise.then((result)=>{
             res.status(200).json({message:result});
         });
@@ -103,10 +104,10 @@ exports.getLibrarians=(req,res)=>{
         });
 }
 
-exports.updateLibrarian=(req,res)=>{
-    let {librarian_id,name,contact,email,password}=req.body;
+exports.updateStudent=(req,res)=>{
+    let {student_id,name,contact,email,password,address}=req.body;
 
-    let promise=authModel.updateLibrarian(librarian_id,name,contact,email,password);
+    let promise=authModel.updateStudent(student_id,name,contact,email,password,address);
         promise.then((result)=>{
             res.status(200).json({message:'Update Successfully'});
         });
@@ -115,13 +116,11 @@ exports.updateLibrarian=(req,res)=>{
         });
 };
 
-exports.deleteLibrarian=(req,res)=>{
-    //200.500
-    const {librarian_id}=req.body;
-
-    let promise=authModel.deleteLibrarian(librarian_id);
+exports.deleteStudent=(req,res)=>{
+    const {student_id}=req.body;
+    let promise=authModel.deleteStudent(student_id);
         promise.then((result)=>{
-            res.status(200).json({message:'Librarian Deleted'});
+            res.status(200).json({message:'Student Deleted'});
         });
         promise.catch((err)=>{
             res.status(500).json({message:'Internal Server Error = '+err});
