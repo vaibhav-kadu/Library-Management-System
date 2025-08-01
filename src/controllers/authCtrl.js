@@ -70,7 +70,13 @@ exports.updateAdmin=async(req,res)=>{
 
 
 
-
+/*
+API of Students CRUD Operation done
+    1.Add Student (POST)
+    2.View Students (GET)
+    3.Update Student (PUT)
+    4.Delete Students (DELETE)
+    */
 
 //Students Controller
 
@@ -126,4 +132,6 @@ exports.deleteStudent=(req,res)=>{
             res.status(500).json({message:'Internal Server Error = '+err});
         });
 };
+
+
 

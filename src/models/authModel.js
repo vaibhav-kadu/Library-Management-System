@@ -48,7 +48,7 @@ exports.findStudentByEmail=(email)=>{
 
 exports.addStudent=(name,contact,email,password,address,librarian_id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('insert into students (name,contact,email,password,address,created_by) values(?,?,?,?,?,?)',[name,contact,email,password,address,librarian_id],(err,result)=>{
+        db.query('insert into students (name,contact,email,password,address,librarian_id) values(?,?,?,?,?,?)',[name,contact,email,password,address,librarian_id],(err,result)=>{
             if(err) return reject('Student Not Added Because = '+err);
             resolve(result);
         });
@@ -73,9 +73,9 @@ exports.updateStudent=(student_id,name,contact,email,password,address)=>{
     });
 };
 
-exports.deleteStudent=(students_id)=>{
+exports.deleteStudent=(student_id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('delete from students where students_id=?',[students_id],(err,result)=>{
+        db.query('delete from students where student_id=?',[student_id],(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });

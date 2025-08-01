@@ -55,11 +55,11 @@ function initializeTables() {
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
             address TEXT,
-            created_by INT NOT NULL,
+            librarian_id INT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (student_id),
             UNIQUE KEY (email),
-            FOREIGN KEY (created_by) REFERENCES librarians(librarian_id)
+            FOREIGN KEY (librarian_id) REFERENCES librarians(librarian_id)
 
         )`,
 
