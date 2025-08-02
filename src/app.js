@@ -10,15 +10,13 @@ require('dotenv').config();
 
 //Initializes the Express app.
 const app=express();
-
-        app.use(express.urlencoded({extends:true}));
+        app.use(express.urlencoded({extends:true}));  
+        app.set('view engine','ejs');
+        app.set('views',path.join(__dirname,'views'));
+        app.use(express.static("public"));
         app.use(bodyParser.urlencoded({extends:true}));
         app.use(express.json());
-        app.use(express.static('public'));
-        
-        app.set('view engine','ejs');
-        app.set('views',path.join('/views','views'));
-        app.use('/',routes);
+        app.use("/",routes);
         app.use((req,res)=>{
             res.status(404).render('error',{message:'Page Not Found Custom'});
         });

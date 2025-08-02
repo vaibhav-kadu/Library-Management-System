@@ -2,7 +2,9 @@ const bcrypt=require('bcrypt');
 const authModel=require('../models/authModel.js');
 
 exports.landingPage=(req,res)=>{
-    console.log("Login ctrl");
+    
+    console.log("Landing ctrl");
+    res.render("landingpage.ejs");
 };
 
 
