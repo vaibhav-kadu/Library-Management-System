@@ -36,12 +36,21 @@ exports.updateAdmin=(admin_id,name,contact,email,password)=>{
 
 //Students Model
 
-exports.findStudentByEmail=(email)=>{
+exports.getStudentsBy=(input)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from students where email=?',[email],(err,results)=>{
-            if(err) return reject("Data Not Get Because"+err);
-            resolve(results[0]);
-        });
+        if(!Number.isInteger(input)){
+            const search=`%${input}%`;
+            db.query('select * from students where email like ? ',[search],(err,results)=>{
+                if(err) return reject("Data Not Get Because"+err);
+                console.log(results[0]);
+                resolve(results);
+            });
+        }else{
+            db.query('select * from students where student_id=?',[input],(err,results)=>{
+                if(err) return reject("Data Not Get Because"+err);
+                resolve(results);
+            });
+        }
     });
 };
 

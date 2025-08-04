@@ -112,6 +112,17 @@ exports.getStudents=(req,res)=>{
         });
 }
 
+exports.getStudentsBy=(req,res)=>{
+    let {input}=req.body;
+    let promise=authModel.getStudentsBy(input);
+        promise.then((results)=>{
+            res.status(202).json(results);
+        });
+        promise.catch((err)=>{
+            res.status(404).json({message:err});
+        });
+};
+
 exports.updateStudent=(req,res)=>{
     let {student_id,name,contact,email,password,address}=req.body;
 

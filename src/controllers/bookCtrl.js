@@ -12,7 +12,7 @@ exports.addBook=(req,res)=>{
         });
 };
 
-exports.getBooks=(req,res)=>{
+exports.getAllBooks=(req,res)=>{
     let promise=bookModel.getBooks();
         promise.then((result)=>{
             res.status(201).json({result});
@@ -32,6 +32,8 @@ exports.getBookBy=(req,res)=>{
             res.status(500).json({message:'Inter Nal Server Error = '+err});
         });
 };
+
+
 
 exports.updateBook=(req,res)=>{
     let {book_id,title,author,isbn,publisher,category_id,total_copies,issued_copies}=req.body;

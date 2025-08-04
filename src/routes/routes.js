@@ -17,7 +17,8 @@ routes.put('/updateAdmin',authctrl.updateAdmin);
 
 //Students
 routes.post('/addStudent',authctrl.addStudent);
-routes.get('/getStudents',authctrl.getStudents);
+routes.get('/getStudents',authctrl.getStudents); 
+routes.get('/getStudentsBy',authctrl.getStudentsBy);  //By Student_id , Email
 routes.put('/updateStudent',authctrl.updateStudent);
 routes.delete('/deleteStudent',authctrl.deleteStudent);
 
@@ -32,10 +33,13 @@ routes.post("/addLibrarian",libCtrl.addLibrarian);
 
 //Books
 routes.post('/addBook',bookCtrl.addBook);
-routes.get('/getBooks',bookCtrl.getBooks);
+routes.get('/getAllBooks',bookCtrl.getAllBooks);
 routes.get('/getBookBy',bookCtrl.getBookBy);  // Category_id or Title
 routes.put('/updateBook',bookCtrl.updateBook);
 routes.delete('/deleteBook',bookCtrl.deleteBook);
+
+
+//Transactions
 
 
 /*
