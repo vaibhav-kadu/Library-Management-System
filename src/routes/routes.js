@@ -30,6 +30,9 @@ routes.delete("/deleteCategory",catCtrl.deleteCategory);
 
 //Librarian
 routes.post("/addLibrarian",libCtrl.addLibrarian);
+routes.get("/getLibrarian",libCtrl.getLibrarian);
+routes.put("/updateLibrarian", libCtrl.updateLibrarian);
+routes.delete("/deleteLibrarian",libCtrl.deleteLibrarian);
 
 //Books
 routes.post('/addBook',bookCtrl.addBook);
@@ -43,7 +46,6 @@ routes.delete('/deleteBook',bookCtrl.deleteBook);
 
 
 /*
-
 
 
 */

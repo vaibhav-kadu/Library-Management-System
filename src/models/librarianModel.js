@@ -18,3 +18,54 @@ exports.findLibrarianByEmail=(email)=>{
     });
 };
 
+
+exports.getLibrarian=()=>{
+
+    return new Promise((resolve,reject)=>{
+
+        db.query("select * from librarians",(err,result)=>{
+
+            if(err){
+
+                reject(err);
+
+            }
+            else{
+
+                resolve(result);
+
+            }
+
+        });
+
+    });
+
+};
+
+exports.updateLibrarian=(librarian_id,name, contact, email, password)=>{
+    return new Promise((resolve,reject)=>{
+        db.query('update librarians set name=?, contact=?, email=?, password=? where librarian_id=?',[name,contact,email,password,librarian_id],(err,result)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("UPDATED");
+            }
+        });
+    });
+};
+
+exports.deleteLibrarian=(librarian_id)=>{
+    return new Promise((resolve,reject)=>{
+        console.log(librarian_id);
+        db.query('delete from librarians where librarian_id=?',[librarian_id],(err,result)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(result);
+            }
+        });
+    });
+};
+
+
+
