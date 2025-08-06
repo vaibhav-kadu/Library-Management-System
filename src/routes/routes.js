@@ -3,6 +3,7 @@ let authctrl=require("../controllers/authCtrl.js");
 let catCtrl=require('../controllers/categoryCtrl.js');
 let bookCtrl=require('../controllers/bookCtrl.js');
 let libCtrl = require("../controllers/librarianCtrl.js"); 
+let transCtrl = require('../controllers/transactionCtrl.js');
 
 let routes=express.Router();
 console.log("Router Started");
@@ -43,6 +44,12 @@ routes.delete('/deleteBook',bookCtrl.deleteBook);
 
 
 //Transactions
+
+routes.post('/addTransaction', transCtrl.addTransaction);
+routes.get('/getAllTransactions', transCtrl.getAllTransactions);
+routes.post('/getTransactionById', transCtrl.getTransactionById); // or use :id param
+routes.put('/updateTransaction', transCtrl.updateTransaction);
+routes.delete('/deleteTransaction', transCtrl.deleteTransaction);
 
 
 /*
