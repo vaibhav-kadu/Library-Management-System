@@ -35,7 +35,7 @@ routes.get("/getLibrarian",libCtrl.getLibrarian);
 routes.put("/updateLibrarian", libCtrl.updateLibrarian);
 routes.delete("/deleteLibrarian",libCtrl.deleteLibrarian);
 
-//Books
+//Books 
 routes.post('/addBook',bookCtrl.addBook);
 routes.get('/getAllBooks',bookCtrl.getAllBooks);
 routes.get('/getBookBy',bookCtrl.getBookBy);  // Category_id or Title
