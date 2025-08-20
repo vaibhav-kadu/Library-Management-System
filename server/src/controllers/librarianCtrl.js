@@ -1,4 +1,5 @@
 const bcrypt=require('bcrypt');
+const jwt=require('jsonwebtoken');
 const libmodel = require("../models/librarianModel.js");
 
 exports.addLibrarian=async(req,res)=>{
@@ -22,6 +23,38 @@ exports.addLibrarian=async(req,res)=>{
     }
 
 }
+
+exports.loginLibrarian=(req,res)=>{
+    const {password,email}=req.body.formData.librarian;
+
+    let promise=libmodel.findLibrarianByEmail(email);
+        promise.then((result)=>{
+
+            if(password===result.password){
+                            const token = jwt.sign(
+                                {email:result.email},
+                                process.env.JWT_KEY, 
+                                { expiresIn: '1h' }
+                            );
+
+                            res
+                            .status(200)
+                            .json({
+                                success: true, 
+                                token, 
+                                user:{id:result.librarian_id, name: result.name, role:"librarian"},
+                                message:"Login Success"
+                            });
+
+                        }else{
+                            res.status(400).json({ success: false, error:"Incorrect Password" });
+                        }
+            //res.status(202).json(results);
+        });
+        promise.catch((err)=>{
+            res.status(404).json({message:err});
+        });
+};
 
 
 

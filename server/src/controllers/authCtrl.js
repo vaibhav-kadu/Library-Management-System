@@ -1,12 +1,6 @@
 const bcrypt=require('bcrypt');
+const jwt=require('jsonwebtoken');
 const authModel=require('../models/authModel.js');
-
-exports.landingPage=(req,res)=>{
-    
-    console.log("Landing ctrl");
-    res.render("landingpage.ejs");
-};
-
 
 // ADMIN
 
@@ -33,25 +27,36 @@ exports.registerAdmin= async(req,res)=>{
 
 exports.getAdmin=async (req,res)=>{
     try{
-        const {email}=req.body;
+        
+        const {password,email}=req.body.formData.admin;
 
-        const emailExist= await authModel.findAdminByEmail(email);
-                if(emailExist){
-                    const{email,password}=emailExist;
-                    
-                        if(req.body.password===password){
-                            res.status(200).json({message:"Login Success" });
+        const admin= await authModel.findAdminByEmail(email);
+                if(admin){                    
+                        if(password===admin.password){
+                            const token = jwt.sign(
+                                {email:admin.email},
+                                process.env.JWT_KEY, 
+                                { expiresIn: '1h' }
+                            );
+
+                            res
+                            .status(200)
+                            .json({
+                                success: true, 
+                                token, 
+                                user:{id:admin.admin_id, name: admin.name, role:"admin"},
+                                message:"Login Success"
+                            });
+
                         }else{
-                            res.status(400).json({message:"Incorrect Password" });
+                            res.status(400).json({ success: false, error:"Incorrect Password" });
                         }
 
                 }else {
-                    console.log("No admin found with that email.");
-                    res.status(404).json({ message: "Admin not found" });
+                    res.status(404).json({  success: false, error: "Admin not found with this email" });
                 }
     }catch(error){
-        console.log(error);
-        res.status(500).json({message:'Internal Server Error'});
+        res.status(500).json({success:false, error: error.message});
     }
 
 };
@@ -100,6 +105,41 @@ exports.addStudent= async(req,res)=>{
             res.status(500).json({message:'Internal Server Error = '+err});
         });  
 
+};
+
+exports.loginStudent=(req,res)=>{
+    const {password,email}=req.body.formData.student;
+
+    let promise=authModel.getStudentsBy(email);
+        promise.then(async (results)=>{
+            if(!results[0]) res.status(404).json({success: false,error:"User Not Found"})
+                
+            //const isMatch = await bcrypt.compare(password, results[0].password)
+            //if(!isMatch){res.status(404).json({success: false, error:"Wrong Password"})}
+            if(password===results[0].password){ // isMatch
+                            const token = jwt.sign(
+                                {email:results[0].email},
+                                process.env.JWT_KEY, 
+                                { expiresIn: '1h' }
+                            );
+
+                            res
+                            .status(200)
+                            .json({
+                                success: true, 
+                                token, 
+                                user:{id:results[0].student_id, name: results[0].name, role:"student"},
+                                message:"Login Success"
+                            });
+
+                        }else{
+                            res.status(400).json({ success: false, error:"Incorrect Password" });
+                        }
+            //res.status(202).json(results);
+        });
+        promise.catch((err)=>{
+            res.status(404).json({message:err});
+        });
 };
 
 exports.getStudents=(req,res)=>{

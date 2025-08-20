@@ -62,7 +62,8 @@ VALUES
             UNIQUE KEY (email)
         )`,
 
-        `insert into admin(name,contact,email,password) values('admin','00000','admin@123','admin')`
+        `insert into admin(name,contact,email,password) values('admin','00000','admin@123','admin'),
+                                                            ('ad','00','ad@','ad')`
         ,
 
         `CREATE TABLE IF NOT EXISTS students (

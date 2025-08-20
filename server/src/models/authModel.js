@@ -13,9 +13,9 @@ exports.addAdmin=(name,contact,email,password)=>{
 
 exports.findAdminByEmail=(email)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from admin where email=? ',[email],(err,results)=>{
+        db.query('select * from admin where email like ? ',[email],(err,results)=>{
             if(err) return reject("Data Not Get because= "+err);
-            resolve(results[0]);
+             resolve(results[0]);
         });
     });
 };
@@ -42,7 +42,6 @@ exports.getStudentsBy=(input)=>{
             const search=`%${input}%`;
             db.query('select * from students where email like ? ',[search],(err,results)=>{
                 if(err) return reject("Data Not Get Because"+err);
-                console.log(results[0]);
                 resolve(results);
             });
         }else{

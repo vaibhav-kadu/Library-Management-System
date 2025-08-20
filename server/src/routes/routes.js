@@ -7,16 +7,17 @@ let transCtrl = require('../controllers/transactionCtrl.js');
 
 let routes=express.Router();
 console.log("Router Started");
-routes.get("/",authctrl.landingPage);
+routes.get("/",authctrl.getAdmin);
 
 //Admin
 routes.post("/registerAdmin",authctrl.registerAdmin);
-routes.get("/getAdmin",authctrl.getAdmin);
+routes.post("/loginAdmin",authctrl.getAdmin);
 routes.put('/updateAdmin',authctrl.updateAdmin);
 
 
 
 //Students
+routes.post('/loginStudent',authctrl.loginStudent);
 routes.post('/addStudent',authctrl.addStudent);
 routes.get('/getStudents',authctrl.getStudents); 
 routes.get('/getStudentsBy',authctrl.getStudentsBy);  //By Student_id , Email
@@ -30,6 +31,7 @@ routes.put("/updateCategory",catCtrl.updateCategory);
 routes.delete("/deleteCategory",catCtrl.deleteCategory);
 
 //Librarian
+routes.post('/loginLibrarian',libCtrl.loginLibrarian);
 routes.post("/addLibrarian",libCtrl.addLibrarian);
 routes.get("/getLibrarian",libCtrl.getLibrarian);
 routes.put("/updateLibrarian", libCtrl.updateLibrarian);
