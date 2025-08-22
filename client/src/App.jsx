@@ -12,6 +12,7 @@ import ViewAllBooks from './pages/ViewAllBooks';
 import StudentDashboard from './pages/students/StudentDashboard';
 import AddLibrarian from './pages/librarian/AddLibrarian';
 import AddBook from './pages/books/AddBook';
+import landingpage from './pages/landingpage';
 
 function App() {
 
@@ -50,6 +51,9 @@ function App() {
 
           <Route path='/addBook' element={<AddBook/>}/>
          <Route path='/viewBook' element={<ViewBook/>}/>
+
+        <Route path='/landingPage' element={<landingpage/>}/>
+
 
 
 
