@@ -12,6 +12,7 @@ import RoleBaseRoutes from './utils/RoleBaseRoutes';
 import ViewAllBooks from './pages/ViewAllBooks';
 import StudentDashboard from './pages/students/StudentDashboard';
 import AddLibrarian from './pages/librarian/AddLibrarian';
+import StudentProfile from './pages/students/StudentProfile ';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/addStudents" element={<AddStudents/>} />
         <Route path="/login" element={<Login/>} />
         <Route path='/student-dashboard' element={<StudentDashboard/>}/>
+        <Route path='/student-profile' element={<StudentProfile/>}/>
         <Route path="/librarian-dashboard" element={<LibrarianDashboard/>}/>
 
         <Route path="/admin-dashboard" element={
