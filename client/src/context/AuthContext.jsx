@@ -1,20 +1,21 @@
+import axios from 'axios'
 import React, { createContext,useContext,useEffect,useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 
 const userContext = createContext()
 
 
 const authContext = ({children})=>{
     const [user, setUser] = useState(null)
-    const navigate = useNavigate()
+    const [loading, setLoading] = useState(true)
 
     useEffect(()=>{
         const verifyUser = async () =>{
             try{
                 const token=localStorage.getItem('token')
                 if(token){
-                    const response = await axios.get('http://localhost:3000/api/verify',{
-                        header:{
+                    const response = await axios.get('http://localhost:3000/verify',{
+                        headers:{
                             "Authorization":`Bearer ${token}`
                         }
                     })
@@ -22,14 +23,14 @@ const authContext = ({children})=>{
                         setUser(response.data.user)
                     }
                 }else{
-                    navigate('/login')
+                    setUser(null)
                 }
             }catch(error){
                 if(error.response && ! error.response.data.success){
-                    navigate('/login')
-                }else{
-                    setError("Server Error");
+                    setUser(null)
                 }
+            }finally{
+                setLoading(false)
             }
         }
         verifyUser()
@@ -47,7 +48,7 @@ const authContext = ({children})=>{
     }
 
     return(
-        <userContext.Provider value={{user,login,logout}}>
+        <userContext.Provider value={{user,login,logout,loading}}>
             {children}
 
         </userContext.Provider>

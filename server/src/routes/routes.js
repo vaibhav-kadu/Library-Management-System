@@ -1,4 +1,5 @@
 let express=require("express");
+let authMiddleware=require('../middleware/authMiddleware.js')
 let authctrl=require("../controllers/authCtrl.js");
 let catCtrl=require('../controllers/categoryCtrl.js');
 let bookCtrl=require('../controllers/bookCtrl.js');
@@ -7,11 +8,12 @@ let transCtrl = require('../controllers/transactionCtrl.js');
 
 let routes=express.Router();
 console.log("Router Started");
-routes.get("/",authctrl.getAdmin);
+routes.get("/verify",authMiddleware.verifyUser,authctrl.verify);
+
 
 //Admin
 routes.post("/registerAdmin",authctrl.registerAdmin);
-routes.post("/loginAdmin",authctrl.getAdmin);
+routes.post('/loginAdmin',authctrl.loginAdmin);
 routes.put('/updateAdmin',authctrl.updateAdmin);
 
 
@@ -20,7 +22,7 @@ routes.put('/updateAdmin',authctrl.updateAdmin);
 routes.post('/loginStudent',authctrl.loginStudent);
 routes.post('/addStudent',authctrl.addStudent);
 routes.get('/getStudents',authctrl.getStudents); 
-routes.get('/getStudentsBy',authctrl.getStudentsBy);  //By Student_id , Email
+//routes.get('/getStudentsBy',authctrl.getStudentsBy);  //By id , Email
 routes.put('/updateStudent',authctrl.updateStudent);
 routes.delete('/deleteStudent',authctrl.deleteStudent);
 

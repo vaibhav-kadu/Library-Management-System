@@ -2,8 +2,8 @@ const transactionModel = require('../models/transactionModel.js');
 
 // Add Transaction
 exports.addTransaction = (req, res) => {
-    const { book_id, student_id, issued_by, due_date } = req.body;
-    transactionModel.addTransaction(book_id, student_id, issued_by, due_date)
+    const { book_id, id, issued_by, due_date } = req.body;
+    transactionModel.addTransaction(book_id, id, issued_by, due_date)
         .then(result => res.status(201).json({ message: 'Transaction Created', result }))
         .catch(err => res.status(500).json({ message: 'Error Creating Transaction', error: err }));
 };

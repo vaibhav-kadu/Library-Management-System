@@ -25,14 +25,14 @@ exports.addLibrarian=async(req,res)=>{
 }
 
 exports.loginLibrarian=(req,res)=>{
-    const {password,email}=req.body.formData.librarian;
+    const {password,email}=req.body;
 
     let promise=libmodel.findLibrarianByEmail(email);
         promise.then((result)=>{
 
             if(password===result.password){
                             const token = jwt.sign(
-                                {email:result.email},
+                                {email:result.email,role:"librarian"},
                                 process.env.JWT_KEY, 
                                 { expiresIn: '1h' }
                             );
@@ -42,7 +42,7 @@ exports.loginLibrarian=(req,res)=>{
                             .json({
                                 success: true, 
                                 token, 
-                                user:{id:result.librarian_id, name: result.name, role:"librarian"},
+                                user:{id:result.id, name: result.name, role:"librarian"},
                                 message:"Login Success"
                             });
 
@@ -72,9 +72,9 @@ console.log("I Am Here");
 
 exports.updateLibrarian=async(req,res)=>{
 
-    const{librarian_id,name,contact,email,password}=req.body;
+    const{id,name,contact,email,password}=req.body;
             
-    const promise=libmodel.updateLibrarian(librarian_id,name,contact,email,password);
+    const promise=libmodel.updateLibrarian(id,name,contact,email,password);
             promise.then((result)=>{
                 res.status(200).json({message:result});
             });
@@ -86,9 +86,9 @@ exports.updateLibrarian=async(req,res)=>{
 }
 
 exports.deleteLibrarian=(req,res)=>{
-    const {librarian_id}=req.body;
+    const {id}=req.body;
 
-    const promise=libmodel.deleteLibrarian(librarian_id);
+    const promise=libmodel.deleteLibrarian(id);
             promise.then((result)=>{
                 res.status(200).json({message:'Librarian Deleted'});
             });

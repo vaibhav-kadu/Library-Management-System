@@ -32,13 +32,13 @@ function initializeTables() {
 
 
         `CREATE TABLE IF NOT EXISTS librarians (
-            librarian_id INT NOT NULL AUTO_INCREMENT,
+            id INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (librarian_id),
+            PRIMARY KEY (id),
             UNIQUE KEY (email)
         )`,
         
@@ -52,13 +52,13 @@ VALUES
 ,
 
         `CREATE TABLE IF NOT EXISTS admin (
-            admin_id INT NOT NULL AUTO_INCREMENT,
+            id INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (admin_id),
+            PRIMARY KEY (id),
             UNIQUE KEY (email)
         )`,
 
@@ -67,7 +67,7 @@ VALUES
         ,
 
         `CREATE TABLE IF NOT EXISTS students (
-            student_id INT NOT NULL AUTO_INCREMENT,
+            id INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
@@ -75,9 +75,9 @@ VALUES
             address TEXT,
             librarian_id INT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (student_id),
+            PRIMARY KEY (id),
             UNIQUE KEY (email),
-            FOREIGN KEY (librarian_id) REFERENCES librarians(librarian_id)
+            FOREIGN KEY (librarian_id) REFERENCES librarians(id)
 
         )`,
         
@@ -166,8 +166,8 @@ VALUES
             fine DOUBLE DEFAULT NULL,
             PRIMARY KEY (transaction_id),
             FOREIGN KEY (book_id) REFERENCES books(book_id),
-            FOREIGN KEY (student_id) REFERENCES students(student_id),
-            FOREIGN KEY (issued_by) REFERENCES librarians(librarian_id)
+            FOREIGN KEY (student_id) REFERENCES students(id),
+            FOREIGN KEY (issued_by) REFERENCES librarians(id)
         )`
     ];
 
