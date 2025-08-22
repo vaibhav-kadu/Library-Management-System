@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
+import book_cover from '../assets/book_cover.png';
 import { 
   BookOpen, 
   Search, 
@@ -45,7 +46,6 @@ const ViewAllBooks = () => {
       publishedYear: 2008,
       pages: 176,
       description: "Most programming languages contain good and bad parts, but JavaScript has more than its share of the bad...",
-      coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=600&fit=crop",
       status: "available",
       totalCopies: 5,
       availableCopies: 3,
@@ -63,7 +63,6 @@ const ViewAllBooks = () => {
       publishedYear: 2008,
       pages: 464,
       description: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees...",
-      coverImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=600&fit=crop",
       status: "available",
       totalCopies: 3,
       availableCopies: 1,
@@ -81,7 +80,6 @@ const ViewAllBooks = () => {
       publishedYear: 2013,
       pages: 368,
       description: "The ultimate guide to human-centered design. Design doesn't have to complicated, which is why this guide to...",
-      coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
       status: "checked_out",
       totalCopies: 2,
       availableCopies: 0,
@@ -99,7 +97,6 @@ const ViewAllBooks = () => {
       publishedYear: 2015,
       pages: 443,
       description: "From a renowned historian comes a groundbreaking narrative of humanity's creation and evolution...",
-      coverImage: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=400&h=600&fit=crop",
       status: "available",
       totalCopies: 4,
       availableCopies: 4,
@@ -117,7 +114,6 @@ const ViewAllBooks = () => {
       publishedYear: 2019,
       pages: 352,
       description: "The Pragmatic Programmer is one of those rare tech books you'll read, re-read, and read again...",
-      coverImage: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=400&h=600&fit=crop",
       status: "maintenance",
       totalCopies: 3,
       availableCopies: 0,
@@ -135,7 +131,6 @@ const ViewAllBooks = () => {
       publishedYear: 2018,
       pages: 320,
       description: "No matter your goals, Atomic Habits offers a proven framework for improving--every day...",
-      coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=600&fit=crop",
       status: "available",
       totalCopies: 6,
       availableCopies: 5,
@@ -205,9 +200,15 @@ const ViewAllBooks = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
       <div className="relative">
         <img
-          src={book.coverImage}
+          src={book_cover}
           alt={book.title}
           className="w-full h-48 object-cover"
+          style={{
+          width: '200px',
+          height: '300px',
+          objectFit: 'cover', // crops the image to fill the area
+          objectPosition: 'center' // centers the cropped area
+          }}
           onError={(e) => {
             e.target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop';
           }}
@@ -287,7 +288,7 @@ const ViewAllBooks = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex space-x-4">
         <img
-          src={book.coverImage}
+          src={book_cover}
           alt={book.title}
           className="w-16 h-24 object-cover rounded flex-shrink-0"
           onError={(e) => {

@@ -7,22 +7,20 @@ import {
   Clock, 
   Calendar, 
   Star, 
-  User, 
-  Bell, 
-  Settings, 
+  User,
   LogOut,
   Book,
   AlertCircle,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Library
 } from 'lucide-react';
 import ViewAllBooks from '../ViewAllBooks';
+import StudentProfile from './StudentProfile ';
 
 const StudentDashboard = () => {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [notifications, setNotifications] = useState(3);
 
   // Sample data - replace with actual API calls
   const [borrowedBooks, setBorrowedBooks] = useState([
@@ -74,17 +72,8 @@ const StudentDashboard = () => {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Bell className="h-6 w-6 text-gray-600 cursor-pointer hover:text-gray-800" />
-                {notifications > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">              
+              <div onClick={()=>navigate('/student-profile')} className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-blue-600" />
                 </div>
@@ -114,29 +103,27 @@ const StudentDashboard = () => {
           <p className="text-gray-600">Manage your books and discover new reads</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search for books, authors, or subjects..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Books Borrowed</p>
-                <p className="text-2xl font-bold text-gray-900">{borrowedBooks.length}</p>
+                <p className="text-sm font-medium text-gray-600">View All Books</p>
+                <p className="text-2xl font-bold text-gray-900">100</p>
               </div>
-              <Book className="h-8 w-8 text-blue-600" />
+              <Library className="h-8 w-8 text-blue-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Books Borrowed</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {borrowedBooks.length}
+                </p>
+              </div>
+              <Book className="h-8 w-8 text-green-600" />
             </div>
           </div>
           
@@ -161,16 +148,6 @@ const StudentDashboard = () => {
                 </p>
               </div>
               <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Favorites</p>
-                <p className="text-2xl font-bold text-gray-900">{favoriteBooks.length}</p>
-              </div>
-              <Star className="h-8 w-8 text-yellow-600" />
             </div>
           </div>
         </div>
@@ -255,29 +232,6 @@ const StudentDashboard = () => {
                 <p className="text-gray-500 text-center py-8">No favorite books yet</p>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button onClick={()=>navigate('/viewAllBooks')} className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow text-left">
-              <Book className="h-6 w-6 text-blue-600 mb-2" />
-              <span className="text-sm font-medium text-gray-900">All Books</span>
-            </button>
-            <button className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow text-left">
-              <Calendar className="h-6 w-6 text-green-600 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Renew Books</span>
-            </button>
-            <button className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow text-left">
-              <Star className="h-6 w-6 text-yellow-600 mb-2" />
-              <span className="text-sm font-medium text-gray-900">My Favorites</span>
-            </button>
-            <button className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow text-left">
-              <User className="h-6 w-6 text-purple-600 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Profile</span>
-            </button>
           </div>
         </div>
       </div>

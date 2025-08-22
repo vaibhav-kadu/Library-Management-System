@@ -15,7 +15,6 @@ exports.verifyUser = async (req,res,next) =>{
         } catch (err) {
             return res.status(401).json({ success: false, error: "Invalid token" });
         }
-        console.log("Decoded Jwt=> ",decoded);
         if(!decoded) return res.status(404).json({success:false,error:"Token Not Valid"})
 
         const role = decoded.role;

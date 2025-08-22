@@ -27,7 +27,7 @@ const LibrarianDashboard = () => {
   const [recentActivities, setRecentActivities] = useState([
     { id: 1, action: "Book Borrowed", user: "John Smith", book: "JavaScript Guide", time: "2 hours ago", type: "borrow" },
     { id: 2, action: "Book Returned", user: "Sarah Johnson", book: "React Patterns", time: "3 hours ago", type: "return" },
-    { id: 3, action: "New Member", user: "Mike Davis", book: "Registration", time: "5 hours ago", type: "member" },
+    { id: 3, action: "New Student", user: "Mike Davis", book: "Registration", time: "5 hours ago", type: "student" },
     { id: 4, action: "Book Overdue", user: "Lisa Wilson", book: "Clean Code", time: "1 day ago", type: "overdue" },
     { id: 5, action: "Book Reserved", user: "Tom Brown", book: "System Design", time: "1 day ago", type: "reserve" }
   ]);
@@ -66,7 +66,7 @@ const LibrarianDashboard = () => {
     switch (type) {
       case 'borrow': return <BookOpen className="h-4 w-4 text-blue-600" />;
       case 'return': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'member': return <UserCheck className="h-4 w-4 text-purple-600" />;
+      case 'student': return <UserCheck className="h-4 w-4 text-purple-600" />;
       case 'overdue': return <AlertCircle className="h-4 w-4 text-red-600" />;
       case 'reserve': return <Clock className="h-4 w-4 text-yellow-600" />;
       default: return <Book className="h-4 w-4 text-gray-600" />;
@@ -135,7 +135,7 @@ const LibrarianDashboard = () => {
             </button>
             <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
               <Users className="h-4 w-4" />
-              <span>Register Member</span>
+              <span>Register Student</span>
             </button>
             <button className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
               <Search className="h-4 w-4" />
@@ -183,7 +183,7 @@ const LibrarianDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Members</p>
+                <p className="text-sm font-medium text-gray-600">Students</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.activeMembers}</p>
               </div>
               <Users className="h-8 w-8 text-purple-600" />
@@ -295,7 +295,7 @@ const LibrarianDashboard = () => {
             </button>
             <button className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow text-left">
               <Users className="h-6 w-6 text-green-600 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Member Management</span>
+              <span className="text-sm font-medium text-gray-900">Student Management</span>
             </button>
             <button className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow text-left">
               <BarChart3 className="h-6 w-6 text-purple-600 mb-2" />
