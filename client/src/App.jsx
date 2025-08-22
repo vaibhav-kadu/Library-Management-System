@@ -1,6 +1,6 @@
 
 import { BrowserRouter ,Routes,Route } from 'react-router-dom';
-import AddStudents from './pages/students/addStudents';
+import AddStudents from './pages/students/StudentRegister';
 import Login from './pages/Login';
 import LibrarianDashboard from './pages/librarian/LibrarianDashboard';
 import ProfileAccountManagement from './pages/admin/ProfileAccountManagement';
@@ -11,7 +11,6 @@ import ViewAllBooks from './pages/books/ViewAllBooks';
 import StudentDashboard from './pages/students/StudentDashboard';
 import AddLibrarian from './pages/librarian/AddLibrarian';
 import AddBook from './pages/books/AddBook';
-import landingpage from './pages/landingpage';
 import StudentProfile from './pages/students/StudentProfile ';
 import AddCategory from './pages/category/AddCategory';
 import ViewCategories from './pages/category/ViewCategories';
@@ -22,7 +21,6 @@ function App() {
      <BrowserRouter>
       <Routes>  
         <Route path="/" element={<ViewAllBooks/>} />
-        <Route path="/addStudents" element={<AddStudents/>} />
         <Route path="/login" element={<Login/>} />
         <Route path='/student-dashboard' element={<StudentDashboard/>}/>
         <Route path='/student-profile' element={<StudentProfile/>}/>
@@ -44,7 +42,7 @@ function App() {
           </PrivateRoutes>
         }></Route>
 
-        <Route path='/addLibrarian' element={
+        <Route path='/addStudents' element={
           <PrivateRoutes>
             <RoleBaseRoutes requiredRole={['admin','librarian']}>
               <AddStudents/>

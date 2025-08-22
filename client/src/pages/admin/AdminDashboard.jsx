@@ -2,24 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Shield, 
-  Users, 
-  BookOpen, 
-  Settings, 
-  BarChart3, 
-  TrendingUp, 
-  Database, 
-  UserPlus, 
-  Bell, 
-  LogOut,
-  Activity,
-  Server,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Eye,
-  Lock,
-  Trash2
+  Shield, Users, BookOpen, Settings, BarChart3, 
+  TrendingUp, Database, UserPlus, Bell, LogOut,  Activity,
+  Server, AlertTriangle, CheckCircle, Clock, Eye, Lock, Trash2
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -120,16 +105,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Bell className="h-6 w-6 text-gray-600 cursor-pointer hover:text-gray-800" />
-                {notifications > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </div>
-              
+            <div className="flex items-center space-x-4">              
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                   <Shield className="w-5 h-5 text-purple-600" />
@@ -163,7 +139,7 @@ const AdminDashboard = () => {
         {/* Quick Actions */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-4">
-            <button className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <button onClick={()=>navigate('/addLibrarian')} className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
               <UserPlus className="h-4 w-4" />
               <span>Add Librarian</span>
             </button>

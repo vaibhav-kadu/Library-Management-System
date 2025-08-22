@@ -86,16 +86,7 @@ const LibrarianDashboard = () => {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Bell className="h-6 w-6 text-gray-600 cursor-pointer hover:text-gray-800" />
-                {notifications > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </div>
-              
+            <div className="flex items-center space-x-4">              
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <BookOpen className="w-5 h-5 text-green-600" />
@@ -129,11 +120,11 @@ const LibrarianDashboard = () => {
         {/* Quick Actions */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-4">
-            <button className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <button onClick={()=>navigate('/addBook')} className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
               <PlusCircle className="h-4 w-4" />
               <span>Add New Book</span>
             </button>
-            <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <button onClick={()=>navigate('/addStudents')} className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
               <Users className="h-4 w-4" />
               <span>Register Student</span>
             </button>

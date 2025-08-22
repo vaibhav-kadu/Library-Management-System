@@ -68,7 +68,7 @@ const StudentDashboard = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <BookOpen className="h-8 w-8 text-blue-600" />
-                <h1 className="text-xl font-bold text-gray-900">Library Portal</h1>
+                <h1 className="text-xl font-bold text-gray-900">Student Portal</h1>
               </div>
             </div>
             
@@ -105,7 +105,7 @@ const StudentDashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <div onClick={()=>navigate('/viewAllBooks')} className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">View All Books</p>
