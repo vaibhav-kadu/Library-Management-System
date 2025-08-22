@@ -4,20 +4,21 @@ import AddBooks from './pages/books/AddBooks';
 import AddStudents from './pages/students/addStudents';
 import ViewStudents from './pages/students/viewStudents';
 import Login from './pages/Login';
-import StudentDashboard from './pages/students/studentDashBoard';
 import LibrarianDashboard from './pages/librarian/LibrarianDashboard';
 import ProfileAccountManagement from './pages/admin/ProfileAccountManagement';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import PrivateRoutes from './utils/PrivateRoutes';
 import RoleBaseRoutes from './utils/RoleBaseRoutes';
 import ViewAllBooks from './pages/ViewAllBooks';
+import StudentDashboard from './pages/students/StudentDashboard';
+import AddLibrarian from './pages/librarian/AddLibrarian';
 
 function App() {
 
   return (
      <BrowserRouter>
       <Routes>  
-        <Route path="/" element={<ViewStudents/>} />
+        <Route path="/" element={<ViewAllBooks/>} />
         <Route path="/addStudents" element={<AddStudents/>} />
         <Route path="/login" element={<Login/>} />
         <Route path='/student-dashboard' element={<StudentDashboard/>}/>
@@ -30,6 +31,13 @@ function App() {
             </RoleBaseRoutes>
           </PrivateRoutes>
           
+        }></Route>
+        <Route path='/addLibrarian' element={
+          <PrivateRoutes>
+            <RoleBaseRoutes requiredRole={['admin']}>
+              <AddLibrarian/>
+            </RoleBaseRoutes>
+          </PrivateRoutes>
         }></Route>
 
         <Route path='/viewAllBooks' element={<ViewAllBooks/>}/>
