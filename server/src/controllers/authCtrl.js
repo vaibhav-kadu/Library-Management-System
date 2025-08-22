@@ -1,12 +1,12 @@
 const bcrypt=require('bcrypt');
 const authModel=require('../models/authModel.js');
+const jwt=require("jsonwebtoken")
 
-exports.landingPage=(req,res)=>{
-    
-    console.log("Landing ctrl");
-    res.render("landingpage.ejs");
-};
 
+
+exports.verify = (req,res)=>{
+    return res.status(200).json({success:true,user:req.user})
+}
 
 // ADMIN
 
@@ -31,35 +31,45 @@ exports.registerAdmin= async(req,res)=>{
     }
 };
 
-exports.getAdmin=async (req,res)=>{
-    try{
-        const {email}=req.body;
+exports.loginAdmin=(req,res)=>{
+    const {password,email}=req.body;
 
-        const emailExist= await authModel.findAdminByEmail(email);
-                if(emailExist){
-                    const{email,password}=emailExist;
-                    
-                        if(req.body.password===password){
-                            res.status(200).json({message:"Login Success" });
+    let promise=authModel.findAdminByEmail(email);
+        promise.then(async (results)=>{
+            if(!results[0]) res.status(404).json({success: false,error:"Admin Not Found"})
+                
+            //const isMatch = await bcrypt.compare(password, results[0].password)
+            //if(!isMatch){res.status(404).json({success: false, error:"Wrong Password"})}
+            if(password===results[0].password){ // isMatch
+                            const token = jwt.sign(
+                                {email:results[0].email},
+                                process.env.JWT_KEY, 
+                                { expiresIn: '1h' }
+                            );
+
+                            res
+                            .status(200)
+                            .json({
+                                success: true,
+                                token, 
+                                user:{id:results[0].id, name: results[0].name, role:"admin"},
+                                message:"Login Success"
+                            });
+
                         }else{
-                            res.status(400).json({message:"Incorrect Password" });
+                            res.status(400).json({ success: false, error:"Incorrect Password" });
                         }
-
-                }else {
-                    console.log("No admin found with that email.");
-                    res.status(404).json({ message: "Admin not found" });
-                }
-    }catch(error){
-        console.log(error);
-        res.status(500).json({message:'Internal Server Error'});
-    }
-
+            //res.status(202).json(results);
+        });
+        promise.catch((err)=>{
+            res.status(404).json({message:err});
+        });
 };
 
 exports.updateAdmin=async(req,res)=>{
-    const{admin_id,name,contact,email,password}=req.body;
+    const{id,name,contact,email,password}=req.body;
 
-    const promise=authModel.updateAdmin(admin_id,name,contact,email,password);
+    const promise=authModel.updateAdmin(id,name,contact,email,password);
             promise.then((result)=>{
                 res.status(200).json({message:result});
             });
@@ -71,19 +81,8 @@ exports.updateAdmin=async(req,res)=>{
 
 
 
-
-/*
-API of Students CRUD Operation done
-    1.Add Student (POST)
-    2.View Students (GET)
-    3.Update Student (PUT)
-    4.Delete Students (DELETE)
-    */
-
-//Students Controller
-
 exports.addStudent= async(req,res)=>{
-    let {name,contact,email,password,address,librarian_id}=req.body;
+    let {name,contact,email,password,address,id}=req.body;
 
     const existEmail=await authModel.findStudentByEmail(email);
 
@@ -91,7 +90,7 @@ exports.addStudent= async(req,res)=>{
             return res.status(400).json({message:'Email Already Exist'});
         }
 
-    let promise=authModel.addStudent(name,contact,email,password,address,librarian_id);
+    let promise=authModel.addStudent(name,contact,email,password,address,id);
         promise.then((result)=>{
             res.status(201).json({message:'Student Register Successfully'});
         });
@@ -101,6 +100,39 @@ exports.addStudent= async(req,res)=>{
         });  
 
 };
+
+exports.loginStudent = (req, res) => {
+  const { password, email } = req.body;
+
+  let promise = authModel.findStudentByEmail(email);
+  promise.then(async (results) => {
+    if (!results[0]) {
+      return res.status(404).json({ success: false, error: "User Not Found" }); // ✅ added return
+    }
+
+    if (password === results[0].password) {
+      const token = jwt.sign(
+        { email: results[0].email },
+        process.env.JWT_KEY,
+        { expiresIn: '1h' }
+      );
+
+      return res.status(200).json({
+        success: true,
+        token,
+        user: { id: results[0].id, name: results[0].name, role: "student" },
+        message: "Login Success"
+      });
+    } else {
+      return res.status(400).json({ success: false, error: "Incorrect Password" });
+    }
+  });
+
+  promise.catch((err) => {
+    res.status(500).json({ success: false, message: "Server error", error: err });
+  });
+};
+
 
 exports.getStudents=(req,res)=>{
     let promise=authModel.getStudents();
@@ -112,21 +144,10 @@ exports.getStudents=(req,res)=>{
         });
 }
 
-exports.getStudentsBy=(req,res)=>{
-    let {input}=req.body;
-    let promise=authModel.getStudentsBy(input);
-        promise.then((results)=>{
-            res.status(202).json(results);
-        });
-        promise.catch((err)=>{
-            res.status(404).json({message:err});
-        });
-};
-
 exports.updateStudent=(req,res)=>{
-    let {student_id,name,contact,email,password,address}=req.body;
+    let {id,name,contact,email,password,address}=req.body;
 
-    let promise=authModel.updateStudent(student_id,name,contact,email,password,address);
+    let promise=authModel.updateStudent(id,name,contact,email,password,address);
         promise.then((result)=>{
             res.status(200).json({message:'Update Successfully'});
         });
@@ -136,8 +157,8 @@ exports.updateStudent=(req,res)=>{
 };
 
 exports.deleteStudent=(req,res)=>{
-    const {student_id}=req.body;
-    let promise=authModel.deleteStudent(student_id);
+    const {id}=req.body;
+    let promise=authModel.deleteStudent(id);
         promise.then((result)=>{
             res.status(200).json({message:'Student Deleted'});
         });

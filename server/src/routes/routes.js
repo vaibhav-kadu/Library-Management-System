@@ -1,4 +1,5 @@
 let express=require("express");
+let authMiddleware=require('../middleware/authMiddleware.js')
 let authctrl=require("../controllers/authCtrl.js");
 let catCtrl=require('../controllers/categoryCtrl.js');
 let bookCtrl=require('../controllers/bookCtrl.js');
@@ -7,19 +8,21 @@ let transCtrl = require('../controllers/transactionCtrl.js');
 
 let routes=express.Router();
 console.log("Router Started");
-routes.get("/",authctrl.landingPage);
+routes.get("/verify",authMiddleware.verifyUser,authctrl.verify);
+
 
 //Admin
 routes.post("/registerAdmin",authctrl.registerAdmin);
-routes.get("/getAdmin",authctrl.getAdmin);
+routes.post('/loginAdmin',authctrl.loginAdmin);
 routes.put('/updateAdmin',authctrl.updateAdmin);
 
 
 
 //Students
+routes.post('/loginStudent',authctrl.loginStudent);
 routes.post('/addStudent',authctrl.addStudent);
 routes.get('/getStudents',authctrl.getStudents); 
-routes.get('/getStudentsBy',authctrl.getStudentsBy);  //By Student_id , Email
+//routes.get('/getStudentsBy',authctrl.getStudentsBy);  //By id , Email
 routes.put('/updateStudent',authctrl.updateStudent);
 routes.delete('/deleteStudent',authctrl.deleteStudent);
 
@@ -30,6 +33,7 @@ routes.put("/updateCategory",catCtrl.updateCategory);
 routes.delete("/deleteCategory",catCtrl.deleteCategory);
 
 //Librarian
+routes.post('/loginLibrarian',libCtrl.loginLibrarian);
 routes.post("/addLibrarian",libCtrl.addLibrarian);
 routes.get("/getLibrarian",libCtrl.getLibrarian);
 routes.put("/updateLibrarian", libCtrl.updateLibrarian);

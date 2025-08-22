@@ -1,4 +1,5 @@
 const bcrypt=require('bcrypt');
+const jwt=require('jsonwebtoken');
 const libmodel = require("../models/librarianModel.js");
 
 exports.addLibrarian=async(req,res)=>{
@@ -23,6 +24,38 @@ exports.addLibrarian=async(req,res)=>{
 
 }
 
+exports.loginLibrarian=(req,res)=>{
+    const {password,email}=req.body;
+
+    let promise=libmodel.findLibrarianByEmail(email);
+        promise.then((result)=>{
+
+            if(password===result.password){
+                            const token = jwt.sign(
+                                {email:result.email,role:"librarian"},
+                                process.env.JWT_KEY, 
+                                { expiresIn: '1h' }
+                            );
+
+                            res
+                            .status(200)
+                            .json({
+                                success: true, 
+                                token, 
+                                user:{id:result.id, name: result.name, role:"librarian"},
+                                message:"Login Success"
+                            });
+
+                        }else{
+                            res.status(400).json({ success: false, error:"Incorrect Password" });
+                        }
+            //res.status(202).json(results);
+        });
+        promise.catch((err)=>{
+            res.status(404).json({message:err});
+        });
+};
+
 
 
 
@@ -39,9 +72,9 @@ console.log("I Am Here");
 
 exports.updateLibrarian=async(req,res)=>{
 
-    const{librarian_id,name,contact,email,password}=req.body;
+    const{id,name,contact,email,password}=req.body;
             
-    const promise=libmodel.updateLibrarian(librarian_id,name,contact,email,password);
+    const promise=libmodel.updateLibrarian(id,name,contact,email,password);
             promise.then((result)=>{
                 res.status(200).json({message:result});
             });
@@ -53,9 +86,9 @@ exports.updateLibrarian=async(req,res)=>{
 }
 
 exports.deleteLibrarian=(req,res)=>{
-    const {librarian_id}=req.body;
+    const {id}=req.body;
 
-    const promise=libmodel.deleteLibrarian(librarian_id);
+    const promise=libmodel.deleteLibrarian(id);
             promise.then((result)=>{
                 res.status(200).json({message:'Librarian Deleted'});
             });

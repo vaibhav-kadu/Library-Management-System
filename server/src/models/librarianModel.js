@@ -42,9 +42,9 @@ exports.getLibrarian=()=>{
 
 };
 
-exports.updateLibrarian=(librarian_id,name, contact, email, password)=>{
+exports.updateLibrarian=(id,name, contact, email, password)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update librarians set name=?, contact=?, email=?, password=? where librarian_id=?',[name,contact,email,password,librarian_id],(err,result)=>{
+        db.query('update librarians set name=?, contact=?, email=?, password=? where id=?',[name,contact,email,password,id],(err,result)=>{
             if(err){
                 reject(err);
             }else{
@@ -54,10 +54,10 @@ exports.updateLibrarian=(librarian_id,name, contact, email, password)=>{
     });
 };
 
-exports.deleteLibrarian=(librarian_id)=>{
+exports.deleteLibrarian=(id)=>{
     return new Promise((resolve,reject)=>{
-        console.log(librarian_id);
-        db.query('delete from librarians where librarian_id=?',[librarian_id],(err,result)=>{
+        console.log(id);
+        db.query('delete from librarians where id=?',[id],(err,result)=>{
             if(err){
                 reject(err);
             }else{

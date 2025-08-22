@@ -1,10 +1,10 @@
 const db = require('../config/db.js');
 
 // Create
-exports.addTransaction = (book_id, student_id, issued_by, due_date) => {
+exports.addTransaction = (book_id, id, issued_by, due_date) => {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO transactions (book_id, student_id, issued_by, due_date) VALUES (?, ?, ?, ?)`;
-        db.query(sql, [book_id, student_id, issued_by, due_date], (err, result) => {
+        const sql = `INSERT INTO transactions (book_id, id, issued_by, due_date) VALUES (?, ?, ?, ?)`;
+        db.query(sql, [book_id, id, issued_by, due_date], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });

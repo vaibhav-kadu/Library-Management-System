@@ -15,14 +15,14 @@ exports.findAdminByEmail=(email)=>{
     return new Promise((resolve,reject)=>{
         db.query('select * from admin where email=? ',[email],(err,results)=>{
             if(err) return reject("Data Not Get because= "+err);
-            resolve(results[0]);
+            resolve(results);
         });
     });
 };
 
-exports.updateAdmin=(admin_id,name,contact,email,password)=>{
+exports.updateAdmin=(id,name,contact,email,password)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update admin set name=?,contact=?,email=?,password=? where admin_id=?',[name,contact,email,password,admin_id],(err,result)=>{
+        db.query('update admin set name=?,contact=?,email=?,password=? where id=?',[name,contact,email,password,id],(err,result)=>{
             if(err){
                 reject(err);
             }else{
@@ -36,17 +36,16 @@ exports.updateAdmin=(admin_id,name,contact,email,password)=>{
 
 //Students Model
 
-exports.getStudentsBy=(input)=>{
+exports.findStudentByEmail=(input)=>{
     return new Promise((resolve,reject)=>{
         if(!Number.isInteger(input)){
             const search=`%${input}%`;
-            db.query('select * from students where email like ? ',[search],(err,results)=>{
+            db.query('select * from students where email = ? ',[input],(err,results)=>{
                 if(err) return reject("Data Not Get Because"+err);
-                console.log(results[0]);
                 resolve(results);
             });
         }else{
-            db.query('select * from students where student_id=?',[input],(err,results)=>{
+            db.query('select * from students where id=?',[input],(err,results)=>{
                 if(err) return reject("Data Not Get Because"+err);
                 resolve(results);
             });
@@ -55,9 +54,9 @@ exports.getStudentsBy=(input)=>{
 };
 
 
-exports.addStudent=(name,contact,email,password,address,librarian_id)=>{
+exports.addStudent=(name,contact,email,password,address,id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('insert into students (name,contact,email,password,address,librarian_id) values(?,?,?,?,?,?)',[name,contact,email,password,address,librarian_id],(err,result)=>{
+        db.query('insert into students (name,contact,email,password,address,id) values(?,?,?,?,?,?)',[name,contact,email,password,address,id],(err,result)=>{
             if(err) return reject('Student Not Added Because = '+err);
             resolve(result);
         });
@@ -73,18 +72,18 @@ exports.getStudents=()=>{
     });
 };
 
-exports.updateStudent=(student_id,name,contact,email,password,address)=>{
+exports.updateStudent=(id,name,contact,email,password,address)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update students set name=?,contact=?,email=?,password=?,address=? where student_id=?',[name,contact,email,password,address,student_id],(err,result)=>{
+        db.query('update students set name=?,contact=?,email=?,password=?,address=? where id=?',[name,contact,email,password,address,id],(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });
     });
 };
 
-exports.deleteStudent=(student_id)=>{
+exports.deleteStudent=(id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('delete from students where student_id=?',[student_id],(err,result)=>{
+        db.query('delete from students where id=?',[id],(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });
