@@ -1,10 +1,12 @@
 let express=require("express");
+const path = require('path');
 let authMiddleware=require('../middleware/authMiddleware.js')
 let authctrl=require("../controllers/authCtrl.js");
 let catCtrl=require('../controllers/categoryCtrl.js');
 let bookCtrl=require('../controllers/bookCtrl.js');
 let libCtrl = require("../controllers/librarianCtrl.js"); 
 let transCtrl = require('../controllers/transactionCtrl.js');
+
 
 let routes=express.Router();
 console.log("Router Started");
@@ -40,7 +42,8 @@ routes.put("/updateLibrarian", libCtrl.updateLibrarian);
 routes.delete("/deleteLibrarian",libCtrl.deleteLibrarian);
 
 //Books 
-routes.post('/addBook',bookCtrl.addBook);
+//routes.post('/addBook',bookCtrl.addBook);
+routes.post('/addBook', upload.single('image'), bookCtrl.addBook);
 routes.get('/getAllBooks',bookCtrl.getAllBooks);
 routes.get('/getBookBy',bookCtrl.getBookBy);  // Category_id or Title
 routes.put('/updateBook',bookCtrl.updateBook);

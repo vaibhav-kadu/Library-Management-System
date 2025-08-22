@@ -17,6 +17,7 @@ const app=express();
         app.set('views',path.join(__dirname,'views'));
         app.use(express.static("public"));
         app.use(bodyParser.urlencoded({extends:true}));
+        app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
         app.use(cors());
         app.use(express.json());
         app.use("/",routes);

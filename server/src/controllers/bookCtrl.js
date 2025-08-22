@@ -1,14 +1,31 @@
 const bookModel=require('../models/bookModel');
 
+/*
 exports.addBook=(req,res)=>{
-    const {title,author,isbn,publisher,category_id,total_copies}=req.body;
+    const {title,author,isbn,publisher,category_id,total_copies,image}=req.body;
 
-    const promise=bookModel.addBook(title,author,isbn,publisher,category_id,total_copies);
+    const promise=bookModel.addBook(title,author,isbn,publisher,category_id,total_copies,image);
             promise.then((result)=>{
-                res.status(200).json({message:'Book Added'});
+                res.status(200).json({success : true,message:'Book Added'});
             });
             promise.catch((err)=>{
-                res.status(400).json({message:'Book Not Added Because = '+err});
+                res.status(400).json({success : false,message:'Book Not Added Because = '+err});
+        });
+};
+
+*/
+
+exports.addBook = (req, res) => {
+    const { title, author, isbn, publisher, category_id, total_copies } = req.body;
+    const image = req.file ? req.file.filename : null; // Get uploaded image filename
+
+    const promise = bookModel.addBook(title, author, isbn, publisher, category_id, total_copies, image);
+    promise
+        .then(() => {
+            res.status(200).json({ success: true, message: 'Book Added' });
+        })
+        .catch((err) => {
+            res.status(400).json({ success: false, message: 'Book Not Added Because = ' + err });
         });
 };
 

@@ -1,9 +1,9 @@
 const db=require('../config/db');
 
-exports.addBook=(title,author,isbn,publisher,category_id,total_copies)=>{
+exports.addBook=(title,author,isbn,publisher,category_id,total_copies,image)=>{
     return new Promise((resolve,reject )=>{
-        db.query('insert into books (title,author,isbn,publisher,category_id,total_copies) values(?,?,?,?,?,?)',
-        [title,author,isbn,publisher,category_id,total_copies],(err,result)=>{
+        db.query('insert into books (title,author,isbn,publisher,category_id,total_copies,image) values(?,?,?,?,?,?,?)',
+        [title,author,isbn,publisher,category_id,total_copies,image],(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });

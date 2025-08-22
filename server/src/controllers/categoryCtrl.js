@@ -5,6 +5,7 @@ const catModel=require('../models/categoryModel.js');
 exports.addCategory= async(req,res)=>{
 
     try{
+        console.log("Headers"+req.body);
         const {name}=req.body;
         const checkExist= await catModel.findCategoryByName(name);
             if(checkExist){

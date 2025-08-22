@@ -12,6 +12,10 @@ import RoleBaseRoutes from './utils/RoleBaseRoutes';
 import ViewAllBooks from './pages/ViewAllBooks';
 import StudentDashboard from './pages/students/StudentDashboard';
 import AddLibrarian from './pages/librarian/AddLibrarian';
+import AddCategory from './pages/category/AddCategory';
+import ViewCategories from './pages/category/ViewCategories';
+import AddBook from './pages/books/AddBook';
+import ViewBook from './pages/books/ViewBook';
 
 function App() {
 
@@ -43,6 +47,15 @@ function App() {
         <Route path='/viewAllBooks' element={<ViewAllBooks/>}/>
 
         <Route path='/profileAccountManagement' element={<ProfileAccountManagement/>} />
+
+         <Route path='/addCategory' element={<AddCategory/>}/>
+         <Route path='/viewCategory' element={<ViewCategories/>}/>
+
+          <Route path='/addBook' element={<AddBook/>}/>
+         <Route path='/viewBook' element={<ViewBook/>}/>
+
+
+
       </Routes>
     </BrowserRouter>
   );
