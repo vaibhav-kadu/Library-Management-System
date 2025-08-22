@@ -1,6 +1,5 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaBook } from "react-icons/fa"; // For the icon
 
 const LandingPage = () => {
   return (

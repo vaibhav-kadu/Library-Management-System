@@ -14,7 +14,7 @@ import AddBook from './pages/books/AddBook';
 import StudentProfile from './pages/students/StudentProfile ';
 import AddCategory from './pages/category/AddCategory';
 import ViewCategories from './pages/category/ViewCategories';
-import LandingPage from './pages/landingpage';
+import LandingPage from './pages/LandingPage';
 
 function App() {
 
