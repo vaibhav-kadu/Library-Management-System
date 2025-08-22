@@ -5,6 +5,8 @@ let catCtrl=require('../controllers/categoryCtrl.js');
 let bookCtrl=require('../controllers/bookCtrl.js');
 let libCtrl = require("../controllers/librarianCtrl.js"); 
 let transCtrl = require('../controllers/transactionCtrl.js');
+let upload=require("../middleware/fileupload.js");
+let upload2=require("../middleware/upnewphoto.js");
 
 let routes=express.Router();
 console.log("Router Started");
@@ -40,10 +42,10 @@ routes.put("/updateLibrarian", libCtrl.updateLibrarian);
 routes.delete("/deleteLibrarian",libCtrl.deleteLibrarian);
 
 //Books 
-routes.post('/addBook',bookCtrl.addBook);
+routes.post('/addBook',upload.single("profilephoto"),bookCtrl.addBook);
 routes.get('/getAllBooks',bookCtrl.getAllBooks);
 routes.get('/getBookBy',bookCtrl.getBookBy);  // Category_id or Title
-routes.put('/updateBook',bookCtrl.updateBook);
+routes.put('/updateBook',upload2.single("profilephoto"),bookCtrl.updateBook);
 routes.delete('/deleteBook',bookCtrl.deleteBook);
 
 

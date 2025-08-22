@@ -60,7 +60,7 @@ const AdminDashboard = () => {
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
-      logout();
+      await logout();
       navigate("/login");
     } catch (error) {
       console.log(error);
