@@ -1,4 +1,4 @@
-let empctrl=require("../controllers/empcontroller.js");
+const db=require('../config/db.js');
 let multer=require("multer");
 let path=require("path");
 const storage=multer.diskStorage({

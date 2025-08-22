@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
-import book_cover from '../assets/book_cover.png';
+import book_cover from '../../assets/book_cover.png';
 import { 
   BookOpen, 
   Search, 

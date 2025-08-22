@@ -1,8 +1,6 @@
-let empctrl=require("../controllers/empcontroller.js");
-let empmodel=require("../models/empmodel.js");
 let multer=require("multer");
 let path=require("path");
-let db=require("../../db.js");
+const db=require('../config/db.js');
 
 const storage2=multer.diskStorage({
         destination:(req,file,cb)=>{

@@ -15,7 +15,7 @@ import {
   ArrowRight,
   Library
 } from 'lucide-react';
-import ViewAllBooks from '../ViewAllBooks';
+import ViewAllBooks from '../books/ViewAllBooks';
 import StudentProfile from './StudentProfile ';
 
 const StudentDashboard = () => {
