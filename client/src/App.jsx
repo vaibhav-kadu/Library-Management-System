@@ -10,18 +10,17 @@ import RoleBaseRoutes from './utils/RoleBaseRoutes';
 import ViewAllBooks from './pages/books/ViewAllBooks';
 import StudentDashboard from './pages/students/StudentDashboard';
 import AddLibrarian from './pages/librarian/AddLibrarian';
-import AddBook from './pages/books/AddBook';
-import landingpage from './pages/landingpage';
+import AddBook from './pages/books/AddBook';;
 import StudentProfile from './pages/students/StudentProfile ';
 import AddCategory from './pages/category/AddCategory';
 import ViewCategories from './pages/category/ViewCategories';
+import LandingPage from './pages/landingpage';
 
 function App() {
 
   return (
      <BrowserRouter>
       <Routes>  
-        <Route path="/" element={<ViewAllBooks/>} />
         <Route path="/addStudents" element={<AddStudents/>} />
         <Route path="/login" element={<Login/>} />
         <Route path='/student-dashboard' element={<StudentDashboard/>}/>
@@ -61,7 +60,11 @@ function App() {
 
           <Route path='/addBook' element={<AddBook/>}/>
 
-        <Route path='/landingPage' element={<landingpage/>}/>
+          <Route path='/' element={<LandingPage/>}/>
+
+
+
+
 
 
 

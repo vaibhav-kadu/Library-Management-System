@@ -1,15 +1,19 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FaBook } from "react-icons/fa"; // For the icon
 
-const landingpage = () => {
+const LandingPage = () => {
   return (
     <>
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div className="container">
-          <a className="navbar-brand fw-bold" href="#">
-            Library Management
-          </a>
+        <div className="container d-flex align-items-center">
+          {/* Brand Name on Right */}
+          <marquee behavior="" direction=""><a className="navbar-brand ms-auto fw-bold" href="#">
+            Library Management System | Manage Students | Librarians | Books
+          </a></marquee>
+
+
           <button
             className="navbar-toggler"
             type="button"
@@ -86,7 +90,7 @@ const landingpage = () => {
         className="text-center text-dark d-flex align-items-center justify-content-center"
         style={{
           height: "90vh",
-          backgroundImage: "url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f')",
+          backgroundImage: "url('https://img.freepik.com/premium-photo/blurred-bookshelf-many-old-books-book-shop-library_327072-7345.jpg?w=740')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -101,7 +105,7 @@ const landingpage = () => {
             Manage your books, students, and librarians efficiently in one place.
           </p>
           <a href="/admin-dashboard" className="btn btn-dark btn-lg mt-3">
-            Go to Dashboard
+            Get Started...
           </a>
         </div>
       </header>
@@ -109,4 +113,4 @@ const landingpage = () => {
   );
 };
 
-export default landingpage;
+export default LandingPage;
