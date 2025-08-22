@@ -35,14 +35,14 @@ exports.loginAdmin=(req,res)=>{
     const {password,email}=req.body;
 
     let promise=authModel.findAdminByEmail(email);
-        promise.then(async (results)=>{
-            if(!results[0]) res.status(404).json({success: false,error:"Admin Not Found"})
+        promise.then(async (result)=>{
+            if(!result) res.status(404).json({success: false,error:"Admin Not Found"})
                 
             //const isMatch = await bcrypt.compare(password, results[0].password)
             //if(!isMatch){res.status(404).json({success: false, error:"Wrong Password"})}
-            if(password===results[0].password){ // isMatch
+            if(password==result.password){ // isMatch
                             const token = jwt.sign(
-                                {email:results[0].email},
+                                {id: result.id, role:"admin"},
                                 process.env.JWT_KEY, 
                                 { expiresIn: '1h' }
                             );
@@ -52,7 +52,7 @@ exports.loginAdmin=(req,res)=>{
                             .json({
                                 success: true,
                                 token, 
-                                user:{id:results[0].id, name: results[0].name, role:"admin"},
+                                user:{id:result.id, name: result.name, role:"admin"},
                                 message:"Login Success"
                             });
 
@@ -105,14 +105,14 @@ exports.loginStudent = (req, res) => {
   const { password, email } = req.body;
 
   let promise = authModel.findStudentByEmail(email);
-  promise.then(async (results) => {
-    if (!results[0]) {
+  promise.then(async (result) => {
+    if (!result) {
       return res.status(404).json({ success: false, error: "User Not Found" }); // ✅ added return
     }
 
-    if (password === results[0].password) {
+    if (password == result.password) {
       const token = jwt.sign(
-        { email: results[0].email },
+        { id: result.id, role: "student"},
         process.env.JWT_KEY,
         { expiresIn: '1h' }
       );
@@ -120,7 +120,7 @@ exports.loginStudent = (req, res) => {
       return res.status(200).json({
         success: true,
         token,
-        user: { id: results[0].id, name: results[0].name, role: "student" },
+        user: { id: result.id, name: result.name, role: "student" },
         message: "Login Success"
       });
     } else {

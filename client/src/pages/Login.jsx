@@ -86,11 +86,15 @@ export default function Login() {
     return `${base} bg-gray-100 text-gray-600 hover:bg-gray-200 border-transparent`;
   };
 
-  const getButtonClasses = (tabId) => {
-    const base = "w-full text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-105";
-    const color = tabId === 'student' ? 'blue' : tabId === 'librarian' ? 'green' : 'purple';
-    return `${base} bg-${color}-600 hover:bg-${color}-700`;
+const getButtonClasses = (tabId) => {
+  const base = "w-full text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-105";
+  const colorMap = {
+    student: "bg-blue-600 hover:bg-blue-700",
+    librarian: "bg-green-600 hover:bg-green-700",
+    admin: "bg-purple-600 hover:bg-purple-700"
   };
+  return `${base} ${colorMap[tabId] || "bg-gray-600 hover:bg-gray-700"}`;
+};
 
   const getIconBgClasses = (tabId) => {
     const color = tabId === 'student' ? 'blue' : tabId === 'librarian' ? 'green' : 'purple';

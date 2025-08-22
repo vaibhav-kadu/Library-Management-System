@@ -11,12 +11,20 @@ exports.addAdmin=(name,contact,email,password)=>{
     }); 
 };
 
-exports.findAdminByEmail=(email)=>{
+exports.findAdminByEmail=(input)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from admin where email=? ',[email],(err,results)=>{
-            if(err) return reject("Data Not Get because= "+err);
-            resolve(results);
-        });
+        if(!Number.isInteger(input)){
+            const search=`%${input}%`;
+            db.query('select * from admin where email = ? ',[input],(err,results)=>{
+                if(err) return reject("Data Not Get Because"+err);
+                resolve(results[0]);
+            });
+        }else{
+            db.query('select * from admin where id=?',[input],(err,results)=>{
+                if(err) return reject("Data Not Get Because"+err);
+                resolve(results[0]);
+            });
+        }
     });
 };
 
@@ -42,12 +50,12 @@ exports.findStudentByEmail=(input)=>{
             const search=`%${input}%`;
             db.query('select * from students where email = ? ',[input],(err,results)=>{
                 if(err) return reject("Data Not Get Because"+err);
-                resolve(results);
+                resolve(results[0]);
             });
         }else{
             db.query('select * from students where id=?',[input],(err,results)=>{
                 if(err) return reject("Data Not Get Because"+err);
-                resolve(results);
+                resolve(results[0]);
             });
         }
     });

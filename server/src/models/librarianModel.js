@@ -9,12 +9,20 @@ exports.addLibrarian=(name,contact,email,password)=>{
     }); 
 };
 
-exports.findLibrarianByEmail=(email)=>{
+exports.findLibrarianByEmail=(input)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from librarians where email=? ',[email],(err,results)=>{
-            if(err) return reject("Librarians Not Get because= "+err);
-           resolve(results[0]);
-        });
+        if(!Number.isInteger(input)){
+            const search=`%${input}%`;
+            db.query('select * from Librarians where email = ? ',[input],(err,results)=>{
+                if(err) return reject("Data Not Get Because"+err);
+                resolve(results[0]);
+            });
+        }else{
+            db.query('select * from Librarians where id=?',[input],(err,results)=>{
+                if(err) return reject("Data Not Get Because"+err);
+                resolve(results[0]);
+            });
+        }
     });
 };
 

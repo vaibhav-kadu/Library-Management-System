@@ -29,10 +29,10 @@ exports.loginLibrarian=(req,res)=>{
 
     let promise=libmodel.findLibrarianByEmail(email);
         promise.then((result)=>{
-
-            if(password===result.password){
+            
+            if(password==result.password){
                             const token = jwt.sign(
-                                {email:result.email,role:"librarian"},
+                                {id: result.id,role:"librarian"},
                                 process.env.JWT_KEY, 
                                 { expiresIn: '1h' }
                             );
