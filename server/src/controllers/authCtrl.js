@@ -1,40 +1,33 @@
 const bcrypt=require('bcrypt');
-const authModel=require('../models/authModel.js');
+const studentModel=require('../models/studentModel.js');
+const libmodel = require("../models/librarianModel.js");
+const adminModel=require('../models/adminModel.js')
 const jwt=require("jsonwebtoken")
 
 
 
 exports.verify = (req,res)=>{
-    return res.status(200).json({success:true,user:req.user})
+    if(!req.user){
+        return res.status(401).json({ success: false, error: "Unauthorized" })
+    }
+
+    // Ensure role is sent back
+    return res.status(200).json({
+        success: true,
+        user: {
+            id: req.user.id,
+            name: req.user.name,
+            email: req.user.email,
+            role: req.user.role   // ✅ make sure role is included
+        }
+    })
 }
 
-// ADMIN
-
-exports.registerAdmin= async(req,res)=>{
-    try{
-        const {name,contact,email,password}=req.body;
-        const emailExist= await authModel.findAdminByEmail(email);
-            if(emailExist){
-                return res.status(400).json({message:'Admin Already Registered'});
-            }
-
-        const saltRound=10;
-        //const passwordHash=await bcrypt.hash(password,saltRound);
-        //save Admin
-        await authModel.addAdmin(name,contact,email,password);//password also
-
-        res.status(201).json({message:'Admin Registered SuccessFully'});
-        
-    }catch(error){
-        console.error('Admin Registration Error => ',error);
-        res.status(500).json({message:'Internal Server Error'});
-    }
-};
-
+// ADMIN Login
 exports.loginAdmin=(req,res)=>{
     const {password,email}=req.body;
 
-    let promise=authModel.findAdminByEmail(email);
+    let promise=adminModel.findAdminByEmail(email);
         promise.then(async (result)=>{
             if(!result) res.status(404).json({success: false,error:"Admin Not Found"})
                 
@@ -66,45 +59,43 @@ exports.loginAdmin=(req,res)=>{
         });
 };
 
-exports.updateAdmin=async(req,res)=>{
-    const{id,name,contact,email,password}=req.body;
-
-    const promise=authModel.updateAdmin(id,name,contact,email,password);
-            promise.then((result)=>{
-                res.status(200).json({message:result});
-            });
-
-            promise.catch((err)=>{
-                res.status(500).json({message:err});
-            });
-};
-
-
-
-exports.addStudent= async(req,res)=>{
-    let {name,contact,email,password,address,id}=req.body;
-
-    const existEmail=await authModel.findStudentByEmail(email);
-
-        if(existEmail){
-            return res.status(400).json({message:'Email Already Exist'});
-        }
-
-    let promise=authModel.addStudent(name,contact,email,password,address,id);
+//Librarian
+exports.loginLibrarian=(req,res)=>{
+    const {password,email}=req.body;
+    let promise=libmodel.findLibrarianByEmail(email);
         promise.then((result)=>{
-            res.status(201).json({message:'Student Register Successfully'});
+            
+            if(password==result.password){
+                            const token = jwt.sign(
+                                {id: result.id,role:"librarian"},
+                                process.env.JWT_KEY, 
+                                { expiresIn: '1h' }
+                            );
+
+                            res
+                            .status(200)
+                            .json({
+                                success: true, 
+                                token, 
+                                user:{id:result.id, name: result.name, role:"librarian"},
+                                message:"Login Success"
+                            });
+
+                        }else{
+                            res.status(400).json({ success: false, error:"Incorrect Password" });
+                        }
+            //res.status(202).json(results);
         });
-
         promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });  
-
+            res.status(404).json({message:err});
+        });
 };
 
+//Student Login
 exports.loginStudent = (req, res) => {
   const { password, email } = req.body;
 
-  let promise = authModel.findStudentByEmail(email);
+  let promise = studentModel.findStudentByEmail(email);
   promise.then(async (result) => {
     if (!result) {
       return res.status(404).json({ success: false, error: "User Not Found" }); // ✅ added return
@@ -134,38 +125,7 @@ exports.loginStudent = (req, res) => {
 };
 
 
-exports.getStudents=(req,res)=>{
-    let promise=authModel.getStudents();
-        promise.then((result)=>{
-            res.status(200).json({message:result});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
-}
 
-exports.updateStudent=(req,res)=>{
-    let {id,name,contact,email,password,address}=req.body;
-
-    let promise=authModel.updateStudent(id,name,contact,email,password,address);
-        promise.then((result)=>{
-            res.status(200).json({message:'Update Successfully'});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
-};
-
-exports.deleteStudent=(req,res)=>{
-    const {id}=req.body;
-    let promise=authModel.deleteStudent(id);
-        promise.then((result)=>{
-            res.status(200).json({message:'Student Deleted'});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
-};
 
 
 

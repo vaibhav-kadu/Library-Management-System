@@ -9,20 +9,21 @@ exports.addLibrarian=(name,contact,email,password)=>{
     }); 
 };
 
-exports.findLibrarianByEmail=(input)=>{
+exports.findLibrarianById=(id)=>{
     return new Promise((resolve,reject)=>{
-        if(!Number.isInteger(input)){
-            const search=`%${input}%`;
-            db.query('select * from Librarians where email = ? ',[input],(err,results)=>{
-                if(err) return reject("Data Not Get Because"+err);
-                resolve(results[0]);
-            });
-        }else{
-            db.query('select * from Librarians where id=?',[input],(err,results)=>{
-                if(err) return reject("Data Not Get Because"+err);
-                resolve(results[0]);
-            });
-        }
+        db.query('select * from Librarians where id=?',[id],(err,results)=>{
+            if(err) return reject("Data Not Get Because"+err);
+            resolve(results[0]);
+        });
+    });
+};
+
+exports.findLibrarianByEmail=(email)=>{
+    return new Promise((resolve,reject)=>{
+        db.query('select * from Librarians where email = ? ',[email],(err,results)=>{
+            if(err) return reject("Data Not Get Because"+err);
+            resolve(results[0]);
+        });
     });
 };
 

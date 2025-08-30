@@ -3,7 +3,7 @@ let multer=require("multer");
 let path=require("path");
 const storage=multer.diskStorage({
         destination:(req,file,cb)=>{
-            cb(null,"public/images");
+            cb(null,"public/book_images");
         },
         filename:(req,file,cb)=>{
             const crypto = require("crypto");

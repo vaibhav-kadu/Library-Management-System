@@ -6,7 +6,6 @@ exports.addLibrarian=async(req,res)=>{
 
     try{
         const {name,contact,email,password}=req.body;
-        console.log({name,contact,email,password});
         
         const checkExist= await libmodel.findLibrarianByEmail(email);
             if(checkExist){
@@ -24,41 +23,6 @@ exports.addLibrarian=async(req,res)=>{
 
 }
 
-exports.loginLibrarian=(req,res)=>{
-    const {password,email}=req.body;
-
-    let promise=libmodel.findLibrarianByEmail(email);
-        promise.then((result)=>{
-            
-            if(password==result.password){
-                            const token = jwt.sign(
-                                {id: result.id,role:"librarian"},
-                                process.env.JWT_KEY, 
-                                { expiresIn: '1h' }
-                            );
-
-                            res
-                            .status(200)
-                            .json({
-                                success: true, 
-                                token, 
-                                user:{id:result.id, name: result.name, role:"librarian"},
-                                message:"Login Success"
-                            });
-
-                        }else{
-                            res.status(400).json({ success: false, error:"Incorrect Password" });
-                        }
-            //res.status(202).json(results);
-        });
-        promise.catch((err)=>{
-            res.status(404).json({message:err});
-        });
-};
-
-
-
-
 exports.getLibrarian=(req,res)=>{
 console.log("I Am Here");
     let promise = libmodel.getLibrarian();
@@ -68,6 +32,26 @@ console.log("I Am Here");
             res.status(404).json({message:err});
         });
 
+}
+
+exports.getLibrarianByEmail=(req,res)=>{
+    const {email}=req.body;
+    let promise = libmodel.findLibrarianByEmail(email);
+     promise.then((result)=>{
+            res.status(302).json({message:result});//,msg:msg
+        }).catch((err)=>{
+            res.status(404).json({message:err});
+        });
+}
+
+exports.getLibrarianById=(req,res)=>{
+    const {id}=req.body;
+    let promise = libmodel.findLibrarianById(id);
+     promise.then((result)=>{
+            res.status(302).json({message:result});//,msg:msg
+        }).catch((err)=>{
+            res.status(404).json({message:err});
+        });
 }
 
 exports.updateLibrarian=async(req,res)=>{

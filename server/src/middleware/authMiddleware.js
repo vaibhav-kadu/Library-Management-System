@@ -1,12 +1,13 @@
 let jwt=require('jsonwebtoken')
-const { findStudentByEmail,findAdminByEmail } = require('../models/authModel');
-const {findLibrarianByEmail} = require('../models/librarianModel');
+const { findStudentById } = require('../models/studentModel');
+const { findLibrarianById} = require('../models/librarianModel');
+const { findAdminById } = require('../models/adminModel');
 
 
 
 exports.verifyUser = async (req,res,next) =>{
     try{
-        const token=req.headers.authorization.split(' ')[1];
+        const token = req.headers.authorization?.split(' ')[1];
         if(!token) return res.status(404).json({success:false,error:"Token Not Provided"})
 
         let decoded;
@@ -15,33 +16,25 @@ exports.verifyUser = async (req,res,next) =>{
         } catch (err) {
             return res.status(401).json({ success: false, error: "Invalid token" });
         }
-        if(!decoded) return res.status(404).json({success:false,error:"Token Not Valid"})
 
         const role = decoded.role;
-
-        // Function map
         const roleFunctionMap = {
-            admin: findAdminByEmail,
-            librarian: findLibrarianByEmail,
-            student: findStudentByEmail
+            admin: findAdminById,
+            librarian: findLibrarianById,
+            student: findStudentById
         };
 
         const lookupFunction = roleFunctionMap[role];
-        
-
-        if (!lookupFunction) {
-            return res.status(400).json({ success: false, error: "Invalid Role" });
-        }
+        if (!lookupFunction) return res.status(400).json({ success: false, error: "Invalid Role" });
 
         const user = await lookupFunction(decoded.id);
-        console.log("  user=" ,user);
-        
         if(!user) return res.status(404).json({success:false,error:"User Not Found"})
-        
-        req.user=user
-        next()
+
+        // ✅ Add role into user object
+        req.user = { ...user, role };
+
+        next();
     }catch(error){
-        console.log(error)
         return res.status(500).json({success:false,error:"Server Side Error"})
     }
 }

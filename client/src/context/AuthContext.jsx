@@ -9,33 +9,43 @@ const authContext = ({children})=>{
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
-    useEffect(()=>{
-        const verifyUser = async () =>{
-            try{
-                const token=localStorage.getItem('token')
-                if(token){
-                    const response = await axios.get('http://localhost:3000/verify',{
-                        headers:{
-                            "Authorization":`Bearer ${token}`
-                        }
-                    })
-                    if(response.data.success){
-                        setUser(response.data.user)
-                    }
-                }else{
-                    setUser(null)
-                    setLoading(false)
-                }
-            }catch(error){
-                if(error.response && ! error.response.data.success){
-                    setUser(null)
-                }
-            }finally{
-                setLoading(false)
-            }
+    useEffect(() => {
+  const verifyUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const localRole = localStorage.getItem("role"); // fallback for students
+
+      if (token) {
+        const response = await axios.get("http://localhost:3000/verify", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.data.success) {
+          let verifiedUser = response.data.user;
+
+          // ✅ If role missing (student case), fall back to localStorage
+          if (!verifiedUser.role && localRole) {
+            verifiedUser = { ...verifiedUser, role: localRole };
+          }
+
+          setUser(verifiedUser);
+        } else {
+          setUser(null);
         }
-        verifyUser()
-    }, [])
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Verify error:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  verifyUser();
+}, []);
+
 
     const login = (user) =>{
         setUser(user)
@@ -45,6 +55,7 @@ const authContext = ({children})=>{
     const logout =()=>{
         setUser(null)
         localStorage.removeItem("token")
+        localStorage.removeItem("role")
 
     }
 

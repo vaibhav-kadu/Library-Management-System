@@ -3,7 +3,7 @@ import { User, Eye, EyeOff, Mail, Lock, Phone, MapPin, Users, ArrowLeft, Image, 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-export default function StudentRegister() {
+export default function AddStudent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);

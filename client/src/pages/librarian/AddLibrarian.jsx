@@ -107,11 +107,6 @@ const AddLibrarian = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Employee ID validation
-    if (!formData.employeeId.trim()) {
-      newErrors.employeeId = 'Employee ID is required';
-    }
-
     // Department validation
     if (!formData.department) {
       newErrors.department = 'Please select a department';
@@ -166,8 +161,6 @@ const AddLibrarian = () => {
       if (error.response?.data?.error) {
         if (error.response.data.error.includes('email')) {
           setErrors({ email: 'Email already exists' });
-        } else if (error.response.data.error.includes('employee')) {
-          setErrors({ employeeId: 'Employee ID already exists' });
         } else {
           setErrors({ general: error.response.data.error });
         }
@@ -196,6 +189,7 @@ const AddLibrarian = () => {
   };
 
   // Check if user has permission (admin only)
+  console.log("Role=> ",user.role);
   if (user?.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -359,23 +353,6 @@ const AddLibrarian = () => {
                 <h3 className="text-md font-semibold text-gray-900 border-b border-gray-200 pb-2">
                   Professional Information
                 </h3>
-
-                {/* Employee ID */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Employee ID <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.employeeId}
-                    onChange={(e) => handleInputChange('employeeId', e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                      errors.employeeId ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder="Enter employee ID"
-                  />
-                  {errors.employeeId && <p className="text-red-600 text-sm mt-1">{errors.employeeId}</p>}
-                </div>
 
                 {/* Department */}
                 <div>

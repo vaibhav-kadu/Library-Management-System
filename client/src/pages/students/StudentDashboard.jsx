@@ -49,6 +49,7 @@ const StudentDashboard = () => {
     if (!loading && !user) {
       navigate("/login");
     }
+    
   }, [loading, user, navigate]);
 
   if (loading) {
