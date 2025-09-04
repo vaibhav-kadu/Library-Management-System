@@ -4,26 +4,52 @@ const bcrypt=require('bcrypt');
 
 
 
-exports.addStudent= async(req,res)=>{
-    console.log(req.body);
-    let {name,contact,email,password,address}=req.body;
+exports.addStudent = async (req, res) => {
+  try {
+    // fields from formData
+    const { name, contact, email, password, address } = req.body;
+    const profileImage = req.file ? req.file.filename : null;
 
-    const existEmail=await studentModel.findStudentByEmail(email);
+    if (!name || !contact || !email || !password) {
+      return res.status(400).json({ message: "All required fields are missing" });
+    }
 
-        if(existEmail){
-            return res.status(400).json({message:'Email Already Exist'});
-        }
+    // check if email exists
+    const existEmail = await studentModel.findStudentByEmail(email);
+    if (existEmail) {
+      return res.status(400).json({ message: "Email Already Exist" });
+    }
 
-    let promise=authModel.addStudent(name,contact,email,password,address,id);
-        promise.then((result)=>{
-            res.status(201).json({message:'Student Register Successfully'});
-        });
+    // save to DB
+    const result = await studentModel.addStudent(
+      name,
+      contact,
+      email,
+      password,
+      address,
+      profileImage
+    );
 
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });  
-
+    return res.status(201).json({
+      success: true,
+      message: "Student Register Successfully",
+      user: {
+        name,
+        email,
+        contact,
+        address,
+        profileImage,
+        role: "student",
+      },
+    });
+  } catch (err) {
+    console.error("Error in addStudent:", err);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error = " + err });
+  }
 };
+
 
 exports.getStudents=(req,res)=>{
     let promise=studentModel.getStudents();

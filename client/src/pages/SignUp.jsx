@@ -22,19 +22,15 @@ export default function SignUp({ onClose, theme }) {
       password: '',
       confirmPassword: '',
       name: '',
-      phone: '',
-      dateOfBirth: '',
+      contact: '',
       address: '',
-      studentId: ''
     },
     librarian: { 
       email: '', 
       password: '',
       confirmPassword: '',
       name: '',
-      phone: '',
-      department: '',
-      employeeId: ''
+      contact: '',
     }
   });
 
@@ -97,7 +93,7 @@ export default function SignUp({ onClose, theme }) {
       setError("Password must be at least 6 characters long");
       return;
     }
-    if (!credentials.name || !credentials.email || !credentials.phone) {
+    if (!credentials.name || !credentials.email || !credentials.contact) {
       setError("Please fill in all required fields");
       return;
     }
@@ -119,20 +115,15 @@ export default function SignUp({ onClose, theme }) {
       }
 console.log();
 
-      const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, credentials, {
+      const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
       if (response.data.success) {
-        login(response.data.user);
         
-        const role = response.data.user?.role;
-        
-        if (role === "student") navigate('/student-dashboard');
-        else if (role === "librarian") navigate('/librarian-dashboard');
-        else navigate('/');
+            navigate('/login');
         
         if (onClose) onClose();
       }
@@ -270,8 +261,8 @@ console.log();
           }`} />
           <input
             type="tel"
-            value={data.phone}
-            onChange={(e) => handleInputChange(userType, 'phone', e.target.value)}
+            value={data.contact}
+            onChange={(e) => handleInputChange(userType, 'contact', e.target.value)}
             className={getInputClasses()}
             placeholder="Phone Number"
             required
