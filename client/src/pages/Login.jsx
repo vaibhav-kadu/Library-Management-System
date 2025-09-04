@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { User, BookOpen, Shield, Eye, EyeOff, Mail, Lock, X, UserPlus, Phone, Calendar, MapPin } from 'lucide-react';
+import { User, BookOpen, Shield, Eye, EyeOff, Mail, Lock, X } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login({ onClose, theme }) {
   const [activeTab, setActiveTab] = useState('student');
-  const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState({ student: false, librarian: false, admin: false });
-  const [showConfirmPassword, setShowConfirmPassword] = useState({ student: false, librarian: false, admin: false });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -18,30 +16,15 @@ export default function Login({ onClose, theme }) {
   const [formData, setFormData] = useState({
     student: { 
       email: '', 
-      password: '',
-      confirmPassword: '',
-      name: '',
-      phone: '',
-      dateOfBirth: '',
-      address: '',
-      studentId: ''
+      password: ''
     },
     librarian: { 
       email: '', 
-      password: '',
-      confirmPassword: '',
-      name: '',
-      phone: '',
-      department: '',
-      employeeId: ''
+      password: ''
     },
     admin: { 
       email: '', 
-      password: '',
-      confirmPassword: '',
-      name: '',
-      phone: '',
-      adminId: ''
+      password: ''
     }
   });
 
@@ -57,67 +40,41 @@ export default function Login({ onClose, theme }) {
   };
 
   // Toggle password visibility
-  const togglePasswordVisibility = (tab, field = 'password') => {
-    if (field === 'confirmPassword') {
-      setShowConfirmPassword(prev => ({
-        ...prev,
-        [tab]: !prev[tab]
-      }));
-    } else {
-      setShowPassword(prev => ({
-        ...prev,
-        [tab]: !prev[tab]
-      }));
-    }
+  const togglePasswordVisibility = (tab) => {
+    setShowPassword(prev => ({
+      ...prev,
+      [tab]: !prev[tab]
+    }));
   };
 
-  // Submit login/signup request
+  // Submit login request
   const handleSubmit = async (e, userType) => {
     e.preventDefault();
     const credentials = formData[userType];
 
-    if (isSignUp) {
-      // Signup validation
-      if (credentials.password !== credentials.confirmPassword) {
-        setError("Passwords don't match");
-        return;
-      }
-      if (credentials.password.length < 6) {
-        setError("Password must be at least 6 characters long");
-        return;
-      }
-      if (!credentials.name || !credentials.email || !credentials.phone) {
-        setError("Please fill in all required fields");
-        return;
-      }
-    } else {
-      // Login validation
-      if (!credentials.email || !credentials.password) {
-        setError("Please fill in both email and password");
-        return;
-      }
+    // Login validation
+    if (!credentials.email || !credentials.password) {
+      setError("Please fill in both email and password");
+      return;
     }
 
     setSubmitting(true);
     setError(null);
 
     try {
-      const apiEndpoint = isSignUp 
-        ? (userType === 'student' ? 'registerStudent' :
-           userType === 'librarian' ? 'registerLibrarian' : 'registerAdmin')
-        : (userType === 'student' ? 'loginStudent' :
-           userType === 'librarian' ? 'loginLibrarian' : 'loginAdmin');
+      const apiEndpoint = userType === 'student' ? 'loginStudent' :
+                         userType === 'librarian' ? 'loginLibrarian' : 'loginAdmin';
 
       const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, credentials);
 
       if (response.data.success) {
         login(response.data.user);
-        // Note:  SaVe TokeN In LocalStorage 
+        // Note: Save Token In LocalStorage 
         localStorage.setItem("token", response.data.token);
 
         const role = response.data.user?.role;
 
-         // Note:  SaVe Role In LocalStorage 
+        // Note: Save Role In LocalStorage 
         localStorage.setItem("role", role);
         
         if (role === "student") navigate('/student-dashboard');
@@ -172,154 +129,6 @@ export default function Login({ onClose, theme }) {
     }`;
   };
 
-  const renderSignUpFields = (userType) => {
-    const data = formData[userType];
-    
-    return (
-      <>
-        {/* Name */}
-        <div className="mb-4 relative">
-          <User className={`absolute left-3 top-3.5 h-5 w-5 ${
-            theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-          }`} />
-          <input
-            type="text"
-            value={data.name}
-            onChange={(e) => handleInputChange(userType, 'name', e.target.value)}
-            className={getInputClasses()}
-            placeholder="Full Name"
-            required
-          />
-        </div>
-
-        {/* Phone */}
-        <div className="mb-4 relative">
-          <Phone className={`absolute left-3 top-3.5 h-5 w-5 ${
-            theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-          }`} />
-          <input
-            type="tel"
-            value={data.phone}
-            onChange={(e) => handleInputChange(userType, 'phone', e.target.value)}
-            className={getInputClasses()}
-            placeholder="Phone Number"
-            required
-          />
-        </div>
-
-        {/* Additional fields based on user type */}
-        {userType === 'student' && (
-          <>
-            <div className="mb-4 relative">
-              <UserPlus className={`absolute left-3 top-3.5 h-5 w-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-              }`} />
-              <input
-                type="text"
-                value={data.studentId}
-                onChange={(e) => handleInputChange(userType, 'studentId', e.target.value)}
-                className={getInputClasses()}
-                placeholder="Student ID"
-              />
-            </div>
-            <div className="mb-4 relative">
-              <Calendar className={`absolute left-3 top-3.5 h-5 w-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-              }`} />
-              <input
-                type="date"
-                value={data.dateOfBirth}
-                onChange={(e) => handleInputChange(userType, 'dateOfBirth', e.target.value)}
-                className={getInputClasses()}
-                placeholder="Date of Birth"
-              />
-            </div>
-            <div className="mb-4 relative">
-              <MapPin className={`absolute left-3 top-3.5 h-5 w-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-              }`} />
-              <input
-                type="text"
-                value={data.address}
-                onChange={(e) => handleInputChange(userType, 'address', e.target.value)}
-                className={getInputClasses()}
-                placeholder="Address"
-              />
-            </div>
-          </>
-        )}
-
-        {userType === 'librarian' && (
-          <>
-            <div className="mb-4 relative">
-              <BookOpen className={`absolute left-3 top-3.5 h-5 w-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-              }`} />
-              <input
-                type="text"
-                value={data.department}
-                onChange={(e) => handleInputChange(userType, 'department', e.target.value)}
-                className={getInputClasses()}
-                placeholder="Department"
-              />
-            </div>
-            <div className="mb-4 relative">
-              <UserPlus className={`absolute left-3 top-3.5 h-5 w-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-              }`} />
-              <input
-                type="text"
-                value={data.employeeId}
-                onChange={(e) => handleInputChange(userType, 'employeeId', e.target.value)}
-                className={getInputClasses()}
-                placeholder="Employee ID"
-              />
-            </div>
-          </>
-        )}
-
-        {userType === 'admin' && (
-          <div className="mb-4 relative">
-            <Shield className={`absolute left-3 top-3.5 h-5 w-5 ${
-              theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-            }`} />
-            <input
-              type="text"
-              value={data.adminId}
-              onChange={(e) => handleInputChange(userType, 'adminId', e.target.value)}
-              className={getInputClasses()}
-              placeholder="Admin ID"
-            />
-          </div>
-        )}
-
-        {/* Confirm Password */}
-        <div className="mb-4 relative">
-          <Lock className={`absolute left-3 top-3.5 h-5 w-5 ${
-            theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-          }`} />
-          <input
-            type={showConfirmPassword[userType] ? 'text' : 'password'}
-            value={data.confirmPassword}
-            onChange={(e) => handleInputChange(userType, 'confirmPassword', e.target.value)}
-            className={getInputClasses()}
-            placeholder="Confirm Password"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => togglePasswordVisibility(userType, 'confirmPassword')}
-            className={`absolute right-3 top-3.5 ${
-              theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {showConfirmPassword[userType] ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
-        </div>
-      </>
-    );
-  };
-
   const renderForm = (userType, title) => {
     const data = formData[userType];
 
@@ -337,9 +146,6 @@ export default function Login({ onClose, theme }) {
             {error}
           </div>
         )}
-
-        {/* Sign Up additional fields */}
-        {isSignUp && renderSignUpFields(userType)}
 
         {/* Email Input */}
         <div className="mb-4 relative">
@@ -380,20 +186,18 @@ export default function Login({ onClose, theme }) {
           </button>
         </div>
 
-        {/* Forgot Password (only for login) */}
-        {!isSignUp && (
-          <div className="flex justify-end mb-6">
-            <button
-              type="button"
-              onClick={() => alert('Forgot password flow not implemented')}
-              className={`text-sm hover:underline ${
-                theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
-              }`}
-            >
-              Forgot password?
-            </button>
-          </div>
-        )}
+        {/* Forgot Password */}
+        <div className="flex justify-end mb-6">
+          <button
+            type="button"
+            onClick={() => alert('Forgot password flow not implemented')}
+            className={`text-sm hover:underline ${
+              theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
+            }`}
+          >
+            Forgot password?
+          </button>
+        </div>
 
         {/* Submit Button */}
         <button
@@ -402,43 +206,12 @@ export default function Login({ onClose, theme }) {
           disabled={submitting}
         >
           {submitting 
-            ? (isSignUp ? "Creating Account..." : "Signing In...") 
-            : (isSignUp ? `Create ${title} Account` : `Sign In as ${title}`)
+            ? "Signing In..." 
+            : `Sign In as ${title}`
           }
         </button>
 
-        {/* Toggle between login/signup */}
-        <div className={`mt-6 text-sm text-center ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-        }`}>
-          {isSignUp ? (
-            <>
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => setIsSignUp(false)}
-                className={`hover:underline font-medium ${
-                  theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
-                }`}
-              >
-                Sign in
-              </button>
-            </>
-          ) : (
-            <>
-              Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => setIsSignUp(true)}
-                className={`hover:underline font-medium ${
-                  theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
-                }`}
-              >
-                Sign up
-              </button>
-            </>
-          )}
-        </div>
+       
       </form>
     );
   };
@@ -469,12 +242,12 @@ export default function Login({ onClose, theme }) {
           <h2 className={`text-2xl font-bold text-center mb-2 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
+            Welcome Back
           </h2>
           <p className={`text-center mb-6 ${
             theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
           }`}>
-            {isSignUp ? 'Join our library management system' : 'Sign in to your account'}
+            Sign in to your account
           </p>
         </div>
 

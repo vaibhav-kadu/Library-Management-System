@@ -22,7 +22,7 @@ import {
   Tag
 } from 'lucide-react';
 
-const Navbar = ({ theme, setTheme, onLoginClick }) => {
+const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
   
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -447,7 +447,7 @@ const Navbar = ({ theme, setTheme, onLoginClick }) => {
                   <span>Login</span>
                 </button>
                 <button
-                  onClick={onLoginClick}
+                  onClick={onSignUpClick}
                   className="flex items-center space-x-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
                   <UserPlus className="h-4 w-4" />
@@ -497,7 +497,7 @@ const Navbar = ({ theme, setTheme, onLoginClick }) => {
                     </button>
                     <button
                       onClick={() => {
-                        onLoginClick();
+                        onSignUpClick();
                         setMobileMenuOpen(false);
                       }}
                       className="w-full flex items-center space-x-2 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"

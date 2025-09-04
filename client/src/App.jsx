@@ -19,11 +19,14 @@ import Home from './pages/Home';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/LandingPage';
 import BackgroundWrapper from './components/BackgroundWrapper';
+import SignUp from './pages/SignUp';
+
 
 function App() {
   const current_theme = localStorage.getItem('current_theme');
   const [theme, setTheme] = useState(current_theme ? current_theme : 'light');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('current_theme', theme);
@@ -36,6 +39,8 @@ function App() {
           theme={theme} 
           setTheme={setTheme} 
           onLoginClick={() => setShowLoginModal(true)}
+          onSignUpClick={() => setShowSignUpModal(true)}
+          
         />
 
         {/* Login Modal */}
@@ -46,12 +51,21 @@ function App() {
           />
         )}
 
+       {showSignUpModal && (
+          <SignUp 
+            onClose={() => setShowSignUpModal(false)} 
+            theme={theme}
+          />
+        )}
+
+
         <Routes>
           <Route path="/" element={<LandingPage theme={theme} />} />
           <Route path='/login' element={<LandingPage theme={theme}/>}/>
           <Route path="/home" element={<Home theme={theme} />} />
           <Route path="/addStudent" element={<AddStudent theme={theme} />} />
           <Route path="/student-profile" element={<StudentProfile theme={theme} />} />
+          <Route path = "/signup" element = {<SignUp theme={theme}/>}/>
           
           <Route
             path="/admin-dashboard"

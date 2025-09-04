@@ -1,10 +1,12 @@
+const { request } = require('express');
 const studentModel = require('../models/studentModel')
 const bcrypt=require('bcrypt');
 
 
 
 exports.addStudent= async(req,res)=>{
-    let {name,contact,email,password,address,id}=req.body;
+    console.log(req.body);
+    let {name,contact,email,password,address}=req.body;
 
     const existEmail=await studentModel.findStudentByEmail(email);
 
