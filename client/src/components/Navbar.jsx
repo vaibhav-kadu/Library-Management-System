@@ -35,20 +35,38 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      Object.keys(dropdownRefs.current).forEach(key => {
-        if (dropdownRefs.current[key] && !dropdownRefs.current[key].contains(event.target)) {
-          setOpenDropdowns(prev => ({ ...prev, [key]: false }));
-        }
-      });
-      
+      // Handle profile dropdown
       if (dropdownRefs.current.profile && !dropdownRefs.current.profile.contains(event.target)) {
         setDropdownOpen(false);
+      }
+      
+      // Handle mobile dropdowns
+      let shouldCloseAny = false;
+      Object.keys(openDropdowns).forEach(key => {
+        if (key.includes('mobile')) {
+          const ref = dropdownRefs.current[key];
+          if (ref && !ref.contains(event.target)) {
+            shouldCloseAny = true;
+          }
+        }
+      });
+
+      if (shouldCloseAny) {
+        setOpenDropdowns(prev => {
+          const newState = {};
+          Object.keys(prev).forEach(key => {
+            if (!key.includes('mobile')) {
+              newState[key] = prev[key];
+            }
+          });
+          return newState;
+        });
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [openDropdowns]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -69,10 +87,17 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
   };
 
   const toggleDropdown = (key) => {
-    setOpenDropdowns(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+    setOpenDropdowns(prev => {
+      // Close all other dropdowns and toggle the clicked one
+      const newState = {};
+      newState[key] = !prev[key];
+      return newState;
+    });
+  };
+
+  const closeAllDropdowns = () => {
+    setOpenDropdowns({});
+    setDropdownOpen(false);
   };
 
   const getInitials = (name) => {
@@ -110,54 +135,150 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
     );
   };
 
-  // Dropdown Menu Component
-  const DropdownMenu = ({ title, icon: Icon, items, dropdownKey, isMobile = false }) => (
-    <div className={`relative ${isMobile ? 'w-full' : ''}`} ref={el => dropdownRefs.current[dropdownKey] = el}>
-      <button
-        onClick={() => toggleDropdown(dropdownKey)}
-        className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-          isMobile ? 'w-full justify-between' : ''
-        } ${
-          theme === 'dark'
-            ? 'hover:bg-gray-700 hover:text-white text-gray-300'
-            : 'hover:bg-gray-100 hover:text-gray-900 text-gray-700'
-        }`}
+  // Hover-based Dropdown Component (Desktop)
+  const HoverDropdownMenu = ({ title, icon: Icon, items }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const timeoutRef = useRef(null);
+
+    const handleMouseEnter = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+      timeoutRef.current = setTimeout(() => {
+        setIsHovered(false);
+      }, 150); // Small delay to prevent flickering when moving to dropdown
+    };
+
+    const handleItemClick = (path) => {
+      setIsHovered(false);
+      navigate(path);
+    };
+
+    // Clear timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    }, []);
+
+    return (
+      <div 
+        className="relative"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <div className="flex items-center space-x-2">
+        <button
+          className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+            theme === 'dark'
+              ? 'hover:bg-gray-700 hover:text-white text-gray-300'
+              : 'hover:bg-gray-100 hover:text-gray-900 text-gray-700'
+          } ${isHovered ? (theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900') : ''}`}
+        >
           <Icon className="h-4 w-4" />
           <span>{title}</span>
-        </div>
-        <ChevronDown className={`h-4 w-4 transition-transform ${openDropdowns[dropdownKey] ? 'rotate-180' : ''}`} />
-      </button>
-      
-      {openDropdowns[dropdownKey] && (
-        <div className={`${isMobile ? 'relative mt-1 ml-6' : 'absolute left-0 mt-2'} w-48 rounded-lg shadow-lg border z-50 ${
-          theme === 'dark'
-            ? 'bg-gray-800 border-gray-700'
-            : 'bg-white border-gray-200'
+          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isHovered ? 'rotate-180' : ''}`} />
+        </button>
+        
+        <div className={`absolute left-0 mt-1 w-56 transition-all duration-200 ${
+          isHovered ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}>
-          {items.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                navigate(item.path);
-                setOpenDropdowns(prev => ({ ...prev, [dropdownKey]: false }));
-                if (isMobile) setMobileMenuOpen(false);
-              }}
-              className={`w-full text-left px-4 py-2.5 text-sm flex items-center space-x-2 transition-colors duration-200 ${
-                theme === 'dark'
-                  ? 'hover:bg-gray-700 text-gray-300 hover:text-white'
-                  : 'hover:bg-gray-50 text-gray-700 hover:text-gray-900'
-              } ${index === 0 ? 'rounded-t-lg' : ''} ${index === items.length - 1 ? 'rounded-b-lg' : ''}`}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </button>
-          ))}
+          <div 
+            className={`rounded-lg shadow-xl border ${
+              theme === 'dark'
+                ? 'bg-gray-800 border-gray-600'
+                : 'bg-white border-gray-200'
+            }`}
+            style={{ zIndex: 9999 }}
+          >
+            <div className="py-1">
+              {items.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleItemClick(item.path)}
+                  className={`w-full text-left px-4 py-3 text-sm flex items-center space-x-3 transition-colors duration-200 ${
+                    theme === 'dark'
+                      ? 'hover:bg-gray-700 text-gray-300 hover:text-white'
+                      : 'hover:bg-gray-50 text-gray-700 hover:text-gray-900'
+                  } ${index === 0 ? 'rounded-t-lg' : ''} ${index === items.length - 1 ? 'rounded-b-lg' : ''}`}
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  };
+
+  // Click-based Dropdown Component (Mobile)
+  const ClickDropdownMenu = ({ title, icon: Icon, items, dropdownKey }) => {
+    const isOpen = openDropdowns[dropdownKey];
+    
+    const handleToggle = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleDropdown(dropdownKey);
+    };
+
+    const handleItemClick = (item, e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      navigate(item.path);
+      closeAllDropdowns();
+      setMobileMenuOpen(false);
+    };
+
+    return (
+      <div 
+        className="relative w-full" 
+        ref={el => dropdownRefs.current[dropdownKey] = el}
+      >
+        <button
+          onClick={handleToggle}
+          type="button"
+          className={`w-full justify-between flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+            theme === 'dark'
+              ? 'hover:bg-gray-700 hover:text-white text-gray-300'
+              : 'hover:bg-gray-100 hover:text-gray-900 text-gray-700'
+          } ${isOpen ? (theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900') : ''}`}
+        >
+          <div className="flex items-center space-x-2">
+            <Icon className="h-4 w-4" />
+            <span>{title}</span>
+          </div>
+          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        
+        {isOpen && (
+          <div className="mt-1 ml-6 w-auto">
+            {items.map((item, index) => (
+              <button
+                key={`${dropdownKey}-${index}`}
+                onClick={(e) => handleItemClick(item, e)}
+                type="button"
+                className={`w-full text-left px-4 py-2.5 text-sm flex items-center space-x-2 transition-colors duration-200 ${
+                  theme === 'dark'
+                    ? 'hover:bg-gray-700 text-gray-300 hover:text-white'
+                    : 'hover:bg-gray-50 text-gray-700 hover:text-gray-900'
+                } rounded-md mb-1`}
+              >
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                <span className="whitespace-nowrap">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Navigation items based on user role
   const getNavigationItems = (isMobile = false) => {
@@ -170,7 +291,6 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
     }`;
 
     if (!user) {
-      // Not logged in - Home, Books, Login, Signup, theme toggle
       return (
         <>
           <button
@@ -203,6 +323,7 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
 
     const dashboardButton = (
       <button
+        key={`dashboard-${isMobile ? 'mobile' : 'desktop'}`}
         onClick={() => {
           navigate(dashboardPath);
           if (isMobile) setMobileMenuOpen(false);
@@ -214,12 +335,13 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
       </button>
     );
 
-    // Student navigation - Dashboard, Books
+    // Student navigation
     if (user.role === 'student') {
       return (
         <>
           {dashboardButton}
           <button
+            key={`books-${isMobile ? 'mobile' : 'desktop'}`}
             onClick={() => {
               navigate('/viewAllBooks');
               if (isMobile) setMobileMenuOpen(false);
@@ -233,16 +355,18 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
       );
     }
 
-    // Librarian navigation - Dashboard, Books(dropdown), Students(dropdown)
+    const DropdownComponent = isMobile ? ClickDropdownMenu : HoverDropdownMenu;
+
+    // Librarian navigation
     if (user.role === 'librarian') {
       return (
         <>
           {dashboardButton}
-          <DropdownMenu
+          <DropdownComponent
+            key={`books-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Books"
             icon={BookOpen}
             dropdownKey={`books-${isMobile ? 'mobile' : 'desktop'}`}
-            isMobile={isMobile}
             items={[
               { label: 'Add Book', path: '/addBook', icon: Plus },
               { label: 'View Books', path: '/viewAllBooks', icon: Eye },
@@ -250,11 +374,11 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
               { label: 'Delete Book', path: '/deleteBook', icon: Trash2 }
             ]}
           />
-          <DropdownMenu
+          <DropdownComponent
+            key={`students-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Students"
             icon={Users}
             dropdownKey={`students-${isMobile ? 'mobile' : 'desktop'}`}
-            isMobile={isMobile}
             items={[
               { label: 'Add Student', path: '/addStudents', icon: Plus },
               { label: 'View Students', path: '/viewStudents', icon: Eye },
@@ -266,16 +390,16 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
       );
     }
 
-    // Admin navigation - Dashboard, Books(dropdown), Category(dropdown), Students(dropdown), Librarians(dropdown)
+    // Admin navigation
     if (user.role === 'admin') {
       return (
         <>
           {dashboardButton}
-          <DropdownMenu
+          <DropdownComponent
+            key={`books-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Books"
             icon={BookOpen}
             dropdownKey={`books-${isMobile ? 'mobile' : 'desktop'}`}
-            isMobile={isMobile}
             items={[
               { label: 'Add Book', path: '/addBook', icon: Plus },
               { label: 'View Books', path: '/viewAllBooks', icon: Eye },
@@ -283,11 +407,11 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
               { label: 'Delete Book', path: '/deleteBook', icon: Trash2 }
             ]}
           />
-          <DropdownMenu
+          <DropdownComponent
+            key={`category-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Category"
             icon={Tag}
             dropdownKey={`category-${isMobile ? 'mobile' : 'desktop'}`}
-            isMobile={isMobile}
             items={[
               { label: 'Add Category', path: '/addCategory', icon: Plus },
               { label: 'View Categories', path: '/viewCategory', icon: Eye },
@@ -295,11 +419,11 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
               { label: 'Delete Category', path: '/deleteCategory', icon: Trash2 }
             ]}
           />
-          <DropdownMenu
+          <DropdownComponent
+            key={`students-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Students"
             icon={Users}
             dropdownKey={`students-${isMobile ? 'mobile' : 'desktop'}`}
-            isMobile={isMobile}
             items={[
               { label: 'Add Student', path: '/addStudents', icon: Plus },
               { label: 'View Students', path: '/viewStudents', icon: Eye },
@@ -307,11 +431,11 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
               { label: 'Delete Student', path: '/deleteStudent', icon: Trash2 }
             ]}
           />
-          <DropdownMenu
+          <DropdownComponent
+            key={`librarians-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Librarians"
             icon={Library}
             dropdownKey={`librarians-${isMobile ? 'mobile' : 'desktop'}`}
-            isMobile={isMobile}
             items={[
               { label: 'Add Librarian', path: '/addLibrarian', icon: Plus },
               { label: 'View Librarians', path: '/viewLibrarians', icon: Eye },
@@ -327,14 +451,14 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
   };
 
   return (
-    <nav className={`sticky top-0 z-40 backdrop-blur-md border-b transition-all duration-300 ${
+    <nav className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-300 ${
       theme === 'dark' 
         ? 'bg-gray-900/95 border-gray-700 text-white' 
         : 'bg-white/95 border-gray-200 text-gray-900'
     }`}>
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo & Title - Same for all */}
+          {/* Logo & Title */}
           <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => navigate('/')}>
             <img
               src="/lms.png"
@@ -354,7 +478,7 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2 relative z-40">
             {getNavigationItems(false)}
           </div>
 
@@ -376,7 +500,6 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
             {/* User Section */}
             {user ? (
               <div className="hidden md:flex items-center space-x-0">
-                {/* Role Badge */}
                 <RoleBadge role={user.role} />
                 
                 {/* User Profile Dropdown */}
@@ -387,9 +510,8 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
                       theme === 'dark' 
                         ? 'hover:bg-gray-700' 
                         : 'hover:bg-gray-100'
-                    }`}
+                    } ${dropdownOpen ? (theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100') : ''}`}
                   >
-                    {/* User Avatar */}
                     {user.photo ? (
                       <img
                         src={user.photo}
@@ -413,11 +535,14 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
 
                   {/* Profile Dropdown */}
                   {dropdownOpen && (
-                    <div className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg border z-50 ${
-                      theme === 'dark'
-                        ? 'bg-gray-800 border-gray-700'
-                        : 'bg-white border-gray-200'
-                    }`}>
+                    <div 
+                      className={`absolute right-0 mt-2 w-56 rounded-lg shadow-xl border backdrop-blur-sm ${
+                        theme === 'dark'
+                          ? 'bg-gray-800/95 border-gray-600 shadow-gray-900/50'
+                          : 'bg-white/95 border-gray-200 shadow-gray-900/20'
+                      }`}
+                      style={{ zIndex: 9999 }}
+                    >
                       <div className="py-2">
                         <button
                           onClick={handleLogout}
@@ -476,10 +601,8 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
             <div className="space-y-2 px-2">
               {!user ? (
                 <>
-                  {/* Mobile Navigation for non-logged users */}
                   {getNavigationItems(true)}
                   
-                  {/* Mobile Login/Signup */}
                   <div className={`border-t pt-2 mt-2 space-y-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                     <button
                       onClick={() => {
@@ -509,7 +632,6 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
                 </>
               ) : (
                 <>
-                  {/* Mobile Role Badge */}
                   <div className="px-3 py-2 flex items-center space-x-2">
                     <RoleBadge role={user.role} />
                     <span className={`text-sm font-medium ${
@@ -517,10 +639,8 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
                     }`}>{user.name || 'User'}</span>
                   </div>
                   
-                  {/* Mobile Navigation Items */}
                   {getNavigationItems(true)}
                   
-                  {/* Mobile Logout */}
                   <div className={`border-t pt-2 mt-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                     <button
                       onClick={handleLogout}
