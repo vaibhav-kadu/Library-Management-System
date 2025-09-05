@@ -121,7 +121,6 @@ export default function AddStudent({ onClose, theme = 'light' }) {
         setTimeout(() => {
           setSuccess(null);
           if (onClose) onClose();
-          else navigate('/login');
         }, 2000);
       }
     } catch (error) {
