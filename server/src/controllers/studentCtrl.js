@@ -7,7 +7,10 @@ const bcrypt=require('bcrypt');
 exports.addStudent = async (req, res) => {
   try {
     // fields from formData
+    console.log(req.file?"Get File":"Not Avalibale");
+    
     const { name, contact, email, password, address } = req.body;
+    // Get filename from multer
     const profileImage = req.file ? req.file.filename : null;
 
     if (!name || !contact || !email || !password) {
@@ -25,9 +28,9 @@ exports.addStudent = async (req, res) => {
       name,
       contact,
       email,
+      profileImage,
       password,
-      address,
-      profileImage
+      address
     );
 
     return res.status(201).json({

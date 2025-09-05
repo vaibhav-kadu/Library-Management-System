@@ -1,5 +1,5 @@
 let express = require("express");
-const path = require('path');
+let routes=express.Router();
 let authMiddleware = require('../middleware/authMiddleware.js');
 let authctrl = require("../controllers/authCtrl.js");
 let adminCtrl = require('../controllers/adminCtrl.js');
@@ -11,24 +11,10 @@ let transCtrl = require('../controllers/transactionCtrl.js');
 let upload = require("../middleware/fileupload.js");
 let upload2 = require("../middleware/upnewphoto.js");
 
-// ✅ add multer for student & librarian signup
-const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // save files in /uploads folder
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const profileUpload = multer({ storage });
-
-let routes = express.Router();
 
 // ---------------- Authentication ----------------
-routes.get("/verify", authMiddleware.verifyUser, authctrl.verify);
+routes.get('/verify', authMiddleware.verifyUser, authctrl.verify);
 routes.post('/loginAdmin', authctrl.loginAdmin);
 routes.post('/loginLibrarian', authctrl.loginLibrarian);
 routes.post('/loginStudent', authctrl.loginStudent);
@@ -41,7 +27,7 @@ routes.get('/getAdminById', adminCtrl.getAdminById);
 
 // ---------------- Librarian ----------------
 // ✅ librarian signup with image
-routes.post("/addLibrarian", profileUpload.single("profileImage"), libCtrl.addLibrarian);
+routes.post("/addLibrarian",  upload.single('profileImage'),  libCtrl.addLibrarian);
 routes.get("/getLibrarian", libCtrl.getLibrarian);
 routes.get("/getLibrarianById", libCtrl.getLibrarianById);
 routes.get("/getLibrarianEmail", libCtrl.getLibrarianByEmail);
@@ -50,7 +36,7 @@ routes.delete("/deleteLibrarian", libCtrl.deleteLibrarian);
 
 // ---------------- Students ----------------
 // ✅ student signup with image
-routes.post('/addStudent', profileUpload.single("profileImage"), studentCtrl.addStudent);
+routes.post('/addStudent',  upload.single('profileImage'),  studentCtrl.addStudent);
 routes.get('/getStudents', studentCtrl.getStudents); 
 routes.get('/getStudentByEmail', studentCtrl.getStudentByEmail);
 routes.get('/getStudentById', studentCtrl.getStudentById);
@@ -64,7 +50,7 @@ routes.put("/updateCategory", catCtrl.updateCategory);
 routes.delete("/deleteCategory", catCtrl.deleteCategory);
 
 // ---------------- Books ----------------
-routes.post('/addBook', upload.single("profilephoto"), bookCtrl.addBook);
+routes.post('/addBook', upload.single('image'), bookCtrl.addBook);
 routes.get('/getAllBooks', bookCtrl.getAllBooks);
 routes.get('/getBookBy', bookCtrl.getBookBy);
 routes.put('/updateBook', upload2.single("profilephoto"), bookCtrl.updateBook);

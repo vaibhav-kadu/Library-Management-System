@@ -24,9 +24,9 @@ exports.findStudentByEmail=(email)=>{
 };
 
 
-exports.addStudent=(name,contact,email,password,address,id)=>{
+exports.addStudent=(name,contact,email,image,password,address)=>{
     return new Promise((resolve,reject)=>{
-        db.query('insert into students (name,contact,email,password,address,id) values(?,?,?,?,?,?)',[name,contact,email,password,address,id],(err,result)=>{
+        db.query('insert into students (name,contact,email,image,password,address) values(?,?,?,?,?,?)',[name,contact,email,image,password,address],(err,result)=>{
             if(err) return reject('Student Not Added Because = '+err);
             resolve(result);
         });
