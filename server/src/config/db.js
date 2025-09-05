@@ -135,13 +135,15 @@ VALUES
             author VARCHAR(100) DEFAULT NULL,
             isbn VARCHAR(30) DEFAULT NULL UNIQUE,
             publisher VARCHAR(100) DEFAULT NULL,
-            category_id INT DEFAULT NULL,
+            category_id INT DEFAULT NULL ,
             total_copies INT NOT NULL,
             issued_copies INT ,
             image VARCHAR(255) DEFAULT NULL,
             added_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (book_id),
-            FOREIGN KEY (category_id) REFERENCES categories(category_id)
+            FOREIGN KEY (category_id) REFERENCES categories(category_id) 
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
         )`,
 
         `INSERT INTO books (title, author, isbn, publisher, category_id, total_copies, issued_copies, image)

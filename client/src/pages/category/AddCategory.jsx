@@ -13,12 +13,9 @@ export default function AddCategory({ onClose, theme = 'light' }) {
   const initialFormData = { name: '' };
   const [formData, setFormData] = useState(initialFormData);
 
-  // Prevent background scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
+    return () => { document.body.style.overflow = 'auto'; };
   }, []);
 
   const handleInputChange = (field, value) => {
@@ -29,7 +26,6 @@ export default function AddCategory({ onClose, theme = 'light' }) {
     if (!data.name.trim()) return "Category name is required";
     if (data.name.trim().length < 2) return "Category name must be at least 2 characters long";
     if (data.name.trim().length > 50) return "Category name must be less than 50 characters";
-
     const nameRegex = /^[a-zA-Z0-9\s\-_&]+$/;
     if (!nameRegex.test(data.name.trim())) {
       return "Category name can only contain letters, numbers, spaces, hyphens, underscores, and ampersands";
@@ -54,10 +50,11 @@ export default function AddCategory({ onClose, theme = 'light' }) {
         name: formData.name.trim()
       });
 
-      if (response.data.message) {
+      if (response.data.success) {
         setSuccess('Category added successfully!');
         setFormData(initialFormData);
 
+        // Close modal after 2 sec
         setTimeout(() => {
           setSuccess(null);
           if (onClose) onClose();
@@ -65,11 +62,7 @@ export default function AddCategory({ onClose, theme = 'light' }) {
       }
     } catch (error) {
       console.error(error);
-      if (error.response?.data?.error) {
-        setError(error.response.data.error);
-      } else {
-        setError("Failed to add category. Please try again.");
-      }
+      setError(error.response?.data?.error || "Failed to add category. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -95,13 +88,12 @@ export default function AddCategory({ onClose, theme = 'light' }) {
     }`;
   };
 
-  // --- Portal Rendering ---
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleCancel}
       ></div>
 
       {/* Modal */}
@@ -123,72 +115,47 @@ export default function AddCategory({ onClose, theme = 'light' }) {
         </button>
 
         {/* Header */}
-        <div className="p-6 pb-0">
-          <div className="text-center mb-6">
-            <div
-              className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-                theme === 'dark' ? 'bg-purple-600' : 'bg-purple-100'
-              }`}
-            >
-              <Tag
-                className={`w-8 h-8 ${
-                  theme === 'dark' ? 'text-white' : 'text-purple-600'
-                }`}
-              />
-            </div>
-            <h2
-              className={`text-2xl font-bold mb-2 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Add New Category
-            </h2>
-            <p
-              className={`text-center ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-              }`}
-            >
-              Create a new book category
-            </p>
+        <div className="p-6 pb-0 text-center">
+          <div
+            className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+              theme === 'dark' ? 'bg-purple-600' : 'bg-purple-100'
+            }`}
+          >
+            <Tag className={`w-8 h-8 ${theme === 'dark' ? 'text-white' : 'text-purple-600'}`} />
           </div>
+          <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            Add New Category
+          </h2>
+          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            Create a new book category
+          </p>
         </div>
 
         {/* Form */}
         <div className="px-6 pb-6">
           <form onSubmit={handleSubmit}>
-            {/* Error Message */}
             {error && (
-              <div
-                className={`mb-4 text-sm p-3 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'text-red-400 bg-red-900/20 border-red-800'
-                    : 'text-red-700 bg-red-50 border-red-200'
-                }`}
-              >
+              <div className={`mb-4 text-sm p-3 rounded-lg border ${
+                theme === 'dark'
+                  ? 'text-red-400 bg-red-900/20 border-red-800'
+                  : 'text-red-700 bg-red-50 border-red-200'
+              }`}>
                 {error}
               </div>
             )}
 
-            {/* Success Message */}
             {success && (
-              <div
-                className={`mb-4 text-sm p-3 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'text-green-400 bg-green-900/20 border-green-800'
-                    : 'text-green-700 bg-green-50 border-green-200'
-                }`}
-              >
+              <div className={`mb-4 text-sm p-3 rounded-lg border ${
+                theme === 'dark'
+                  ? 'text-green-400 bg-green-900/20 border-green-800'
+                  : 'text-green-700 bg-green-50 border-green-200'
+              }`}>
                 {success}
               </div>
             )}
 
-            {/* Category Input */}
             <div className="mb-4 relative">
-              <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
-                }`}
-              >
+              <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
                 Category Name *
               </label>
               <Tag className="absolute left-3 top-11 h-5 w-5 text-gray-400" />
@@ -198,28 +165,15 @@ export default function AddCategory({ onClose, theme = 'light' }) {
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className={getInputClasses()}
                 placeholder="Enter category name (e.g., Fiction, Science)"
-                maxLength="50"
+                maxLength={50}
                 required
               />
-              <div className="flex justify-between items-center mt-1">
-                <p
-                  className={`text-xs ${
-                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  Minimum 2 characters
-                </p>
-                <p
-                  className={`text-xs ${
-                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  {formData.name.length}/50
-                </p>
+              <div className="flex justify-between items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <span>Minimum 2 characters</span>
+                <span>{formData.name.length}/50</span>
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
               <button
                 type="submit"
@@ -227,29 +181,7 @@ export default function AddCategory({ onClose, theme = 'light' }) {
                 className="w-full text-white py-3 rounded-lg font-medium transition duration-200 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {submitting ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Adding Category...
-                  </span>
+                  <span className="flex items-center animate-spin">Adding Category...</span>
                 ) : (
                   <>
                     <Save className="w-5 h-5 mr-2" />

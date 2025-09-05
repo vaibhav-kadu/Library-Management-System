@@ -61,7 +61,8 @@ routes.delete('/deleteStudent', studentCtrl.deleteStudent);
 routes.post('/addCategory', catCtrl.addCategory);
 routes.get("/getCategory", catCtrl.getCategory);
 routes.put("/updateCategory", catCtrl.updateCategory);
-routes.delete("/deleteCategory", catCtrl.deleteCategory);
+routes.delete("/deleteCategory/:id", catCtrl.deleteCategory);
+
 
 // ---------------- Books ----------------
 routes.post('/addBook', upload.single("profilephoto"), bookCtrl.addBook);

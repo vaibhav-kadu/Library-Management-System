@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Book, User, Hash, Building, Tag, Copy, Image, X, RotateCcw, Save } from 'lucide-react';
+import { Book, User, Hash, Building, Tag, Copy, Image, X, RotateCcw, Save, Camera } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import {ArrowLeft} from 'lucide-react';
 
-export default function AddBook() {
+export default function AddBook({ onClose, theme = 'light' }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -47,8 +46,7 @@ export default function AddBook() {
     }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = (file) => {
     if (file) {
       // Check file type
       if (!file.type.startsWith('image/')) {
@@ -82,9 +80,6 @@ export default function AddBook() {
       image: null
     }));
     setImagePreview(null);
-    // Reset file input
-    const fileInput = document.getElementById('image-upload');
-    if (fileInput) fileInput.value = '';
   };
 
   const validateForm = (data) => {
@@ -108,7 +103,9 @@ export default function AddBook() {
     return null;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
     const validationError = validateForm(formData);
     if (validationError) {
       setError(validationError);
@@ -142,8 +139,12 @@ export default function AddBook() {
         // Reset form after successful submission
         setFormData(initialFormData);
         setImagePreview(null);
-        const fileInput = document.getElementById('image-upload');
-        if (fileInput) fileInput.value = '';
+        
+        setTimeout(() => {
+          setSuccess(null);
+          if (onClose) onClose();
+          else navigate('/books');
+        }, 2000);
       }
     } catch (error) {
       console.error(error);
@@ -157,300 +158,317 @@ export default function AddBook() {
     }
   };
 
-  const handleReset = () => {
-    setFormData(initialFormData);
-    setImagePreview(null);
-    setError(null);
-    setSuccess(null);
-    const fileInput = document.getElementById('image-upload');
-    if (fileInput) fileInput.value = '';
-  };
-
   const handleCancel = () => {
-    if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
-      navigate(-1); // Go back to previous page
+    const hasChanges = Object.values(formData).some(value => 
+      typeof value === 'string' ? value.trim() !== '' : value !== null && value !== 0
+    ) || imagePreview;
+    
+    if (hasChanges) {
+      if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
+        if (onClose) onClose();
+        else navigate(-1);
+      }
+    } else {
+      if (onClose) onClose();
+      else navigate(-1);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center p-6">
-      <div className="max-w-4xl w-full">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-700 px-8 py-8 text-white ">
-            <div className="text-center flex flex-row" >
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center space-x-2 text-blue-100 hover:text-white transition-colors mb-4"
-                    >
-                    <ArrowLeft className="w-10 h-10 " />
-                              </button>
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-500 rounded-full mb-4">
-                <Book className="w-10 h-10 text-white" />
-              </div>
-              <h1 className="text-3xl font-bold mb-6 mt-2 pt-2 pl-4 py-4">Add New Book</h1>
-            </div>
-          </div>
+  const getInputClasses = () => {
+    return `w-full pl-10 pr-4 py-2.5 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+      theme === 'dark'
+        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+    }`;
+  };
 
-          {/* Form */}
-          <div className="px-8 py-8">
+  const renderBookImageUpload = () => {
+    return (
+      <div className="mb-4 text-center">
+        <div className={`relative inline-block ${
+          theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
+        } rounded-lg p-1`}>
+          {imagePreview ? (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Book cover preview"
+                className="w-24 h-32 rounded-lg object-cover"
+              />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
+            <div className={`w-24 h-32 rounded-lg flex items-center justify-center ${
+              theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
+            }`}>
+              <Book className={`w-8 h-8 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+              }`} />
+            </div>
+          )}
+          
+          <label className={`absolute bottom-0 right-0 ${
+            theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
+          } text-white rounded-full p-1.5 cursor-pointer transition-colors duration-200`}>
+            <Camera className="w-3 h-3" />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleImageChange(e.target.files[0])}
+            />
+          </label>
+        </div>
+        <p className={`mt-2 text-xs ${
+          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+        }`}>
+          Choose book cover (optional)
+        </p>
+      </div>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+      
+      {/* Modal - Full width with max constraints */}
+      <div className={`relative rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
+        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+      }`}>
+        {/* Close Button */}
+        <button
+          onClick={handleCancel}
+          className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-colors duration-200 ${
+            theme === 'dark' 
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+          }`}
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* Header */}
+        <div className="p-6 pb-4">
+          <div className="text-center">
+            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+              theme === 'dark' ? 'bg-blue-600/90' : 'bg-blue-100/90'
+            }`}>
+              <Book className={`w-8 h-8 ${
+                theme === 'dark' ? 'text-white' : 'text-blue-600'
+              }`} />
+            </div>
+            <h2 className={`text-2xl font-bold mb-2 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
+              Add New Book
+            </h2>
+            <p className={`${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+            }`}>
+              Create a new book entry in the library
+            </p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="px-6 pb-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              <div className={`text-sm p-3 rounded-md border ${
+                theme === 'dark'
+                  ? 'text-red-400 bg-red-900/20 border-red-800'
+                  : 'text-red-700 bg-red-50 border-red-200'
+              }`}>
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg className="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-3">{error}</div>
+                  <div className="ml-2">{error}</div>
                 </div>
               </div>
             )}
 
             {success && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+              <div className={`text-sm p-3 rounded-md border ${
+                theme === 'dark'
+                  ? 'text-green-400 bg-green-900/20 border-green-800'
+                  : 'text-green-700 bg-green-50 border-green-200'
+              }`}>
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg className="h-4 w-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-3">{success}</div>
+                  <div className="ml-2">{success}</div>
                 </div>
               </div>
             )}
 
-            <div className="space-y-8">
-              {/* Basic Information Section */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                  <Book className="w-5 h-5 mr-2 text-indigo-600" />
-                  Basic Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Book Title *</label>
-                    <div className="relative">
-                      <Book className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={formData.title}
-                        onChange={(e) => handleInputChange('title', e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg bg-white"
-                        placeholder="Enter book title"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Author *</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={formData.author}
-                        onChange={(e) => handleInputChange('author', e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg bg-white"
-                        placeholder="Enter author name"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">ISBN *</label>
-                    <div className="relative">
-                      <Hash className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={formData.isbn}
-                        onChange={(e) => handleInputChange('isbn', e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg bg-white"
-                        placeholder="Enter ISBN (10 or 13 digits)"
-                        required
-                      />
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">Enter 10 or 13 digit ISBN</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Publisher *</label>
-                    <div className="relative">
-                      <Building className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={formData.publisher}
-                        onChange={(e) => handleInputChange('publisher', e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg bg-white"
-                        placeholder="Enter publisher name"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Category *</label>
-                  <div className="relative">
-                    <Tag className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                    <select
-                      value={formData.category_id}
-                      onChange={(e) => handleInputChange('category_id', e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg appearance-none bg-white"
-                      required
-                    >
-                      <option value="">Select a category</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Book Cover Image Upload - Full Width */}
+              <div className="md:col-span-2">
+                {renderBookImageUpload()}
               </div>
 
-              {/* Inventory Section */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                  <Copy className="w-5 h-5 mr-2 text-indigo-600" />
-                  Inventory Details
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Total Copies *</label>
-                    <div className="relative">
-                      <Copy className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <input
-                        type="number"
-                        min="1"
-                        value={formData.total_copies}
-                        onChange={(e) => handleInputChange('total_copies', e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg bg-white"
-                        placeholder="Enter total copies"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Issued Copies</label>
-                    <div className="relative">
-                      <Copy className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.issued_copies}
-                        onChange={(e) => handleInputChange('issued_copies', e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-lg bg-white"
-                        placeholder="Currently issued copies (default: 0)"
-                      />
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">Number of copies currently issued to students</p>
-                  </div>
-                </div>
+              {/* Book Title */}
+              <div className="md:col-span-2 relative">
+                <Book className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Book Title"
+                  required
+                />
               </div>
 
-              {/* Image Upload Section */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                  <Image className="w-5 h-5 mr-2 text-indigo-600" />
-                  Book Cover Image
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Upload Image</label>
-                    <div className="relative">
-                      <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="w-full py-4 px-4 border-2 border-dashed border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                      />
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">Max size: 5MB. Supported formats: JPG, PNG, GIF</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Image Preview</label>
-                    <div className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-white">
-                      {imagePreview ? (
-                        <div className="relative">
-                          <img 
-                            src={imagePreview} 
-                            alt="Book cover preview" 
-                            className="h-28 w-auto rounded-lg object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={removeImage}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center text-gray-400">
-                          <Image className="w-8 h-8 mx-auto mb-2" />
-                          <p className="text-sm">No image selected</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {/* Author */}
+              <div className="relative">
+                <User className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="text"
+                  value={formData.author}
+                  onChange={(e) => handleInputChange('author', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Author"
+                  required
+                />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col md:flex-row gap-4 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
-                >
-                  <X className="w-5 h-5 mr-2" />
-                  Cancel
-                </button>
+              {/* ISBN */}
+              <div className="relative">
+                <Hash className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="text"
+                  value={formData.isbn}
+                  onChange={(e) => handleInputChange('isbn', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="ISBN"
+                  required
+                />
+              </div>
 
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
-                >
-                  <RotateCcw className="w-5 h-5 mr-2" />
-                  Reset
-                </button>
+              {/* Publisher */}
+              <div className="relative">
+                <Building className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="text"
+                  value={formData.publisher}
+                  onChange={(e) => handleInputChange('publisher', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Publisher"
+                  required
+                />
+              </div>
 
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center justify-center"
+              {/* Category */}
+              <div className="relative">
+                <Tag className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <select
+                  value={formData.category_id}
+                  onChange={(e) => handleInputChange('category_id', e.target.value)}
+                  className={getInputClasses()}
+                  required
                 >
-                  {submitting ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Adding Book...
-                    </span>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5 mr-2" />
-                      Submit
-                    </>
-                  )}
-                </button>
+                  <option value="">Select Category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Total Copies */}
+              <div className="relative">
+                <Copy className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.total_copies}
+                  onChange={(e) => handleInputChange('total_copies', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Total Copies"
+                  required
+                />
+              </div>
+
+              {/* Issued Copies */}
+              <div className="relative">
+                <Copy className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.issued_copies}
+                  onChange={(e) => handleInputChange('issued_copies', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Issued Copies (default: 0)"
+                />
               </div>
             </div>
-          </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3 pt-4">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full text-white py-2.5 rounded-md font-medium transition duration-200 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {submitting ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Adding Book...
+                  </span>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Add Book
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancel}
+                className={`w-full py-2.5 rounded-md font-medium transition duration-200 border ${
+                  theme === 'dark'
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600'
+                    : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+                }`}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
