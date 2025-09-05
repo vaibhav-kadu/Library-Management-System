@@ -1,486 +1,413 @@
 import React, { useState } from 'react';
-
-import { useNavigate } from 'react-router-dom';
-import { 
-  BookOpen, 
-  User, 
-  Mail, 
-  Phone, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  ArrowLeft,
-  Save,
-  X,
-  CheckCircle,
-  AlertCircle,
-  UserPlus
-} from 'lucide-react';
+import { BookOpen, Eye, EyeOff, Mail, Lock, X, Phone, Camera, User, Save } from 'lucide-react';
 import axios from 'axios';
-import { useAuth } from '../../context/authContext';
+import { useNavigate } from 'react-router-dom';
 
-const AddLibrarian = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+export default function AddLibrarian({ onClose, theme = 'light' }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    contact: '',
+  const navigate = useNavigate();
+
+  const initialFormData = {
+    email: '', 
     password: '',
     confirmPassword: '',
-    department: '',
-    employeeId: '',
-    address: '',
-    dateOfJoining: new Date().toISOString().split('T')[0] // Today's date
-  });
+    name: '',
+    contact: '',
+  };
 
-  const departments = [
-    'Main Library',
-    'Science Department',
-    'Arts Department', 
-    'Technical Department',
-    'Reference Section',
-    'Digital Resources',
-    'Archives'
-  ];
+  const [formData, setFormData] = useState(initialFormData);
 
+  // Handle input changes
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-    
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
+  };
+
+  // Handle profile image upload
+  const handleImageUpload = (file) => {
+    if (file && file.type.startsWith('image/')) {
+      setProfileImage(file);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+  // Toggle password visibility
+  const togglePasswordVisibility = (field = 'password') => {
+    if (field === 'confirmPassword') {
+      setShowConfirmPassword(prev => !prev);
+    } else {
+      setShowPassword(prev => !prev);
     }
+  };
 
+  // Validation
+  const validateForm = (data) => {
+    if (!data.name.trim()) return "Name is required";
+    if (!data.email.trim()) return "Email is required";
+    if (!data.contact.trim()) return "Contact number is required";
+    if (!data.password) return "Password is required";
+    if (data.password.length < 6) return "Password must be at least 6 characters long";
+    if (data.password !== data.confirmPassword) return "Passwords don't match";
+    
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+    if (!emailRegex.test(data.email)) return "Please enter a valid email address";
+    
+    // Phone validation (basic)
+    const phoneRegex = /^[0-9]{10,15}$/;
+    if (!phoneRegex.test(data.contact.replace(/\s|-|\(|\)/g, ''))) {
+      return "Please enter a valid phone number";
     }
-
-    // Contact validation
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    if (!formData.contact.trim()) {
-      newErrors.contact = 'Contact number is required';
-    } else if (!phoneRegex.test(formData.contact.replace(/[\s\-\(\)]/g, ''))) {
-      newErrors.contact = 'Please enter a valid contact number';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
-    }
-
-    // Confirm password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    // Department validation
-    if (!formData.department) {
-      newErrors.department = 'Please select a department';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    return null;
   };
 
+  // Submit signup request
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    const validationError = validateForm(formData);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitStatus(null);
+    setSubmitting(true);
+    setError(null);
+    setSuccess(null);
 
     try {
-      const librarianData = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        contact: formData.contact.trim(),
-        password: formData.password,
-        department: formData.department,
-        employeeId: formData.employeeId.trim(),
-        address: formData.address.trim(),
-        dateOfJoining: formData.dateOfJoining,
-        role: 'librarian'
-      };
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key !== 'confirmPassword') {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+      
+      if (profileImage) {
+        formDataToSend.append('profileImage', profileImage);
+      }
 
-      // Replace with your actual API endpoint
-      const response = await axios.post('http://localhost:3000/addLibrarian', librarianData, {
+      const response = await axios.post('http://localhost:3000/addLibrarian', formDataToSend, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'multipart/form-data'
         }
       });
 
       if (response.data.success) {
-        setSubmitStatus('success');
+        setSuccess('Librarian account created successfully!');
+        
         // Reset form after successful submission
+        setFormData(initialFormData);
+        setProfileImage(null);
+        setImagePreview(null);
+        
         setTimeout(() => {
-          navigate('/admin-dashboard'); // or wherever you want to redirect
+          setSuccess(null);
+          if (onClose) onClose();
+          else navigate('/login');
         }, 2000);
       }
     } catch (error) {
-      console.error('Error adding librarian:', error);
-      setSubmitStatus('error');
-      
-      if (error.response?.data?.error) {
-        if (error.response.data.error.includes('email')) {
-          setErrors({ email: 'Email already exists' });
-        } else {
-          setErrors({ general: error.response.data.error });
-        }
-      } else {
-        setErrors({ general: 'Failed to add librarian. Please try again.' });
-      }
+      console.error(error);
+      setError(error.response?.data?.error || "Server Error. Please try again later.");
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
-  const handleReset = () => {
-    setFormData({
-      name: '',
-      email: '',
-      contact: '',
-      password: '',
-      confirmPassword: '',
-      department: '',
-      employeeId: '',
-      address: '',
-      dateOfJoining: new Date().toISOString().split('T')[0]
-    });
-    setErrors({});
-    setSubmitStatus(null);
+  const handleCancel = () => {
+    const hasChanges = Object.values(formData).some(value => value.trim() !== '') || profileImage;
+    
+    if (hasChanges) {
+      if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
+        if (onClose) onClose();
+        else navigate(-1);
+      }
+    } else {
+      if (onClose) onClose();
+      else navigate(-1);
+    }
   };
 
-  // Check if user has permission (admin only)
-  console.log("Role=> ",user.role);
-  if (user?.role !== 'admin') {
+  const getInputClasses = () => {
+    return `w-full pl-10 pr-4 py-2.5 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 ${
+      theme === 'dark'
+        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+    }`;
+  };
+
+  const renderProfileImageUpload = () => {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-md w-full text-center">
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-4">You don't have permission to add librarians.</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Go Back
-          </button>
+      <div className="mb-4 text-center">
+        <div className={`relative inline-block ${
+          theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
+        } rounded-full p-1`}>
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Profile preview"
+              className="w-16 h-16 rounded-full object-cover"
+            />
+          ) : (
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+              theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
+            }`}>
+              <BookOpen className={`w-8 h-8 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+              }`} />
+            </div>
+          )}
+          
+          <label className={`absolute bottom-0 right-0 ${
+            theme === 'dark' ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'
+          } text-white rounded-full p-1.5 cursor-pointer transition-colors duration-200`}>
+            <Camera className="w-3 h-3" />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleImageUpload(e.target.files[0])}
+            />
+          </label>
         </div>
+        <p className={`mt-2 text-xs ${
+          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+        }`}>
+          Choose profile image (optional)
+        </p>
       </div>
     );
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </button>
-              <div className="flex items-center space-x-2">
-                <UserPlus className="h-6 w-6 text-purple-600" />
-                <h1 className="text-xl font-semibold text-gray-900">Add New Librarian</h1>
-              </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+      
+      {/* Modal - Full width with max constraints */}
+      <div className={`relative rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
+        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+      }`}>
+        {/* Close Button */}
+        <button
+          onClick={handleCancel}
+          className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-colors duration-200 ${
+            theme === 'dark' 
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+          }`}
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* Header */}
+        <div className="p-6 pb-4">
+          <div className="text-center">
+            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+              theme === 'dark' ? 'bg-green-600/90' : 'bg-green-100/90'
+            }`}>
+              <BookOpen className={`w-8 h-8 ${
+                theme === 'dark' ? 'text-white' : 'text-green-600'
+              }`} />
             </div>
+            <h2 className={`text-2xl font-bold mb-2 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
+              Add New Librarian
+            </h2>
+            <p className={`${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+            }`}>
+              Create a new librarian account
+            </p>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Success/Error Messages */}
-        {submitStatus === 'success' && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-              <span className="text-green-700 font-medium">Librarian added successfully!</span>
-            </div>
-            <p className="text-green-600 text-sm mt-1">Redirecting to dashboard...</p>
-          </div>
-        )}
-
-        {submitStatus === 'error' && errors.general && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-              <span className="text-red-700 font-medium">{errors.general}</span>
-            </div>
-          </div>
-        )}
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">Librarian Information</h2>
-                <p className="text-gray-600 text-sm">Fill in the details to create a new librarian account</p>
-              </div>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Personal Information */}
-              <div className="space-y-6">
-                <h3 className="text-md font-semibold text-gray-900 border-b border-gray-200 pb-2">
-                  Personal Information
-                </h3>
-
-                {/* Full Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                        errors.name ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Enter full name"
-                    />
+        <div className="px-6 pb-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className={`text-sm p-3 rounded-md border ${
+                theme === 'dark'
+                  ? 'text-red-400 bg-red-900/20 border-red-800'
+                  : 'text-red-700 bg-red-50 border-red-200'
+              }`}>
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
                   </div>
-                  {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                        errors.email ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Enter email address"
-                    />
-                  </div>
-                  {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
-                </div>
-
-                {/* Contact Number */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Number <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={formData.contact}
-                      onChange={(e) => handleInputChange('contact', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                        errors.contact ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Enter contact number"
-                    />
-                  </div>
-                  {errors.contact && <p className="text-red-600 text-sm mt-1">{errors.contact}</p>}
-                </div>
-
-                {/* Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address
-                  </label>
-                  <textarea
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
-                    rows="3"
-                    placeholder="Enter full address"
-                  />
+                  <div className="ml-2">{error}</div>
                 </div>
               </div>
+            )}
 
-              {/* Professional Information */}
-              <div className="space-y-6">
-                <h3 className="text-md font-semibold text-gray-900 border-b border-gray-200 pb-2">
-                  Professional Information
-                </h3>
-
-                {/* Department */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Department <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.department}
-                    onChange={(e) => handleInputChange('department', e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                      errors.department ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                  >
-                    <option value="">Select Department</option>
-                    {departments.map((dept) => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                  {errors.department && <p className="text-red-600 text-sm mt-1">{errors.department}</p>}
-                </div>
-
-                {/* Date of Joining */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date of Joining
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.dateOfJoining}
-                    onChange={(e) => handleInputChange('dateOfJoining', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={formData.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                        errors.password ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Enter password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff /> : <Eye />}
-                    </button>
+            {success && (
+              <div className={`text-sm p-3 rounded-md border ${
+                theme === 'dark'
+                  ? 'text-green-400 bg-green-900/20 border-green-800'
+                  : 'text-green-700 bg-green-50 border-green-200'
+              }`}>
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-4 w-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
                   </div>
-                  {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
-                  <p className="text-gray-500 text-xs mt-1">
-                    Password must contain at least 6 characters with uppercase, lowercase, and number
-                  </p>
+                  <div className="ml-2">{success}</div>
                 </div>
+              </div>
+            )}
 
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      value={formData.confirmPassword}
-                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
-                        errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Confirm password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? <EyeOff /> : <Eye />}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword}</p>}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Profile Image Upload - Full Width */}
+              <div className="md:col-span-2">
+                {renderProfileImageUpload()}
+              </div>
+
+              {/* Full Name */}
+              <div className="md:col-span-2 relative">
+                <User className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Full Name"
+                  required
+                />
+              </div>
+
+              {/* Email */}
+              <div className="relative">
+                <Mail className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Email"
+                  required
+                />
+              </div>
+
+              {/* Phone */}
+              <div className="relative">
+                <Phone className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type="tel"
+                  value={formData.contact}
+                  onChange={(e) => handleInputChange('contact', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Phone Number"
+                  required
+                />
+              </div>
+
+              {/* Password */}
+              <div className="relative">
+                <Lock className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => togglePasswordVisibility()}
+                  className={`absolute right-3 top-3 ${
+                    theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="relative">
+                <Lock className={`absolute left-3 top-3 h-4 w-4 ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`} />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  className={getInputClasses()}
+                  placeholder="Confirm Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => togglePasswordVisibility('confirmPassword')}
+                  className={`absolute right-3 top-3 ${
+                    theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-gray-200">
+            <div className="flex flex-col gap-3 pt-4">
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                disabled={submitting}
+                className="w-full text-white py-2.5 rounded-md font-medium transition duration-200 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Adding Librarian...</span>
-                  </>
+                {submitting ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating Account...
+                  </span>
                 ) : (
                   <>
-                    <Save className="h-4 w-4" />
-                    <span>Add Librarian</span>
+                    <Save className="w-4 h-4 mr-2" />
+                    Create Librarian Account
                   </>
                 )}
               </button>
-              
+
               <button
                 type="button"
-                onClick={handleReset}
-                disabled={isSubmitting}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 text-gray-700 py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-              >
-                <X className="h-4 w-4" />
-                <span>Reset Form</span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                disabled={isSubmitting}
-                className="flex-1 border border-gray-300 hover:bg-gray-50 disabled:bg-gray-50 text-gray-700 py-3 px-6 rounded-lg font-medium transition-colors"
+                onClick={handleCancel}
+                className={`w-full py-2.5 rounded-md font-medium transition duration-200 border ${
+                  theme === 'dark'
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600'
+                    : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+                }`}
               >
                 Cancel
               </button>
@@ -490,6 +417,4 @@ const AddLibrarian = () => {
       </div>
     </div>
   );
-};
-
-export default AddLibrarian;
+}
