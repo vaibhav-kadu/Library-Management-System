@@ -14,7 +14,7 @@ exports.addLibrarian=async(req,res)=>{
         //save Librarians
         await libmodel.addLibrarian(name,contact,email,password);
     
-        res.status(201).json({message:'Librarians Added SuccessFully',librarian:{name,contact,email}});
+        res.status(200).json({success: true,message:'Librarians Added SuccessFully',librarian:{name,contact,email}});
             
     }catch(error){
         console.error('Librarians Not Add  Error => ',error);
