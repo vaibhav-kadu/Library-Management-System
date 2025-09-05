@@ -1,22 +1,43 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
+// First connect without specifying database
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    password: process.env.DB_PASSWORD
 });
 
-// Connect and then initialize tables
+// Connect to MySQL server
 db.connect(err => {
     if (err) throw err;
-    console.log("✅ DATABASE CONNECTED...");
-    initializeTables();
+    console.log("✅ MySQL SERVER CONNECTED...");
+
+    // Create database if not exists
+    db.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\``, (err) => {
+        if (err) throw err;
+        console.log(`✅ DATABASE '${process.env.DB_NAME}' ready.`);
+
+        // Now connect specifically to that database
+        const dbWithDatabase = mysql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
+        });
+
+        dbWithDatabase.connect(err => {
+            if (err) throw err;
+            console.log("✅ CONNECTED TO DATABASE:", process.env.DB_NAME);
+
+            // ✅ Pass dbWithDatabase into initializer
+            initializeTables(dbWithDatabase);
+        });
+    });
 });
 
 // Function to create tables if they don't exist
-function initializeTables() {
+function initializeTables(connection) {
     const tableQueries = [
 
         `CREATE TABLE IF NOT EXISTS categories (
@@ -37,11 +58,12 @@ function initializeTables() {
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
+            image VARCHAR(100),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY (email)
         )`,
-        
+
         `INSERT INTO librarians (name, contact, email, password)
 VALUES
 ('Ravi Sharma', '9876543210', 'ravi.sharma@example.com', '9876543210'),
@@ -49,7 +71,7 @@ VALUES
 ('Vikram Patel', '9012345678', 'vikram.patel@example.com', '9012345678'),
 ('Sunita Reddy', '9988776655', 'sunita.reddy@example.com', '9988776655'),
 ('Aman Kapoor', '9090909090', 'aman.kapoor@example.com', '9090909090')`
-,
+        ,
 
         `CREATE TABLE IF NOT EXISTS admin (
             id INT NOT NULL AUTO_INCREMENT,
@@ -81,7 +103,7 @@ VALUES
             FOREIGN KEY (librarian_id) REFERENCES librarians(id)
 
         )`,
-        
+
         `INSERT INTO students (name, contact, email, password, address, librarian_id)
 VALUES
 ('Aarav Mehta', '9000000001', 'aarav.mehta@example.com', '9000000001', 'Mumbai, India', 1),
@@ -173,7 +195,7 @@ VALUES
     ];
 
     tableQueries.forEach(query => {
-        db.query(query, (err, result) => {
+        connection.query(query, (err) => {
             if (err) {
                 console.error("❌ Error creating table:", err.sqlMessage);
             } else {
