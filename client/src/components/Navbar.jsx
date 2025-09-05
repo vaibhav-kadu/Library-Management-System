@@ -22,7 +22,15 @@ import {
   Tag
 } from 'lucide-react';
 
-const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
+const Navbar = ({ 
+  theme, 
+  setTheme, 
+  onLoginClick, 
+  onSignUpClick,
+  // New props for dropdown actions
+  onDropdownItemClick,
+  customDropdownHandlers = {}
+}) => {
   
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -105,6 +113,21 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  // Handle dropdown item clicks
+  const handleDropdownItemClick = (item) => {
+    if (onDropdownItemClick) {
+      // Use parent handler
+      onDropdownItemClick(item);
+    } else {
+      // Fallback to default navigation
+      navigate(item.path);
+    }
+    
+    // Close dropdowns after action
+    closeAllDropdowns();
+    setMobileMenuOpen(false);
+  };
+
   // Role Badge Component
   const RoleBadge = ({ role }) => {
     const getRoleStyles = () => {
@@ -150,12 +173,12 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
     const handleMouseLeave = () => {
       timeoutRef.current = setTimeout(() => {
         setIsHovered(false);
-      }, 150); // Small delay to prevent flickering when moving to dropdown
+      }, 150);
     };
 
-    const handleItemClick = (path) => {
+    const handleItemClick = (item) => {
       setIsHovered(false);
-      navigate(path);
+      handleDropdownItemClick(item);
     };
 
     // Clear timeout on unmount
@@ -200,7 +223,7 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
               {items.map((item, index) => (
                 <button
                   key={index}
-                  onClick={() => handleItemClick(item.path)}
+                  onClick={() => handleItemClick(item)}
                   className={`w-full text-left px-4 py-3 text-sm flex items-center space-x-3 transition-colors duration-200 ${
                     theme === 'dark'
                       ? 'hover:bg-gray-700 text-gray-300 hover:text-white'
@@ -231,9 +254,7 @@ const Navbar = ({ theme, setTheme, onLoginClick, onSignUpClick}) => {
     const handleItemClick = (item, e) => {
       e.preventDefault();
       e.stopPropagation();
-      navigate(item.path);
-      closeAllDropdowns();
-      setMobileMenuOpen(false);
+      handleDropdownItemClick(item);
     };
 
     return (

@@ -1,37 +1,28 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-// First connect without specifying database
+// Step 1: Create initial connection (no DB)
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD
 });
 
-// Connect to MySQL server
+// Step 2: Connect and ensure DB exists
 db.connect(err => {
     if (err) throw err;
     console.log("✅ MySQL SERVER CONNECTED...");
 
-    // Create database if not exists
     db.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\``, (err) => {
         if (err) throw err;
         console.log(`✅ DATABASE '${process.env.DB_NAME}' ready.`);
 
-        // Now connect specifically to that database
-        const dbWithDatabase = mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME
-        });
-
-        dbWithDatabase.connect(err => {
+        // Step 3: Change connection to include DB
+        db.changeUser({ database: process.env.DB_NAME }, (err) => {
             if (err) throw err;
-            console.log("✅ CONNECTED TO DATABASE:", process.env.DB_NAME);
+            console.log("✅ USING DATABASE:", process.env.DB_NAME);
 
-            // ✅ Pass dbWithDatabase into initializer
-            initializeTables(dbWithDatabase);
+            initializeTables(db); // ✅ safe to use
         });
     });
 });
@@ -197,9 +188,9 @@ VALUES
     tableQueries.forEach(query => {
         connection.query(query, (err) => {
             if (err) {
-                console.error("❌ Error creating table:", err.sqlMessage);
+                console.error("❌ SQL Error:", err.sqlMessage);
             } else {
-                console.log("✅ Table checked/created successfully.");
+                console.log("✅ Query executed successfully.");
             }
         });
     });
