@@ -123,7 +123,8 @@ console.log();
 
       if (response.data.success) {
         
-            navigate('/login');
+        alert(response.data.message+"\n Login Now");  
+        navigate('/login');
         
         if (onClose) onClose();
       }
