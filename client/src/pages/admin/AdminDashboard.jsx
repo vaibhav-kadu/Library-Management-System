@@ -139,85 +139,9 @@ const AdminDashboard = ({ theme }) => {
           }`}>Monitor and manage your library system</p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-4">
-            <button 
-              onClick={toggleAddLibrarian} 
-              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md"
-            >
-              <UserPlus className="h-4 w-4" />
-              {addLibrarian ? "Cancel" : "Add Librarian"}
-            </button>
-            
-            <button 
-              onClick={toggleAddCategory} 
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md"
-            >
-              <Tag className="h-4 w-4" />
-              {addCategory ? "Cancel" : "Add Category"}
-            </button>
-            
-            <button 
-              onClick={toggleAddBook} 
-              className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md"
-            >
-              <Book className="h-4 w-4" />
-              {addBook ? "Cancel" : "Add Book"}
-            </button>
-            
-            <button 
-              onClick={toggleAddStudent} 
-              className="flex items-center space-x-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md"
-            >
-              <UserPlus2 className="h-4 w-4" />
-              {addStudent ? "Cancel" : "Add Student"}
-            </button>
-          </div>
-        </div>
-
-        {/* Conditional Forms */}
-        <div className="space-y-6">
-          {addCategory && (
-            <div className={`p-6 rounded-lg border backdrop-blur-sm ${
-              theme === 'dark' 
-                ? 'bg-gray-800/80 border-gray-700' 
-                : 'bg-white/80 border-gray-200'
-            }`}>
-              <AddCategory theme={theme} />
-            </div>
-          )}
-          {addBook && (
-            <div className={`p-6 rounded-lg border backdrop-blur-sm ${
-              theme === 'dark' 
-                ? 'bg-gray-800/80 border-gray-700' 
-                : 'bg-white/80 border-gray-200'
-            }`}>
-              <AddBook theme={theme} />
-            </div>
-          )}
-          {addStudent && (
-            <div className={`p-6 rounded-lg border backdrop-blur-sm ${
-              theme === 'dark' 
-                ? 'bg-gray-800/80 border-gray-700' 
-                : 'bg-white/80 border-gray-200'
-            }`}>
-              <AddStudent theme={theme} />
-            </div>
-          )}
-          {addLibrarian && (
-            <div className={`p-6 rounded-lg border backdrop-blur-sm ${
-              theme === 'dark' 
-                ? 'bg-gray-800/80 border-gray-700' 
-                : 'bg-white/80 border-gray-200'
-            }`}>
-              <AddLibrarian theme={theme} />
-            </div>
-          )}
-        </div>
-
+   
         {/* System Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
           <div className={`rounded-lg shadow-sm p-6 border backdrop-blur-sm ${
             theme === 'dark' 
               ? 'bg-gray-800/80 border-gray-700' 

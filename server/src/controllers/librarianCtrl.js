@@ -23,16 +23,24 @@ exports.addLibrarian=async(req,res)=>{
 
 }
 
-exports.getLibrarian=(req,res)=>{
-console.log("I Am Here");
-    let promise = libmodel.getLibrarian();
-     promise.then((result)=>{
-            res.status(302).json({message:result});//,msg:msg
-        }).catch((err)=>{
-            res.status(404).json({message:err});
-        });
+exports.getLibrarian = (req, res) => {
+  console.log("I Am Here");
+  let promise = libmodel.getLibrarian();
 
-}
+  promise.then((result) => {
+    res.status(200).json({
+      success: true,
+      librarians: result
+    });
+  }).catch((err) => {
+    res.status(500).json({
+      success: false,
+      error: err.message || err
+    });
+  });
+};
+
+
 
 exports.getLibrarianByEmail=(req,res)=>{
     const {email}=req.body;
@@ -69,19 +77,17 @@ exports.updateLibrarian=async(req,res)=>{
 
 }
 
-exports.deleteLibrarian=(req,res)=>{
-    const {id}=req.body;
+exports.deleteLibrarian = (req, res) => {
+  const { id } = req.query;  // ✅ pick id from query params
 
-    const promise=libmodel.deleteLibrarian(id);
-            promise.then((result)=>{
-                res.status(200).json({message:'Librarian Deleted'});
-            });
-
-            promise.catch((err)=>{
-                res.status(500).json({message:err});
-            });
-
-}
+  libmodel.deleteLibrarian(id)
+    .then(() => {
+      res.status(200).json({ success: true, message: 'Librarian Deleted' });
+    })
+    .catch((err) => {
+      res.status(500).json({ success: false, error: err.message || err });
+    });
+};
 
 
 
