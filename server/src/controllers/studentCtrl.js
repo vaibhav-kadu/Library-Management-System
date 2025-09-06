@@ -53,16 +53,23 @@ exports.addStudent = async (req, res) => {
   }
 };
 
+// ---------------- Get All Students ----------------
+exports.getStudents = (req, res) => {
+    studentModel.getStudents()
+        .then((result) => {
+            res.status(200).json({
+                success: true,
+                students: result   // ✅ return as "students"
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                success: false,
+                error: 'Internal Server Error: ' + err
+            });
+        });
+};
 
-exports.getStudents=(req,res)=>{
-    let promise=studentModel.getStudents();
-        promise.then((result)=>{
-            res.status(200).json({message:result});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
-}
 
 exports.getStudentById=(req,res)=>{
     const {id}=req.body;

@@ -92,6 +92,9 @@ VALUES
             PRIMARY KEY (id),
             UNIQUE KEY (email),
             FOREIGN KEY (librarian_id) REFERENCES librarians(id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        
 
         )`,
 
