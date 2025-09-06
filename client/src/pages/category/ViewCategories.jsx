@@ -13,6 +13,8 @@ export default function ViewCategories({ theme = 'light' }) {
   const [updating, setUpdating] = useState(null);
   const [search, setSearch] = useState('');
 
+  const isDark = theme === 'dark';
+
   const fetchCategories = async () => {
     try {
       const response = await axios.get('http://localhost:3000/getCategory');
@@ -53,9 +55,10 @@ export default function ViewCategories({ theme = 'light' }) {
     setSuccess(null);
 
     try {
+      // Updated to pass id and name in request body
       const response = await axios.put(`http://localhost:3000/updateCategory/${categoryId}`, {
-        name: editingName.trim()
-      });
+  name: editingName.trim()
+});
 
       if (response.data.success) {
         setCategories(categories.map(cat => 
@@ -78,7 +81,7 @@ export default function ViewCategories({ theme = 'light' }) {
   };
 
   const handleDelete = async (categoryId, categoryName) => {
-    if (!window.confirm(`Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`)) {
+    if (!window.confirm(`Are you sure you want to delete "${categoryName}"?`)) {
       return;
     }
 
@@ -87,7 +90,10 @@ export default function ViewCategories({ theme = 'light' }) {
     setSuccess(null);
 
     try {
-      const response = await axios.delete(`http://localhost:3000/deleteCategory/${categoryId}`);
+      // Updated to pass id and name in request body
+      const response = await axios.delete(`http://localhost:3000/deleteCategory`, {
+        data: { id: categoryId, name: categoryName }
+      });
 
       if (response.data.success) {
         setCategories(categories.filter(cat => (cat.category_id || cat.id) !== categoryId));
@@ -103,350 +109,190 @@ export default function ViewCategories({ theme = 'light' }) {
     }
   };
 
-  // Filtered categories based on search
   const filteredCategories = categories.filter(cat =>
     cat.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  return (
-    <div
-      className={`min-h-screen p-6 ${
-        theme === 'dark'
-          ? 'bg-gradient-to-br from-gray-900 to-gray-800'
-          : 'bg-gradient-to-br from-gray-50 to-gray-100'
-      }`}
-    >
-      <div
-        className={`max-w-4xl mx-auto rounded-2xl shadow-lg overflow-hidden ${
-          theme === 'dark' ? 'bg-gray-800' : 'bg-white'
-        }`}
-      >
-        {/* Header */}
-        <div
-          className={`px-8 py-6 border-b ${
-            theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-          }`}
-        >
-          <div className="flex items-center space-x-3">
-            <div
-              className={`p-3 rounded-full ${
-                theme === 'dark' ? 'bg-blue-600/20' : 'bg-blue-100'
-              }`}
-            >
-              <Folder
-                className={`w-6 h-6 ${
-                  theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
-                }`}
-              />
-            </div>
-            <div>
-              <h2
-                className={`text-2xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}
-              >
-                Book Categories
-              </h2>
-              <p
-                className={`text-sm ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                }`}
-              >
-                Manage and organize your library categories
-              </p>
-            </div>
-          </div>
-        </div>
+  const showMessage = (message, type) => (
+    <div className={`mb-6 p-4 rounded-lg border ${
+      type === 'error' 
+        ? isDark ? 'bg-red-900/20 border-red-800 text-red-400' : 'bg-red-50 border-red-200 text-red-700'
+        : isDark ? 'bg-green-900/20 border-green-800 text-green-400' : 'bg-green-50 border-green-200 text-green-700'
+    }`}>
+      {message}
+    </div>
+  );
 
-        {/* Content */}
-        <div className="p-8">
-          {/* Search Input */}
-          <div className="mb-6 flex items-center relative">
-            <Search className="absolute left-3 w-5 h-5 text-gray-400" />
+  const ActionButton = ({ onClick, disabled, icon: Icon, color, title, loading = false }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`p-2.5 rounded-lg disabled:opacity-50 ${
+        isDark 
+          ? `bg-${color}-600/20 text-${color}-400 hover:bg-${color}-600/30` 
+          : `bg-${color}-100 text-${color}-600 hover:bg-${color}-200`
+      }`}
+      title={title}
+    >
+      {loading ? <Loader className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" />}
+    </button>
+  );
+
+  if (loading) {
+    return (
+      <div className={`max-w-4xl mx-auto rounded-2xl shadow-lg p-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+        <div className="flex justify-center items-center py-12">
+          <Loader className={`w-6 h-6 animate-spin mr-3 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
+          <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>Loading categories...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`max-w-4xl mx-auto rounded-2xl shadow-lg overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      {/* Header */}
+      <div className={`px-8 py-6 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="flex items-center space-x-3">
+          <div className={`p-3 rounded-full ${isDark ? 'bg-blue-600/20' : 'bg-blue-100'}`}>
+            <Folder className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+          </div>
+          <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            Book Categories
+          </h2>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-8">
+        {/* Search and Count */}
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className={`px-4 py-2 rounded-lg border font-medium ${
+            isDark ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-gray-50 border-gray-300 text-gray-600'
+          }`}>
+            Total: {filteredCategories.length}
+          </div>
+          
+          <div className="flex-1 max-w-md relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                isDark ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
               placeholder="Search categories..."
             />
           </div>
+        </div>
 
-          {/* Messages */}
-          {error && (
-            <div
-              className={`mb-6 p-4 rounded-lg border ${
-                theme === 'dark'
-                  ? 'bg-red-900/20 border-red-800 text-red-400'
-                  : 'bg-red-50 border-red-200 text-red-700'
-              }`}
-            >
-              {error}
-            </div>
-          )}
-          {success && (
-            <div
-              className={`mb-6 p-4 rounded-lg border ${
-                theme === 'dark'
-                  ? 'bg-green-900/20 border-green-800 text-green-400'
-                  : 'bg-green-50 border-green-200 text-green-700'
-              }`}
-            >
-              {success}
-            </div>
-          )}
+        {/* Messages */}
+        {error && showMessage(error, 'error')}
+        {success && showMessage(success, 'success')}
 
-          {/* Loading */}
-          {loading && (
-            <div className="flex justify-center py-12">
-              <div className="flex items-center space-x-3">
-                <Loader
-                  className={`w-6 h-6 animate-spin ${
-                    theme === 'dark' ? 'text-blue-400' : 'text-blue-500'
-                  }`}
-                />
-                <span
-                  className={`${
-                    theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                >
-                  Loading categories...
-                </span>
-              </div>
-            </div>
-          )}
+        {/* Table */}
+        <div className={`rounded-xl border overflow-hidden ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+          <table className="w-full">
+            <thead className={isDark ? 'bg-gray-700' : 'bg-gray-50'}>
+              <tr>
+                <th className={`py-4 px-6 text-left text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Sr. No
+                </th>
+                <th className={`py-4 px-6 text-left text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Category Name
+                </th>
+                <th className={`py-4 px-6 text-center text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
+              {filteredCategories.length > 0 ? (
+                filteredCategories.map((cat, index) => {
+                  const categoryId = cat.category_id || cat.id;
+                  const isEditing = editingId === categoryId;
 
-          {/* Table */}
-          {!loading && !error && (
-            <div
-              className={`rounded-xl border overflow-hidden ${
-                theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-              }`}
-            >
-              <div
-                className={`overflow-x-auto ${
-                  theme === 'dark' ? 'bg-gray-800' : 'bg-white'
-                }`}
-              >
-                <table className="w-full">
-                  <thead
-                    className={`${
-                      theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
-                    }`}
-                  >
-                    <tr>
-                      <th
-                        className={`py-4 px-6 text-left text-sm font-semibold ${
-                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      >
-                        Sr. No
-                      </th>
-                      <th
-                        className={`py-4 px-6 text-left text-sm font-semibold ${
-                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      >
-                        Category Name
-                      </th>
-                      <th
-                        className={`py-4 px-6 text-center text-sm font-semibold ${
-                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredCategories.length > 0 ? (
-                      filteredCategories.map((cat, index) => {
-                        const categoryId = cat.category_id || cat.id;
-                        const isEditing = editingId === categoryId;
-
-                        return (
-                          <tr
-                            key={categoryId}
-                            className={`transition-colors duration-150 ${
-                              theme === 'dark'
-                                ? 'hover:bg-gray-700/50'
-                                : 'hover:bg-gray-50'
+                  return (
+                    <tr key={categoryId} className={isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}>
+                      <td className={`py-4 px-6 text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
+                        {index + 1}
+                      </td>
+                      <td className={`py-4 px-6 ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              isDark ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900'
                             }`}
-                          >
-                            <td
-                              className={`py-4 px-6 text-sm ${
-                                theme === 'dark'
-                                  ? 'text-gray-300'
-                                  : 'text-gray-900'
-                              }`}
-                            >
-                              {index + 1}
-                            </td>
-                            <td
-                              className={`py-4 px-6 ${
-                                theme === 'dark'
-                                  ? 'text-gray-300'
-                                  : 'text-gray-900'
-                              }`}
-                            >
-                              {isEditing ? (
-                                <input
-                                  type="text"
-                                  value={editingName}
-                                  onChange={(e) =>
-                                    setEditingName(e.target.value)
-                                  }
-                                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
-                                    theme === 'dark'
-                                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                                  }`}
-                                  placeholder="Category name"
-                                  autoFocus
-                                />
-                              ) : (
-                                <span className="text-sm font-medium">
-                                  {cat.name}
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-4 px-6">
-                              <div className="flex items-center justify-center space-x-2">
-                                {isEditing ? (
-                                  <>
-                                    <button
-                                      onClick={() => handleUpdate(categoryId)}
-                                      disabled={updating === categoryId}
-                                      className={`p-2 rounded-lg transition-all duration-200 ${
-                                        theme === 'dark'
-                                          ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30'
-                                          : 'bg-green-100 text-green-600 hover:bg-green-200'
-                                      } disabled:opacity-50`}
-                                      title="Save changes"
-                                    >
-                                      {updating === categoryId ? (
-                                        <Loader className="w-4 h-4 animate-spin" />
-                                      ) : (
-                                        <Save className="w-4 h-4" />
-                                      )}
-                                    </button>
-                                    <button
-                                      onClick={handleCancelEdit}
-                                      className={`p-2 rounded-lg transition-all duration-200 ${
-                                        theme === 'dark'
-                                          ? 'bg-gray-600/20 text-gray-400 hover:bg-gray-600/30'
-                                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                      }`}
-                                      title="Cancel editing"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </>
-                                ) : (
-                                  <>
-                                    <button
-                                      onClick={() => handleEdit(cat)}
-                                      className={`p-2 rounded-lg transition-all duration-200 ${
-                                        theme === 'dark'
-                                          ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30'
-                                          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                                      }`}
-                                      title="Edit category"
-                                    >
-                                      <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                      onClick={() =>
-                                        handleDelete(categoryId, cat.name)
-                                      }
-                                      disabled={deleting === categoryId}
-                                      className={`p-2 rounded-lg transition-all duration-200 ${
-                                        theme === 'dark'
-                                          ? 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
-                                          : 'bg-red-100 text-red-600 hover:bg-red-200'
-                                      } disabled:opacity-50`}
-                                      title="Delete category"
-                                    >
-                                      {deleting === categoryId ? (
-                                        <Loader className="w-4 h-4 animate-spin" />
-                                      ) : (
-                                        <Trash2 className="w-4 h-4" />
-                                      )}
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          className={`text-center py-12 ${
-                            theme === 'dark'
-                              ? 'text-gray-400'
-                              : 'text-gray-500'
-                          }`}
-                        >
-                          <div className="flex flex-col items-center space-y-3">
-                            <Folder
-                              className={`w-12 h-12 ${
-                                theme === 'dark'
-                                  ? 'text-gray-600'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                            <div>
-                              <p className="text-lg font-medium">
-                                No categories found
-                              </p>
-                              <p className="text-sm">
-                                Add categories to see them listed here
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Footer Stats */}
-          {!loading && !error && filteredCategories.length > 0 && (
-            <div
-              className={`mt-6 p-4 rounded-lg border ${
-                theme === 'dark'
-                  ? 'bg-gray-700/50 border-gray-600'
-                  : 'bg-gray-50 border-gray-200'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span
-                  className={`text-sm ${
-                    theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                >
-                  Total Categories: {filteredCategories.length}
-                </span>
-                <span
-                  className={`text-xs ${
-                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`}
-                >
-                  Use the search, edit, and delete buttons to manage categories
-                </span>
-              </div>
-            </div>
-          )}
+                            placeholder="Category name"
+                            autoFocus
+                          />
+                        ) : (
+                          <span className="text-sm font-medium">{cat.name}</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center justify-center gap-3">
+                          {isEditing ? (
+                            <>
+                              <ActionButton
+                                onClick={() => handleUpdate(categoryId)}
+                                disabled={updating === categoryId}
+                                icon={Save}
+                                color="green"
+                                title="Save changes"
+                                loading={updating === categoryId}
+                              />
+                              <ActionButton
+                                onClick={handleCancelEdit}
+                                icon={X}
+                                color="gray"
+                                title="Cancel editing"
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <ActionButton
+                                onClick={() => handleEdit(cat)}
+                                icon={Edit2}
+                                color="blue"
+                                title="Edit category"
+                              />
+                              <ActionButton
+                                onClick={() => handleDelete(categoryId, cat.name)}
+                                disabled={deleting === categoryId}
+                                icon={Trash2}
+                                color="red"
+                                title="Delete category"
+                                loading={deleting === categoryId}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="3" className={`text-center py-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <div className="flex flex-col items-center space-y-3">
+                      <Folder className={`w-12 h-12 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
+                      <div>
+                        <p className="text-lg font-medium">No categories found</p>
+                        <p className="text-sm">
+                          {search ? 'Try adjusting your search terms' : 'Add categories to see them listed here'}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

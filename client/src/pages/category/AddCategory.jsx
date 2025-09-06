@@ -81,11 +81,10 @@ export default function AddCategory({ onClose, theme = 'light' }) {
   };
 
   const getInputClasses = () => {
-    return `w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${
-      theme === 'dark'
+    return `w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 ${theme === 'dark'
         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-    }`;
+      }`;
   };
 
   return createPortal(
@@ -98,18 +97,16 @@ export default function AddCategory({ onClose, theme = 'light' }) {
 
       {/* Modal */}
       <div
-        className={`relative z-[10000] rounded-2xl shadow-2xl max-w-md w-full mx-auto max-h-[90vh] overflow-y-auto ${
-          theme === 'dark' ? 'bg-gray-800' : 'bg-white'
-        }`}
+        className={`relative z-[10000] rounded-2xl shadow-2xl max-w-md w-full mx-auto max-h-[90vh] overflow-y-auto ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+          }`}
       >
         {/* Close Button */}
         <button
           onClick={handleCancel}
-          className={`absolute top-4 right-4 z-[10001] p-2 rounded-full transition-colors duration-200 ${
-            theme === 'dark'
+          className={`absolute top-4 right-4 z-[10001] p-2 rounded-full transition-colors duration-200 ${theme === 'dark'
               ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
               : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-          }`}
+            }`}
         >
           <X className="h-5 w-5" />
         </button>
@@ -117,39 +114,33 @@ export default function AddCategory({ onClose, theme = 'light' }) {
         {/* Header */}
         <div className="p-6 pb-0 text-center">
           <div
-            className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-              theme === 'dark' ? 'bg-purple-600' : 'bg-purple-100'
-            }`}
+            className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${theme === 'dark' ? 'bg-purple-600' : 'bg-purple-100'
+              }`}
           >
             <Tag className={`w-8 h-8 ${theme === 'dark' ? 'text-white' : 'text-purple-600'}`} />
           </div>
           <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             Add New Category
           </h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            Create a new book category
-          </p>
         </div>
 
         {/* Form */}
         <div className="px-6 pb-6">
           <form onSubmit={handleSubmit}>
             {error && (
-              <div className={`mb-4 text-sm p-3 rounded-lg border ${
-                theme === 'dark'
+              <div className={`mb-4 text-sm p-3 rounded-lg border ${theme === 'dark'
                   ? 'text-red-400 bg-red-900/20 border-red-800'
                   : 'text-red-700 bg-red-50 border-red-200'
-              }`}>
+                }`}>
                 {error}
               </div>
             )}
 
             {success && (
-              <div className={`mb-4 text-sm p-3 rounded-lg border ${
-                theme === 'dark'
+              <div className={`mb-4 text-sm p-3 rounded-lg border ${theme === 'dark'
                   ? 'text-green-400 bg-green-900/20 border-green-800'
                   : 'text-green-700 bg-green-50 border-green-200'
-              }`}>
+                }`}>
                 {success}
               </div>
             )}
@@ -178,10 +169,10 @@ export default function AddCategory({ onClose, theme = 'light' }) {
               <button
                 type="submit"
                 disabled={submitting || !formData.name.trim()}
-                className="w-full text-white py-3 rounded-lg font-medium transition duration-200 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full text-white py-3 rounded-lg font-medium bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {submitting ? (
-                  <span className="flex items-center animate-spin">Adding Category...</span>
+                  <span className="flex items-center">Adding Category...</span>
                 ) : (
                   <>
                     <Save className="w-5 h-5 mr-2" />
@@ -193,11 +184,10 @@ export default function AddCategory({ onClose, theme = 'light' }) {
               <button
                 type="button"
                 onClick={handleCancel}
-                className={`w-full py-3 rounded-lg font-medium transition duration-200 border ${
-                  theme === 'dark'
+                className={`w-full py-3 rounded-lg font-medium transition duration-200 border ${theme === 'dark'
                     ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600'
                     : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-300'
-                }`}
+                  }`}
               >
                 Cancel
               </button>

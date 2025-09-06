@@ -46,7 +46,7 @@ routes.delete('/deleteStudent', studentCtrl.deleteStudent);
 // ---------------- Category ----------------
 routes.post('/addCategory', catCtrl.addCategory);
 routes.get("/getCategory", catCtrl.getCategory);
-routes.put("/updateCategory", catCtrl.updateCategory);
+routes.put("/updateCategory/:categoryId", catCtrl.updateCategory);
 routes.delete("/deleteCategory/:id", catCtrl.deleteCategory);
 
 
