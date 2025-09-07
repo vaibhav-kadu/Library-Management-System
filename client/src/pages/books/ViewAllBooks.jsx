@@ -1,558 +1,342 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/authContext';
-import { useNavigate } from 'react-router-dom';
-import book_cover from '../../assets/book_cover.png';
-import { 
-  BookOpen, 
-  Search, 
-  Filter, 
-  Grid, 
-  List, 
-  Star, 
-  Calendar, 
-  User, 
-  Eye, 
-  Heart,
-  ArrowLeft,
-  ChevronDown,
-  Tag,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Edit,
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  BookOpen,
+  Loader,
+  Edit2,
   Trash2,
-  Plus
-} from 'lucide-react';
+  Save,
+  X,
+  Search,
+  User,
+  Hash,
+  Filter,
+  Star,
+} from "lucide-react";
 
-const ViewAllBooks = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('title');
-  const [showFilters, setShowFilters] = useState(false);
+export default function ViewAllBook({ theme = "light" }) {
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editingData, setEditingData] = useState({ title: "", author: "", isbn: "" });
+  const [deleting, setDeleting] = useState(null);
+  const [updating, setUpdating] = useState(null);
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("title");
 
-  // Sample books data - replace with actual API call
-  const [books, setBooks] = useState([
-    {
-      id: 1,
-      title: "JavaScript: The Good Parts",
-      author: "Douglas Crockford",
-      isbn: "978-0596517748",
-      category: "Programming",
-      publisher: "O'Reilly Media",
-      publishedYear: 2008,
-      pages: 176,
-      description: "Most programming languages contain good and bad parts, but JavaScript has more than its share of the bad...",
-      status: "available",
-      totalCopies: 5,
-      availableCopies: 3,
-      rating: 4.5,
-      dateAdded: "2025-01-15",
-      tags: ["Web Development", "JavaScript", "Programming"]
-    },
-    {
-      id: 2,
-      title: "Clean Code: A Handbook of Agile Software Craftsmanship",
-      author: "Robert C. Martin",
-      isbn: "978-0132350884",
-      category: "Programming",
-      publisher: "Prentice Hall",
-      publishedYear: 2008,
-      pages: 464,
-      description: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees...",
-      status: "available",
-      totalCopies: 3,
-      availableCopies: 1,
-      rating: 4.8,
-      dateAdded: "2025-01-10",
-      tags: ["Clean Code", "Software Engineering", "Best Practices"]
-    },
-    {
-      id: 3,
-      title: "The Design of Everyday Things",
-      author: "Don Norman",
-      isbn: "978-0465050659",
-      category: "Design",
-      publisher: "Basic Books",
-      publishedYear: 2013,
-      pages: 368,
-      description: "The ultimate guide to human-centered design. Design doesn't have to complicated, which is why this guide to...",
-      status: "checked_out",
-      totalCopies: 2,
-      availableCopies: 0,
-      rating: 4.6,
-      dateAdded: "2025-01-05",
-      tags: ["UX Design", "Psychology", "Product Design"]
-    },
-    {
-      id: 4,
-      title: "Sapiens: A Brief History of Humankind",
-      author: "Yuval Noah Harari",
-      isbn: "978-0062316097",
-      category: "History",
-      publisher: "Harper",
-      publishedYear: 2015,
-      pages: 443,
-      description: "From a renowned historian comes a groundbreaking narrative of humanity's creation and evolution...",
-      status: "available",
-      totalCopies: 4,
-      availableCopies: 4,
-      rating: 4.7,
-      dateAdded: "2024-12-20",
-      tags: ["Anthropology", "Evolution", "Civilization"]
-    },
-    {
-      id: 5,
-      title: "The Pragmatic Programmer",
-      author: "David Thomas, Andrew Hunt",
-      isbn: "978-0201616224",
-      category: "Programming",
-      publisher: "Addison-Wesley Professional",
-      publishedYear: 2019,
-      pages: 352,
-      description: "The Pragmatic Programmer is one of those rare tech books you'll read, re-read, and read again...",
-      status: "maintenance",
-      totalCopies: 3,
-      availableCopies: 0,
-      rating: 4.9,
-      dateAdded: "2024-12-15",
-      tags: ["Programming", "Software Development", "Career"]
-    },
-    {
-      id: 6,
-      title: "Atomic Habits",
-      author: "James Clear",
-      isbn: "978-0735211292",
-      category: "Self-Help",
-      publisher: "Avery",
-      publishedYear: 2018,
-      pages: 320,
-      description: "No matter your goals, Atomic Habits offers a proven framework for improving--every day...",
-      status: "available",
-      totalCopies: 6,
-      availableCopies: 5,
-      rating: 4.8,
-      dateAdded: "2024-12-01",
-      tags: ["Habits", "Self-Improvement", "Psychology"]
+  // Fetch books
+  const fetchBooks = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/getBooks");
+      if (response.data.success) {
+        setBooks(response.data.books);
+      } else {
+        setError("Failed to load books");
+      }
+    } catch (err) {
+      setError("Server error while fetching books");
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
-  const categories = ['all', 'Programming', 'Design', 'History', 'Self-Help', 'Science', 'Fiction'];
-  const statusOptions = ['all', 'available', 'checked_out', 'maintenance'];
-  const sortOptions = ['title', 'author', 'publishedYear', 'rating', 'dateAdded'];
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
-  // Filter and sort books
-  const filteredBooks = books
-    .filter(book => {
-      const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           book.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesCategory = selectedCategory === 'all' || book.category === selectedCategory;
-      const matchesStatus = selectedStatus === 'all' || book.status === selectedStatus;
-      return matchesSearch && matchesCategory && matchesStatus;
-    })
+  // Edit handlers
+  const handleEdit = (book) => {
+    setEditingId(book.book_id || book.id);
+    setEditingData({ title: book.title, author: book.author, isbn: book.isbn });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingData({ title: "", author: "", isbn: "" });
+  };
+
+  const handleUpdate = async (bookId) => {
+    if (!editingData.title.trim() || !editingData.author.trim()) {
+      setError("Title and Author cannot be empty");
+      return;
+    }
+    setUpdating(bookId);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await axios.put("http://localhost:3000/updateBook", {
+        id: bookId,
+        ...editingData,
+      });
+      if (response.data.success) {
+        setBooks(
+          books.map((b) =>
+            (b.book_id || b.id) === bookId ? { ...b, ...editingData } : b
+          )
+        );
+        setEditingId(null);
+        setSuccess("Book updated successfully!");
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        setError("Failed to update book");
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to update book");
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // DELETE handler
+  const handleDelete = async (bookId, bookTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${bookTitle}"?`)) return;
+
+    setDeleting(bookId);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await axios.delete("http://localhost:3000/deleteBook", { data: { id: bookId } });
+      if (response.data.message === "Book Deleted") {
+        setBooks(books.filter((b) => (b.book_id || b.id) !== bookId));
+        setSuccess("Book deleted successfully!");
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        setError("Failed to delete book");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete book");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const filteredAndSortedBooks = books
+    .filter(
+      (b) =>
+        b.title.toLowerCase().includes(search.toLowerCase()) ||
+        b.author.toLowerCase().includes(search.toLowerCase()) ||
+        (b.isbn || "").toLowerCase().includes(search.toLowerCase())
+    )
     .sort((a, b) => {
       switch (sortBy) {
-        case 'title': return a.title.localeCompare(b.title);
-        case 'author': return a.author.localeCompare(b.author);
-        case 'publishedYear': return b.publishedYear - a.publishedYear;
-        case 'rating': return b.rating - a.rating;
-        case 'dateAdded': return new Date(b.dateAdded) - new Date(a.dateAdded);
-        default: return 0;
+        case "author":
+          return a.author.localeCompare(b.author);
+        case "recent":
+          return (b.book_id || b.id) - (a.book_id || a.id);
+        default:
+          return a.title.localeCompare(b.title);
       }
     });
 
-  const getStatusBadge = (status, availableCopies, totalCopies) => {
-    switch (status) {
-      case 'available':
-        return availableCopies > 0 
-          ? <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full flex items-center"><CheckCircle className="w-3 h-3 mr-1" />Available ({availableCopies})</span>
-          : <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full flex items-center"><Clock className="w-3 h-3 mr-1" />All Checked Out</span>;
-      case 'checked_out':
-        return <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full flex items-center"><User className="w-3 h-3 mr-1" />Checked Out</span>;
-      case 'maintenance':
-        return <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full flex items-center"><XCircle className="w-3 h-3 mr-1" />Maintenance</span>;
-      default:
-        return <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">Unknown</span>;
-    }
-  };
+  const BookCard = ({ book, index }) => {
+    const bookId = book.book_id || book.id;
+    const isEditing = editingId === bookId;
 
-  const renderStars = (rating) => {
     return (
-      <div className="flex items-center space-x-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-4 h-4 ${
-              i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'
-            }`}
-          />
-        ))}
-        <span className="text-sm text-gray-600 ml-1">({rating})</span>
-      </div>
-    );
-  };
-
-  const BookCard = ({ book }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
-      <div className="relative">
-        <img
-          src={book_cover}
-          alt={book.title}
-          className="w-full h-48 object-cover"
-          style={{
-          width: '200px',
-          height: '300px',
-          objectFit: 'cover', // crops the image to fill the area
-          objectPosition: 'center' // centers the cropped area
-          }}
-          onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop';
-          }}
-        />
-        <div className="absolute top-2 right-2">
-          {user?.role === 'student' && (
-            <button className="p-1.5 bg-white rounded-full shadow-md hover:bg-gray-50">
-              <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
-            </button>
-          )}
-        </div>
-      </div>
-      
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 flex-1 mr-2">
-            {book.title}
-          </h3>
-          {getStatusBadge(book.status, book.availableCopies, book.totalCopies)}
-        </div>
-        
-        <p className="text-sm text-gray-600 mb-2">by {book.author}</p>
-        
-        <div className="flex items-center mb-2">
-          {renderStars(book.rating)}
-        </div>
-        
-        <p className="text-xs text-gray-500 line-clamp-2 mb-3">{book.description}</p>
-        
-        <div className="flex flex-wrap gap-1 mb-3">
-          {book.tags.slice(0, 2).map((tag, index) => (
-            <span key={index} className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded">
-              {tag}
-            </span>
-          ))}
-          {book.tags.length > 2 && (
-            <span className="px-2 py-1 bg-gray-50 text-gray-500 text-xs rounded">
-              +{book.tags.length - 2}
-            </span>
-          )}
-        </div>
-        
-        <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
-          <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" />{book.publishedYear}</span>
-          <span>{book.pages} pages</span>
-        </div>
-        
-        <div className="flex space-x-2">
-          {user?.role === 'student' && book.status === 'available' && book.availableCopies > 0 && (
-            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded-md transition-colors">
-              Borrow Book
-            </button>
-          )}
-          
-          <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-2 px-3 rounded-md transition-colors flex items-center justify-center">
-            <Eye className="w-3 h-3 mr-1" />View Details
-          </button>
-          
-          {(user?.role === 'librarian' || user?.role === 'admin') && (
-            <>
-              <button className="bg-green-100 hover:bg-green-200 text-green-700 text-xs py-2 px-2 rounded-md transition-colors">
-                <Edit className="w-3 h-3" />
-              </button>
-              {user?.role === 'admin' && (
-                <button className="bg-red-100 hover:bg-red-200 text-red-700 text-xs py-2 px-2 rounded-md transition-colors">
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  const BookListItem = ({ book }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200">
-      <div className="flex space-x-4">
-        <img
-          src={book_cover}
-          alt={book.title}
-          className="w-16 h-24 object-cover rounded flex-shrink-0"
-          onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop';
-          }}
-        />
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex-1 mr-4">
-              <h3 className="font-semibold text-gray-900 text-lg">{book.title}</h3>
-              <p className="text-gray-600 mb-1">by {book.author}</p>
-              <div className="flex items-center mb-2">
-                {renderStars(book.rating)}
-              </div>
+      <div
+        className={`group relative rounded-3xl shadow-xl transition-all duration-500 transform hover:-translate-y-2
+          ${theme === "dark" ? "bg-gray-800 border border-gray-600 text-white" : "bg-white border border-gray-200 text-gray-900"} overflow-hidden`}
+      >
+        {/* Book Cover */}
+        <div className="relative h-56 overflow-hidden rounded-t-3xl">
+          {book.image ? (
+            <img
+              src={book.image}
+              alt={book.title}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+              <BookOpen className="w-12 h-12 opacity-80" />
             </div>
-            {getStatusBadge(book.status, book.availableCopies, book.totalCopies)}
+          )}
+
+          <div className="absolute top-4 right-4">
+            <div className="px-3 py-1 bg-black/50 text-white rounded-full text-sm font-semibold">
+              #{String(index + 1).padStart(2, "0")}
+            </div>
           </div>
-          
-          <p className="text-sm text-gray-500 line-clamp-2 mb-2">{book.description}</p>
-          
-          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-3">
-            <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" />{book.publishedYear}</span>
-            <span>{book.pages} pages</span>
-            <span>ISBN: {book.isbn}</span>
-            <span>{book.publisher}</span>
-          </div>
-          
-          <div className="flex flex-wrap gap-1 mb-3">
-            {book.tags.map((tag, index) => (
-              <span key={index} className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded">
-                {tag}
-              </span>
-            ))}
-          </div>
-          
-          <div className="flex space-x-2">
-            {user?.role === 'student' && book.status === 'available' && book.availableCopies > 0 && (
-              <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-md transition-colors">
-                Borrow Book
-              </button>
+        </div>
+
+        {/* Book Details */}
+        <div className="p-6 space-y-4">
+          {/* Title */}
+          <div>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editingData.title}
+                onChange={(e) => setEditingData({ ...editingData, title: e.target.value })}
+                className={`w-full px-4 py-3 border-2 rounded-xl font-bold text-lg ${
+                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
+                }`}
+                placeholder="Book Title"
+              />
+            ) : (
+              <h3 className={`${theme === "dark" ? "text-white" : "text-gray-900"} text-xl font-bold leading-tight`}>
+                {book.title}
+              </h3>
             )}
-            
-            <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-2 px-4 rounded-md transition-colors flex items-center">
-              <Eye className="w-4 h-4 mr-1" />View Details
-            </button>
-            
-            {user?.role === 'student' && (
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-2 px-3 rounded-md transition-colors">
-                <Heart className="w-4 h-4 text-red-500" />
-              </button>
+          </div>
+
+          {/* Author */}
+          <div className="flex items-center space-x-3">
+            <User className="w-4 h-4 text-gray-400" />
+            {isEditing ? (
+              <input
+                type="text"
+                value={editingData.author}
+                onChange={(e) => setEditingData({ ...editingData, author: e.target.value })}
+                className={`flex-1 px-3 py-2 border-2 rounded-xl ${
+                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
+                }`}
+                placeholder="Author Name"
+              />
+            ) : (
+              <span className={theme === "dark" ? "text-gray-200" : "text-gray-900"}>{book.author}</span>
             )}
-            
-            {(user?.role === 'librarian' || user?.role === 'admin') && (
+          </div>
+
+          {/* ISBN */}
+          <div className="flex items-center space-x-3">
+            <Hash className="w-4 h-4 text-gray-400" />
+            {isEditing ? (
+              <input
+                type="text"
+                value={editingData.isbn}
+                onChange={(e) => setEditingData({ ...editingData, isbn: e.target.value })}
+                className={`flex-1 px-3 py-2 border-2 rounded-xl ${
+                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
+                }`}
+                placeholder="ISBN"
+              />
+            ) : (
+              <code className={`text-sm px-2 py-1 rounded-lg ${
+                theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
+              }`}>
+                {book.isbn || "N/A"}
+              </code>
+            )}
+          </div>
+
+          {/* Book ID */}
+          <div className="flex items-center justify-between pt-2 border-t border-gray-700">
+            <span className="text-sm font-medium text-gray-300">Book ID: {bookId}</span>
+            <div className="flex items-center space-x-1">
+              <Star className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-gray-300">New</span>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-between mt-4 gap-2">
+            {isEditing ? (
               <>
-                <button className="bg-green-100 hover:bg-green-200 text-green-700 text-sm py-2 px-3 rounded-md transition-colors">
-                  <Edit className="w-4 h-4" />
+                <button
+                  onClick={() => handleUpdate(bookId)}
+                  disabled={updating === bookId}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                >
+                  {updating === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  Save
                 </button>
-                {user?.role === 'admin' && (
-                  <button className="bg-red-100 hover:bg-red-200 text-red-700 text-sm py-2 px-3 rounded-md transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex-1 px-4 py-2 bg-gray-500/80 hover:bg-gray-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors duration-200"
+                >
+                  <X className="w-5 h-5" /> Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleEdit(book)}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                >
+                  <Edit2 className="w-5 h-5" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(bookId, book.title)}
+                  disabled={deleting === bookId}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                >
+                  {deleting === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                  Delete
+                </button>
               </>
             )}
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </button>
-              <div className="flex items-center space-x-2">
-                <BookOpen className="h-6 w-6 text-blue-600" />
-                <h1 className="text-xl font-semibold text-gray-900">All Books</h1>
-              </div>
-            </div>
-            
-            {(user?.role === 'librarian' || user?.role === 'admin') && (
-              <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <Plus className="h-4 w-4" />
-                <span>Add New Book</span>
-              </button>
-            )}
-          </div>
+    <div className={`${theme === "dark" ? "bg-gray-900" : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"} min-h-screen`}>
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
+        {/* Header */}
+        <div className={`rounded-3xl shadow-2xl p-8 mb-8 ${theme === "dark" ? "bg-gray-800 text-white border border-gray-700" : "bg-white text-gray-900 border border-gray-200"}`}>
+          <h1 className="text-4xl font-black mb-2">Book Collection</h1>
+          <p className="text-lg font-medium">{books.length} {books.length === 1 ? "book" : "books"} in your digital library</p>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+          {success && <p className="text-green-500 mt-2">{success}</p>}
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search and Filters */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4 mb-4">
-            {/* Search Bar */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        {/* Search & Sort */}
+        <div className={`rounded-3xl shadow-xl p-6 mb-8 ${theme === "dark" ? "bg-gray-800 text-white border border-gray-700" : "bg-white text-gray-900 border border-gray-200"}`}>
+          <div className="flex flex-col sm:flex-row gap-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-4 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search books, authors, or tags..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={`w-full pl-12 pr-6 py-4 rounded-2xl border-2 ${
+                  theme === "dark" ? "bg-gray-900 text-white border-gray-600 placeholder-gray-400" : "bg-white text-gray-900 border-gray-300 placeholder-gray-500"
+                }`}
+                placeholder="Search books by title, author, or ISBN..."
               />
             </div>
-            
-            {/* View Toggle */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+            <div className="flex items-center space-x-3">
+              <Filter className="w-5 h-5 text-gray-500" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className={`px-6 py-4 rounded-2xl border-2 ${
+                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
                 }`}
               >
-                <Grid className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <List className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Filter className="h-4 w-4" />
-                <span>Filters</span>
-                <ChevronDown className={`h-4 w-4 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          </div>
-          
-          {/* Filters Panel */}
-          {showFilters && (
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {categories.map(category => (
-                      <option key={category} value={category}>
-                        {category === 'all' ? 'All Categories' : category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {statusOptions.map(status => (
-                      <option key={status} value={status}>
-                        {status === 'all' ? 'All Status' : 
-                         status === 'checked_out' ? 'Checked Out' :
-                         status.charAt(0).toUpperCase() + status.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {sortOptions.map(option => (
-                      <option key={option} value={option}>
-                        {option === 'publishedYear' ? 'Publication Year' :
-                         option === 'dateAdded' ? 'Date Added' :
-                         option.charAt(0).toUpperCase() + option.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="flex items-end">
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedCategory('all');
-                      setSelectedStatus('all');
-                      setSortBy('title');
-                    }}
-                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors"
-                  >
-                    Reset Filters
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Results Summary */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">
-              Showing {filteredBooks.length} of {books.length} books
-            </p>
-            <div className="text-sm text-gray-500">
-              {searchQuery && `Results for "${searchQuery}"`}
-              {selectedCategory !== 'all' && ` in ${selectedCategory}`}
+                <option value="title">Sort by Title</option>
+                <option value="author">Sort by Author</option>
+                <option value="recent">Sort by Recent</option>
+              </select>
             </div>
           </div>
         </div>
-        
-        {/* Books Display */}
-        {filteredBooks.length > 0 ? (
-          viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredBooks.map(book => (
-                <BookCard key={book.id} book={book} />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredBooks.map(book => (
-                <BookListItem key={book.id} book={book} />
-              ))}
-            </div>
-          )
+
+        {/* Books */}
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader className={`w-12 h-12 animate-spin ${theme === "dark" ? "text-blue-400" : "text-blue-500"}`} />
+          </div>
+        ) : filteredAndSortedBooks.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {filteredAndSortedBooks.map((book, index) => (
+              <BookCard key={book.book_id || book.id} book={book} index={index} />
+            ))}
+          </div>
         ) : (
-          <div className="text-center py-12">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No books found</h3>
-            <p className="text-gray-600 mb-4">
-              {searchQuery ? `No books match your search "${searchQuery}"` : 'No books match your current filters'}
-            </p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
-                setSelectedStatus('all');
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Clear Filters
-            </button>
+          <div className={`text-center py-20 rounded-3xl ${theme === "dark" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"}`}>
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold mb-2">No books found</h3>
+            <p className="text-lg">{`Try adjusting your search terms or add your first book.`}</p>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default ViewAllBooks;
+}

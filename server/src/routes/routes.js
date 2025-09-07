@@ -47,13 +47,14 @@ routes.delete('/deleteStudent', studentCtrl.deleteStudent);
 // ---------------- Category ----------------
 routes.post('/addCategory', catCtrl.addCategory);
 routes.get("/getCategory", catCtrl.getCategory);
+routes.get("/categories", catCtrl.getCategoriesForDropdown);
 routes.put("/updateCategory/:categoryId", catCtrl.updateCategory);
 routes.delete("/deleteCategory/:id", catCtrl.deleteCategory);
 
 
 // ---------------- Books ----------------
 routes.post('/addBook', upload.single('image'), bookCtrl.addBook);
-routes.get('/getAllBooks', bookCtrl.getAllBooks);
+routes.get('/getBooks', bookCtrl.getAllBooks);
 routes.get('/getBookBy', bookCtrl.getBookBy);
 routes.put('/updateBook', upload2.single("profilephoto"), bookCtrl.updateBook);
 routes.delete('/deleteBook', bookCtrl.deleteBook);
