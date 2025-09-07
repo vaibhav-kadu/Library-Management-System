@@ -51,7 +51,6 @@ exports.updateCategory=async(req,res)=>{
     
     const { categoryId } = req.params; 
     const{name}=req.body;
-    console.log(categoryId,name);
     const checkExist= await catModel.findCategoryByName(name);
             if(checkExist){
                 return res.status(400).json({success:false,message:'Category Already Added'});
@@ -66,11 +65,11 @@ exports.updateCategory=async(req,res)=>{
             });
 };
 
-// controller
-exports.deleteCategory = (req, res) => {
-  const { id } = req.params; // ✅ param, not body
 
-  const promise = catModel.deleteCategory(id);
+exports.deleteCategory = (req, res) => {
+  const { category_id } = req.params; // ✅ Get from body instead of params
+  
+  const promise = catModel.deleteCategory(category_id);
   promise.then(() => {
     res.status(200).json({ success: true, message: 'Category Deleted' });
   });

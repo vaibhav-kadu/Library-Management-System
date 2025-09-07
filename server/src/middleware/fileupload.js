@@ -7,11 +7,12 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = path.join(__dirname, "..", "public", "uploads"); // default fallback
 
+    // Fixed path detection to include updateStudent
     if (req.originalUrl.includes("addBook")) {
       uploadPath = path.join(__dirname, "..", "public", "book_images");
-    } else if (req.originalUrl.includes("addStudent")) {
+    } else if (req.originalUrl.includes("Student")) { // This covers both addStudent and updateStudent
       uploadPath = path.join(__dirname, "..", "public", "student_images");
-    } else if (req.originalUrl.includes("addLibrarian")) {
+    } else if (req.originalUrl.includes("Librarian")) { // This covers both addLibrarian and updateLibrarian
       uploadPath = path.join(__dirname, "..", "public", "librarian_images");
     }
 

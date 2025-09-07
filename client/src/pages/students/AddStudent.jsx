@@ -112,7 +112,7 @@ export default function AddStudent({ onClose, theme = 'light', editingStudent = 
     return null;
   };
 
-  // Submit request (create or update)
+  // FIXED: Submit request (create or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -131,9 +131,9 @@ export default function AddStudent({ onClose, theme = 'light', editingStudent = 
       const formDataToSend = new FormData();
       
       if (isEditing) {
-        // For updating
-        const studentId = editingStudent.sid || editingStudent.id;
-        formDataToSend.append('id', studentId);
+        // FIXED: For updating - Use PUT method with sid parameter in URL
+        const sid = editingStudent.sid || editingStudent.id;
+        
         formDataToSend.append('name', formData.name);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('contact', formData.contact);
@@ -153,21 +153,19 @@ export default function AddStudent({ onClose, theme = 'light', editingStudent = 
         if (profileImage) {
           formDataToSend.append('profileImage', profileImage);
         }
-        console.log("I am Here");
 
-        const response = await axios.put('http://localhost:3000/updateStudent', formDataToSend, {
+        // FIXED: Use PUT method with sid parameter in URL
+        const response = await axios.put(`http://localhost:3000/updateStudent/${sid}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
-        console.log("I am Here");
 
-        if (response.data.message === "Update Successfully") {
+        if (response.data.success && response.data.message === "Update Successfully") {
           setSuccess('Student updated successfully!');
           
           // Show success message and close modal after delay
           setTimeout(() => {
-            alert('Student updated successfully!');
             if (onUpdateSuccess) {
               onUpdateSuccess();
             } else if (onClose) {

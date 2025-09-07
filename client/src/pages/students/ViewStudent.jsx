@@ -19,11 +19,11 @@ export default function ViewStudent({ theme = "light" }) {
 
   const isDark = theme === 'dark';
 
-  // Get current librarian ID from localStorage or session
+  // Get current librarian sid from localStorage or session
   const getCurrentLibrarianId = () => {
-    // Assuming you store the logged-in librarian's ID in localStorage
+    // Assuming you store the logged-in librarian's sid in localStorage
     const loginData = JSON.parse(localStorage.getItem('loginData') || '{}');
-    return loginData.lid || loginData.id;
+    return loginData.lid || loginData.sid;
   };
 
   // Fetch students
@@ -59,26 +59,26 @@ export default function ViewStudent({ theme = "light" }) {
   };
 
   // Verify student
-  const handleVerifyStudent = async (studentId) => {
+  const handleVerifyStudent = async (sid) => {
     const lid = getCurrentLibrarianId();
     if (!lid) {
       setError("Please log in as a librarian to verify students");
       return;
     }
 
-    setVerifying(studentId);
+    setVerifying(sid);
     setError(null);
 
     try {
       const response = await axios.post('http://localhost:3000/verifyStudent', {
-        studentId: studentId,
+        sid: sid,
         lid: lid
       });
 
       if (response.data.success) {
         // Update the student in the list
         setStudents(students.map(student => 
-          (student.sid || student.id) === studentId 
+          (student.sid || student.sid) === sid 
             ? { ...student, lid: lid, verified: true }
             : student
         ));
@@ -94,36 +94,35 @@ export default function ViewStudent({ theme = "light" }) {
     }
   };
 
-  // Delete
-  const handleDelete = async (studentId, studentName) => {
-    if (!window.confirm(`Are you sure you want to delete "${studentName}"?`)) {
-      return;
+
+const handleDelete = async (sid, studentName) => {
+  if (!window.confirm(`Are you sure you want to delete "${studentName}"?`)) {
+    return;
+  }
+
+  setDeleting(sid);
+  setError(null);
+  setSuccess(null);
+
+  try {
+    // Fixed: Use URL parameter instead of request body
+    const response = await axios.delete(`http://localhost:3000/deleteStudent/${sid}`);
+
+    if (response.data.success || response.data.message === "Student Deleted") {
+      setStudents(
+        students.filter((stu) => (stu.sid || stu.sid) !== sid)
+      );
+      setSuccess("Student deleted successfully!");
+      setTimeout(() => setSuccess(null), 3000);
+    } else {
+      setError("Failed to delete student");
     }
-
-    setDeleting(studentId);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await axios.delete("http://localhost:3000/deleteStudent", {
-        data: { id: studentId },
-      });
-
-      if (response.data.message === "Student Deleted") {
-        setStudents(
-          students.filter((stu) => (stu.sid || stu.id) !== studentId)
-        );
-        setSuccess("Student deleted successfully!");
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError("Failed to delete student");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete student");
-    } finally {
-      setDeleting(null);
-    }
-  };
+  } catch (err) {
+    setError(err.response?.data?.error || err.response?.data?.message || "Failed to delete student");
+  } finally {
+    setDeleting(null);
+  }
+};
 
   // Handle close AddStudent modal
   const handleCloseAddStudent = () => {
@@ -288,11 +287,11 @@ export default function ViewStudent({ theme = "light" }) {
                 <tbody className={`divide-y ${isDark ? "divide-gray-600" : "divide-gray-300"}`}>
                   {filteredStudents.length > 0 ? (
                     filteredStudents.map((stu, index) => {
-                      const studentId = stu.sid || stu.id;
+                      const sid = stu.sid || stu.sid;
                       const isVerified = stu.lid != null;
                       return (
                         <tr
-                          key={studentId}
+                          key={sid}
                           className={`transition-colors border-b cursor-pointer ${
                             isDark
                               ? "hover:bg-gray-700/30 border-gray-600"
@@ -362,16 +361,16 @@ export default function ViewStudent({ theme = "light" }) {
                               </div>
                             ) : (
                               <button
-                                onClick={() => handleVerifyStudent(studentId)}
-                                disabled={verifying === studentId}
+                                onClick={() => handleVerifyStudent(sid)}
+                                disabled={verifying === sid}
                                 className={`p-2 rounded-lg transition-all transform hover:scale-105 ${
                                   isDark
                                     ? 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
                                     : 'bg-red-100 text-red-600 hover:bg-red-200'
-                                } ${verifying === studentId ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                } ${verifying === sid ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 title="Click to verify student"
                               >
-                                {verifying === studentId ? (
+                                {verifying === sid ? (
                                   <Loader className="w-4 h-4 animate-spin" />
                                 ) : (
                                   <XCircle className="w-4 h-4" />
@@ -393,16 +392,16 @@ export default function ViewStudent({ theme = "light" }) {
                                 <Edit2 className="w-5 h-5" />
                               </button>
                               <button
-                                onClick={() => handleDelete(studentId, stu.name)}
-                                disabled={deleting === studentId}
+                                onClick={() => handleDelete(sid, stu.name)}
+                                disabled={deleting === sid}
                                 className={`p-2.5 rounded-lg transition-all transform hover:scale-105 ${
                                   isDark
                                     ? 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
                                     : 'bg-red-100 text-red-600 hover:bg-red-200'
-                                } ${deleting === studentId ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                } ${deleting === sid ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 title="Delete"
                               >
-                                {deleting === studentId ? (
+                                {deleting === sid ? (
                                   <Loader className="w-5 h-5 animate-spin" />
                                 ) : (
                                   <Trash2 className="w-5 h-5" />

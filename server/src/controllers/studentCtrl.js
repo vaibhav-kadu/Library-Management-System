@@ -53,12 +53,29 @@ exports.addStudent = async (req, res) => {
 
 exports.updateStudent = async (req, res) => {
   try {
-    const { sid, name, contact, email, currentProfileImage ,address} = req.body;
+    // Get sid from URL params instead of body
+    const { sid } = req.params;
+    const { name, contact, email, currentProfileImage, address } = req.body;
     let profileImage = currentProfileImage; // Keep existing image by default
+
+    // Validate required fields
+    if (!sid) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Student ID is required' 
+      });
+    }
+
+    if (!name || !contact || !email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Name, contact, and email are required' 
+      });
+    }
 
     // If a new image is uploaded
     if (req.file) {
-      // If there's an existing image, use its filename to overwrite
+      // If there's an existing image, try to replace it
       if (currentProfileImage) {
         const ext = path.extname(req.file.originalname);
         const oldExt = path.extname(currentProfileImage);
@@ -93,12 +110,12 @@ exports.updateStudent = async (req, res) => {
     }
 
     // Update student in database
-    const updateResult = await studentModel.updateStudent(sid, name, contact, email, profileImage,address);
+    const updateResult = await studentModel.updateStudent(sid, name, contact, email, profileImage, address);
     
     if (updateResult) {
       res.status(200).json({ 
         success: true, 
-        message: 'Student updated successfully', 
+        message: 'Update Successfully', // Match what frontend expects
         profileImage: profileImage 
       });
     } else {

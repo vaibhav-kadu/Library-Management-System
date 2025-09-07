@@ -62,7 +62,7 @@ export default function ViewLibrarian({ theme = "light" }) {
 
       if (response.data.success) {
         setLibrarians(
-          librarians.filter((lib) => (lib.lid || lib.id) !== lid)
+          librarians.filter((lib) => (lib.lid || lib.lid) !== lid)
         );
         setSuccess("Librarian deleted successfully!");
         setTimeout(() => setSuccess(null), 3000);
@@ -228,7 +228,7 @@ export default function ViewLibrarian({ theme = "light" }) {
                 <tbody className={`divide-y ${isDark ? "divide-gray-600" : "divide-gray-300"}`}>
                   {filteredLibrarians.length > 0 ? (
                     filteredLibrarians.map((lib, index) => {
-                      const lid = lib.lid || lib.id;
+                      const lid = lib.lid || lib.lid;
 
                       return (
                         <tr
