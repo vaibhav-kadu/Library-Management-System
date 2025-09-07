@@ -44,14 +44,14 @@ function initializeTables(connection) {
 
 
         `CREATE TABLE IF NOT EXISTS librarians (
-            id INT NOT NULL AUTO_INCREMENT,
+            lid INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
-            image VARCHAR(100),
+            profileImage VARCHAR(100),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
+            PRIMARY KEY (lid),
             UNIQUE KEY (email)
         )`,
 
@@ -80,25 +80,25 @@ VALUES
         ,
 
         `CREATE TABLE IF NOT EXISTS students (
-            id INT NOT NULL AUTO_INCREMENT,
+            sid INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
-            image VARCHAR(100),
+            profileImage VARCHAR(100),
             password VARCHAR(255) NOT NULL,
             address TEXT,
-            librarian_id INT,
+            lid INT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
+            PRIMARY KEY (sid),
             UNIQUE KEY (email),
-            FOREIGN KEY (librarian_id) REFERENCES librarians(id)
+            FOREIGN KEY (lid) REFERENCES librarians(lid)
             ON DELETE CASCADE
             ON UPDATE CASCADE
         
 
         )`,
 
-        `INSERT INTO students (name, contact, email, password, address, librarian_id)
+        `INSERT INTO students (name, contact, email, password, address, lid)
 VALUES
 ('Aarav Mehta', '9000000001', 'aarav.mehta@example.com', '9000000001', 'Mumbai, India', 1),
 ('Sneha Sharma', '9000000002', 'sneha.sharma@example.com', '9000000002', 'Pune, India', 2),
@@ -176,7 +176,7 @@ VALUES
         `CREATE TABLE IF NOT EXISTS transactions (
             transaction_id INT NOT NULL AUTO_INCREMENT,
             book_id INT NOT NULL,
-            student_id INT NOT NULL,
+            sid INT NOT NULL,
             issued_by INT NOT NULL,
             issue_date DATETIME DEFAULT CURRENT_TIMESTAMP,
             due_date DATE NOT NULL,
@@ -185,10 +185,8 @@ VALUES
             fine DOUBLE DEFAULT NULL,
             PRIMARY KEY (transaction_id),
             FOREIGN KEY (book_id) REFERENCES books(book_id),
-            FOREIGN KEY (student_id) REFERENCES students(id),
-            FOREIGN KEY (issued_by) REFERENCES librarians(id)
-            ON DELETE CASCADE
-            ON UPDATE CASCADE
+            FOREIGN KEY (sid) REFERENCES students(sid),
+            FOREIGN KEY (issued_by) REFERENCES librarians(lid)
         )`
     ];
 

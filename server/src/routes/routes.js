@@ -28,19 +28,20 @@ routes.get('/getAdminById', adminCtrl.getAdminById);
 // ---------------- Librarian ----------------
 // ✅ librarian signup with image
 routes.post("/addLibrarian",  upload.single('profileImage'),  libCtrl.addLibrarian);
+routes.put("/updateLibrarian", upload.single('profileImage'), libCtrl.updateLibrarian);
 routes.get("/getLibrarian", libCtrl.getLibrarian);
 routes.get("/getLibrarianById", libCtrl.getLibrarianById);
 routes.get("/getLibrarianEmail", libCtrl.getLibrarianByEmail);
-routes.put("/updateLibrarian", libCtrl.updateLibrarian);
 routes.delete("/deleteLibrarian", libCtrl.deleteLibrarian);
 
 // ---------------- Students ----------------
 // ✅ student signup with image
 routes.post('/addStudent',  upload.single('profileImage'),  studentCtrl.addStudent);
+routes.post('/verifyStudent', studentCtrl.verifyStudent);
+routes.post('/updateStudent',  upload.single('profileImage'),  studentCtrl.updateStudent);
 routes.get('/getStudents', studentCtrl.getStudents); 
 routes.get('/getStudentByEmail', studentCtrl.getStudentByEmail);
 routes.get('/getStudentById', studentCtrl.getStudentById);
-routes.put('/updateStudent', studentCtrl.updateStudent);
 routes.delete('/deleteStudent', studentCtrl.deleteStudent);
 
 // ---------------- Category ----------------
