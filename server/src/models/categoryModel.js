@@ -18,6 +18,16 @@ exports.getCategory=()=>{
     });
 }
 
+exports.getCategoriesForDropdown = () => {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT category_id, name FROM categories", (err, results) => {
+      if (err) return reject(err);
+      resolve(results);   // ✅ just return data
+    });
+  });
+};
+
+
 exports.findCategoryByName=(name)=>{
     return new Promise((resolve,reject)=>{
         db.query('select * from categories where name=? ',[name],(err,results)=>{

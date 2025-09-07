@@ -29,15 +29,23 @@ exports.addBook = (req, res) => {
         });
 };
 
-exports.getAllBooks=(req,res)=>{
-    let promise=bookModel.getBooks();
-        promise.then((result)=>{
-            res.status(201).json({result});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
+exports.getAllBooks = (req, res) => {
+  let promise = bookModel.getBooks();
+  promise
+    .then((result) => {
+      res.status(200).json({
+        success: true,
+        books: result   // ✅ consistent with frontend
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        success: false,
+        message: "Internal Server Error = " + err,
+      });
+    });
 };
+
 
 exports.getBookBy=(req,res)=>{
     let {input}=req.body;
@@ -64,14 +72,19 @@ exports.updateBook=(req,res)=>{
         });
 };
 
-exports.deleteBook=(req,res)=>{
-    let {book_id}=req,body;
+exports.deleteBook = (req, res) => {
+    let { id } = req.body; // ✅ get book id from request body
 
-    let promise=bookModel.deleteBook(book_id);
-        promise.then((result)=>{
-            res.status(201).json({message:'Book Deleted'});
-        });
-        promise.catch((err)=>{
-            res.status(400).json({message:'Internal Server Error = '+err});
+    if (!id) {
+        return res.status(400).json({ message: "Book ID is required" });
+    }
+
+    bookModel.deleteBook(id)
+        .then((result) => {
+            res.status(200).json({ message: "Book Deleted" });
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ message: "Internal Server Error" });
         });
 };

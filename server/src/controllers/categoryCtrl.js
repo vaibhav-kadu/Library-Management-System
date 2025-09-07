@@ -39,6 +39,14 @@ exports.getCategory = (req,res)=>{
 };
 
 
+exports.getCategoriesForDropdown = (req, res) => {
+  catModel.getCategoriesForDropdown()
+    .then(results => res.json(results))
+    .catch(err => res.status(500).json({ success: false, message: err }));
+};
+
+
+
 exports.updateCategory=async(req,res)=>{
     
     const { categoryId } = req.params; 

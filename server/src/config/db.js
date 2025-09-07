@@ -187,6 +187,8 @@ VALUES
             FOREIGN KEY (book_id) REFERENCES books(book_id),
             FOREIGN KEY (student_id) REFERENCES students(id),
             FOREIGN KEY (issued_by) REFERENCES librarians(id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
         )`
     ];
 
