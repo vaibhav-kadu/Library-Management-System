@@ -42,7 +42,7 @@ export default function ViewLibrarian({ theme = "light" }) {
   };
 
   // Delete
-  const handleDelete = async (librarianId, librarianName) => {
+  const handleDelete = async (lid, librarianName) => {
     if (
       !window.confirm(
         `Are you sure you want to delete librarian "${librarianName}"?`
@@ -51,18 +51,18 @@ export default function ViewLibrarian({ theme = "light" }) {
       return;
     }
 
-    setDeleting(librarianId);
+    setDeleting(lid);
     setError(null);
     setSuccess(null);
 
     try {
       const response = await axios.delete(
-        `http://localhost:3000/deleteLibrarian?id=${librarianId}`
+        `http://localhost:3000/deleteLibrarian?lid=${lid}`
       );
 
       if (response.data.success) {
         setLibrarians(
-          librarians.filter((lib) => (lib.lid || lib.id) !== librarianId)
+          librarians.filter((lib) => (lib.lid || lib.lid) !== lid)
         );
         setSuccess("Librarian deleted successfully!");
         setTimeout(() => setSuccess(null), 3000);
@@ -228,11 +228,11 @@ export default function ViewLibrarian({ theme = "light" }) {
                 <tbody className={`divide-y ${isDark ? "divide-gray-600" : "divide-gray-300"}`}>
                   {filteredLibrarians.length > 0 ? (
                     filteredLibrarians.map((lib, index) => {
-                      const librarianId = lib.lid || lib.id;
+                      const lid = lib.lid || lib.lid;
 
                       return (
                         <tr
-                          key={librarianId}
+                          key={lid}
                           className={`transition-colors border-b ${
                             isDark
                               ? "hover:bg-gray-700/30 border-gray-600"
@@ -306,16 +306,16 @@ export default function ViewLibrarian({ theme = "light" }) {
                                 <Edit2 className="w-5 h-5" />
                               </button>
                               <button
-                                onClick={() => handleDelete(librarianId, lib.name)}
-                                disabled={deleting === librarianId}
+                                onClick={() => handleDelete(lid, lib.name)}
+                                disabled={deleting === lid}
                                 className={`p-2.5 rounded-lg transition-all transform hover:scale-105 ${
                                   isDark
                                     ? 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
                                     : 'bg-red-100 text-red-600 hover:bg-red-200'
-                                } ${deleting === librarianId ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                } ${deleting === lid ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 title="Delete"
                               >
-                                {deleting === librarianId ? (
+                                {deleting === lid ? (
                                   <Loader className="w-5 h-5 animate-spin" />
                                 ) : (
                                   <Trash2 className="w-5 h-5" />

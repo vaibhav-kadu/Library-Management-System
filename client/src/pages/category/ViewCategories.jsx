@@ -44,25 +44,25 @@ export default function ViewCategories({ theme = 'light' }) {
     setEditingName('');
   };
 
-  const handleUpdate = async (categoryId) => {
+  const handleUpdate = async (category_id) => {
     if (!editingName.trim()) {
       setError('Category name cannot be empty');
       return;
     }
 
-    setUpdating(categoryId);
+    setUpdating(category_id);
     setError(null);
     setSuccess(null);
 
     try {
       // Updated to pass id and name in request body
-      const response = await axios.put(`http://localhost:3000/updateCategory/${categoryId}`, {
+      const response = await axios.put(`http://localhost:3000/updateCategory/${category_id}`, {
   name: editingName.trim()
 });
 
       if (response.data.success) {
         setCategories(categories.map(cat => 
-          (cat.category_id || cat.id) === categoryId 
+          (cat.category_id || cat.id) === category_id 
             ? { ...cat, name: editingName.trim() }
             : cat
         ));
@@ -80,34 +80,32 @@ export default function ViewCategories({ theme = 'light' }) {
     }
   };
 
-  const handleDelete = async (categoryId, categoryName) => {
-    if (!window.confirm(`Are you sure you want to delete "${categoryName}"?`)) {
-      return;
+const handleDelete = async (category_id, categoryName) => {
+  if (!window.confirm(`Are you sure you want to delete "${categoryName}"?`)) {
+    return;
+  }
+
+  setDeleting(category_id);
+  setError(null);
+  setSuccess(null);
+
+  try {
+    // Fixed: Send ID as URL parameter to match backend route
+    const response = await axios.delete(`http://localhost:3000/deleteCategory/${category_id}`);
+
+    if (response.data.success) {
+      setCategories(categories.filter(cat => (cat.category_id || cat.id) !== category_id));
+      setSuccess(response.data.message || 'Category deleted successfully!');
+      setTimeout(() => setSuccess(null), 3000);
+    } else {
+      setError('Failed to delete category');
     }
-
-    setDeleting(categoryId);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      // Updated to pass id and name in request body
-      const response = await axios.delete(`http://localhost:3000/deleteCategory`, {
-        data: { id: categoryId, name: categoryName }
-      });
-
-      if (response.data.success) {
-        setCategories(categories.filter(cat => (cat.category_id || cat.id) !== categoryId));
-        setSuccess(response.data.message || 'Category deleted successfully!');
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError('Failed to delete category');
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to delete category');
-    } finally {
-      setDeleting(null);
-    }
-  };
+  } catch (err) {
+    setError(err.response?.data?.error || 'Failed to delete category');
+  } finally {
+    setDeleting(null);
+  }
+};
 
   const filteredCategories = categories.filter(cat =>
     cat.name.toLowerCase().includes(search.toLowerCase())
@@ -210,11 +208,11 @@ export default function ViewCategories({ theme = 'light' }) {
             <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {filteredCategories.length > 0 ? (
                 filteredCategories.map((cat, index) => {
-                  const categoryId = cat.category_id || cat.id;
-                  const isEditing = editingId === categoryId;
+                  const category_id = cat.category_id || cat.id;
+                  const isEditing = editingId === category_id;
 
                   return (
-                    <tr key={categoryId} className={isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}>
+                    <tr key={category_id} className={isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}>
                       <td className={`py-4 px-6 text-sm ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
                         {index + 1}
                       </td>
@@ -239,12 +237,12 @@ export default function ViewCategories({ theme = 'light' }) {
                           {isEditing ? (
                             <>
                               <ActionButton
-                                onClick={() => handleUpdate(categoryId)}
-                                disabled={updating === categoryId}
+                                onClick={() => handleUpdate(category_id)}
+                                disabled={updating === category_id}
                                 icon={Save}
                                 color="green"
                                 title="Save changes"
-                                loading={updating === categoryId}
+                                loading={updating === category_id}
                               />
                               <ActionButton
                                 onClick={handleCancelEdit}
@@ -262,12 +260,12 @@ export default function ViewCategories({ theme = 'light' }) {
                                 title="Edit category"
                               />
                               <ActionButton
-                                onClick={() => handleDelete(categoryId, cat.name)}
-                                disabled={deleting === categoryId}
+                                onClick={() => handleDelete(category_id, cat.name)}
+                                disabled={deleting === category_id}
                                 icon={Trash2}
                                 color="red"
                                 title="Delete category"
-                                loading={deleting === categoryId}
+                                loading={deleting === category_id}
                               />
                             </>
                           )}

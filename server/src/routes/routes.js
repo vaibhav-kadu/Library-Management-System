@@ -37,19 +37,20 @@ routes.delete("/deleteLibrarian", libCtrl.deleteLibrarian);
 // ---------------- Students ----------------
 // ✅ student signup with image
 routes.post('/addStudent',  upload.single('profileImage'),  studentCtrl.addStudent);
+routes.put('/updateStudent/:sid',  upload.single('profileImage'),  studentCtrl.updateStudent);
 routes.post('/verifyStudent', studentCtrl.verifyStudent);
-routes.post('/updateStudent',  upload.single('profileImage'),  studentCtrl.updateStudent);
 routes.get('/getStudents', studentCtrl.getStudents); 
 routes.get('/getStudentByEmail', studentCtrl.getStudentByEmail);
 routes.get('/getStudentById', studentCtrl.getStudentById);
-routes.delete('/deleteStudent', studentCtrl.deleteStudent);
+routes.delete('/deleteStudent/:sid', studentCtrl.deleteStudent);
+
 
 // ---------------- Category ----------------
 routes.post('/addCategory', catCtrl.addCategory);
 routes.get("/getCategory", catCtrl.getCategory);
 routes.get("/categories", catCtrl.getCategoriesForDropdown);
 routes.put("/updateCategory/:categoryId", catCtrl.updateCategory);
-routes.delete("/deleteCategory/:id", catCtrl.deleteCategory);
+routes.delete("/deleteCategory/:category_id", catCtrl.deleteCategory);
 
 
 // ---------------- Books ----------------

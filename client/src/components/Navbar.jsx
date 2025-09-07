@@ -389,9 +389,7 @@ const Navbar = ({
             dropdownKey={`books-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
               { label: 'Add Book', path: '/addBook', icon: Plus },
-              { label: 'View Books', path: '/viewAllBooks', icon: Eye },
-              { label: 'Update Book', path: '/updateBook', icon: Edit3 },
-              { label: 'Delete Book', path: '/deleteBook', icon: Trash2 }
+              { label: 'View Books', path: '/viewAllBooks', icon: Eye }
             ]}
           />
           <DropdownComponent
@@ -436,9 +434,7 @@ const Navbar = ({
             dropdownKey={`books-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
               { label: 'Add Book', path: '/addBook', icon: Plus },
-              { label: 'View Books', path: '/viewAllBooks', icon: Eye },
-              { label: 'Update Book', path: '/updateBook', icon: Edit3 },
-              { label: 'Delete Book', path: '/deleteBook', icon: Trash2 }
+              { label: 'View Books', path: '/viewAllBooks', icon: Eye }
             ]}
           />
           <DropdownComponent
@@ -448,9 +444,7 @@ const Navbar = ({
             dropdownKey={`category-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
               { label: 'Add Category', path: '/addCategory', icon: Plus },
-              { label: 'View Categories', path: '/viewCategory', icon: Eye },
-              { label: 'Update Category', path: '/updateCategory', icon: Edit3 },
-              { label: 'Delete Category', path: '/deleteCategory', icon: Trash2 }
+              { label: 'View Categories', path: '/viewCategory', icon: Eye }
             ]}
           />
           <DropdownComponent
