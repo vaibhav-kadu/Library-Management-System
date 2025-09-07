@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { BookOpen, Eye, EyeOff, Mail, Lock, X, Phone, Camera, User, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Eye, EyeOff, Mail, Lock, X, Phone, Camera, User, Save, Edit2 } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-export default function AddLibrarian({ onClose, theme = 'light' }) {
+export default function AddLibrarian({ onClose, theme = 'light', editingLibrarian = null, onUpdateSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
@@ -13,6 +13,7 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
   const [imagePreview, setImagePreview] = useState(null);
 
   const navigate = useNavigate();
+  const isEditing = Boolean(editingLibrarian);
 
   const initialFormData = {
     email: '', 
@@ -23,6 +24,24 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+
+  // Populate form data when editing
+  useEffect(() => {
+    if (editingLibrarian) {
+      setFormData({
+        email: editingLibrarian.email || '',
+        password: '', // Keep password empty for security
+        confirmPassword: '',
+        name: editingLibrarian.name || '',
+        contact: editingLibrarian.contact || '',
+      });
+
+      // Set existing profile image preview
+      if (editingLibrarian.profileImage) {
+        setImagePreview(`http://localhost:3000/librarian_images/${editingLibrarian.profileImage}?${Date.now()}`);
+      }
+    }
+  }, [editingLibrarian]);
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -35,6 +54,12 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
   // Handle profile image upload
   const handleImageUpload = (file) => {
     if (file && file.type.startsWith('image/')) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+
       setProfileImage(file);
       
       const reader = new FileReader();
@@ -42,6 +67,7 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
         setImagePreview(e.target.result);
       };
       reader.readAsDataURL(file);
+      setError(null);
     }
   };
 
@@ -59,9 +85,17 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
     if (!data.name.trim()) return "Name is required";
     if (!data.email.trim()) return "Email is required";
     if (!data.contact.trim()) return "Contact number is required";
-    if (!data.password) return "Password is required";
-    if (data.password.length < 6) return "Password must be at least 6 characters long";
-    if (data.password !== data.confirmPassword) return "Passwords don't match";
+    
+    // For new librarian, password is required
+    if (!isEditing) {
+      if (!data.password) return "Password is required";
+      if (data.password.length < 6) return "Password must be at least 6 characters long";
+      if (data.password !== data.confirmPassword) return "Passwords don't match";
+    } else {
+      // For editing, password is optional, but if provided, must match confirmation
+      if (data.password && data.password.length < 6) return "Password must be at least 6 characters long";
+      if (data.password && data.password !== data.confirmPassword) return "Passwords don't match";
+    }
     
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,7 +110,7 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
     return null;
   };
 
-  // Submit signup request
+  // Submit request (create or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -93,35 +127,81 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
     try {
       // Create FormData for file upload
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (key !== 'confirmPassword') {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
       
-      if (profileImage) {
-        formDataToSend.append('profileImage', profileImage);
-      }
-
-      const response = await axios.post('http://localhost:3000/addLibrarian', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      if (isEditing) {
+        // For updating
+        const librarianId = editingLibrarian.lid || editingLibrarian.id;
+        formDataToSend.append('id', librarianId);
+        formDataToSend.append('name', formData.name);
+        formDataToSend.append('email', formData.email);
+        formDataToSend.append('contact', formData.contact);
+        
+        // Only append password if it's provided
+        if (formData.password) {
+          formDataToSend.append('password', formData.password);
         }
-      });
 
-      if (response.data.success) {
-        setSuccess('Librarian account created successfully!');
+        // Add current profile image name for reference
+        if (editingLibrarian.profileImage) {
+          formDataToSend.append('currentProfileImage', editingLibrarian.profileImage);
+        }
+
+        // Add new image if selected
+        if (profileImage) {
+          formDataToSend.append('profileImage', profileImage);
+        }
+
+        const response = await axios.put('http://localhost:3000/updateLibrarian', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.data.success) {
+          setSuccess('Librarian updated successfully!');
+          
+          // Show success message and close modal after delay
+          setTimeout(() => {
+            alert('Librarian updated successfully!');
+            if (onUpdateSuccess) {
+              onUpdateSuccess();
+            } else if (onClose) {
+              onClose();
+            }
+          }, 1000);
+        }
+      } else {
+        // For creating new librarian
+        Object.keys(formData).forEach(key => {
+          if (key !== 'confirmPassword') {
+            formDataToSend.append(key, formData[key]);
+          }
+        });
         
-        // Reset form after successful submission
-        setFormData(initialFormData);
-        setProfileImage(null);
-        setImagePreview(null);
-        
-        setTimeout(() => {
-          setSuccess(null);
-          if (onClose) onClose();
-          else navigate('/login');
-        }, 2000);
+        if (profileImage) {
+          formDataToSend.append('profileImage', profileImage);
+        }
+
+        const response = await axios.post('http://localhost:3000/addLibrarian', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.data.success) {
+          setSuccess('Librarian account created successfully!');
+          
+          // Reset form after successful submission
+          setFormData(initialFormData);
+          setProfileImage(null);
+          setImagePreview(null);
+          
+          setTimeout(() => {
+            setSuccess(null);
+            if (onClose) onClose();
+            else navigate('/login');
+          }, 2000);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -223,19 +303,25 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
             <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
               theme === 'dark' ? 'bg-green-600/90' : 'bg-green-100/90'
             }`}>
-              <BookOpen className={`w-8 h-8 ${
-                theme === 'dark' ? 'text-white' : 'text-green-600'
-              }`} />
+              {isEditing ? (
+                <Edit2 className={`w-8 h-8 ${
+                  theme === 'dark' ? 'text-white' : 'text-green-600'
+                }`} />
+              ) : (
+                <BookOpen className={`w-8 h-8 ${
+                  theme === 'dark' ? 'text-white' : 'text-green-600'
+                }`} />
+              )}
             </div>
             <h2 className={`text-2xl font-bold mb-2 ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
             }`}>
-              Add New Librarian
+              {isEditing ? 'Update Librarian' : 'Add New Librarian'}
             </h2>
             <p className={`${
               theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
             }`}>
-              Create a new librarian account
+              {isEditing ? 'Update librarian information' : 'Create a new librarian account'}
             </p>
           </div>
         </div>
@@ -338,8 +424,8 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   className={getInputClasses()}
-                  placeholder="Password"
-                  required
+                  placeholder={isEditing ? "New Password (leave blank to keep current)" : "Password"}
+                  required={!isEditing}
                 />
                 <button
                   type="button"
@@ -362,8 +448,8 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                   className={getInputClasses()}
-                  placeholder="Confirm Password"
-                  required
+                  placeholder={isEditing ? "Confirm New Password" : "Confirm Password"}
+                  required={!isEditing ? true : formData.password.length > 0}
                 />
                 <button
                   type="button"
@@ -390,12 +476,12 @@ export default function AddLibrarian({ onClose, theme = 'light' }) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Creating Account...
+                    {isEditing ? 'Updating...' : 'Creating Account...'}
                   </span>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Create Librarian Account
+                    {isEditing ? <Edit2 className="w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    {isEditing ? 'Update Librarian' : 'Create Librarian Account'}
                   </>
                 )}
               </button>

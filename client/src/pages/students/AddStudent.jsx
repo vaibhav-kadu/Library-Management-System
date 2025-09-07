@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { User, Eye, EyeOff, Mail, Lock, X, Phone, MapPin, Camera, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Eye, EyeOff, Mail, Lock, X, Phone, MapPin, Camera, Save, Edit2 } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-export default function AddStudent({ onClose, theme = 'light' }) {
+export default function AddStudent({ onClose, theme = 'light', editingStudent = null, onUpdateSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
@@ -13,6 +13,7 @@ export default function AddStudent({ onClose, theme = 'light' }) {
   const [imagePreview, setImagePreview] = useState(null);
 
   const navigate = useNavigate();
+  const isEditing = Boolean(editingStudent);
 
   const initialFormData = {
     email: '', 
@@ -25,6 +26,25 @@ export default function AddStudent({ onClose, theme = 'light' }) {
 
   const [formData, setFormData] = useState(initialFormData);
 
+  // Populate form data when editing
+  useEffect(() => {
+    if (editingStudent) {
+      setFormData({
+        email: editingStudent.email || '',
+        password: '', // Keep password empty for security
+        confirmPassword: '',
+        name: editingStudent.name || '',
+        contact: editingStudent.contact || '',
+        address: editingStudent.address || '',
+      });
+
+      // Set existing profile image preview
+      if (editingStudent.profileImage) {
+        setImagePreview(`http://localhost:3000/student_images/${editingStudent.profileImage}?${Date.now()}`);
+      }
+    }
+  }, [editingStudent]);
+
   // Handle input changes
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -36,6 +56,12 @@ export default function AddStudent({ onClose, theme = 'light' }) {
   // Handle profile image upload
   const handleImageUpload = (file) => {
     if (file && file.type.startsWith('image/')) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+
       setProfileImage(file);
       
       const reader = new FileReader();
@@ -43,6 +69,7 @@ export default function AddStudent({ onClose, theme = 'light' }) {
         setImagePreview(e.target.result);
       };
       reader.readAsDataURL(file);
+      setError(null);
     }
   };
 
@@ -60,9 +87,17 @@ export default function AddStudent({ onClose, theme = 'light' }) {
     if (!data.name.trim()) return "Name is required";
     if (!data.email.trim()) return "Email is required";
     if (!data.contact.trim()) return "Contact number is required";
-    if (!data.password) return "Password is required";
-    if (data.password.length < 6) return "Password must be at least 6 characters long";
-    if (data.password !== data.confirmPassword) return "Passwords don't match";
+    
+    // For new student, password is required
+    if (!isEditing) {
+      if (!data.password) return "Password is required";
+      if (data.password.length < 6) return "Password must be at least 6 characters long";
+      if (data.password !== data.confirmPassword) return "Passwords don't match";
+    } else {
+      // For editing, password is optional, but if provided, must match confirmation
+      if (data.password && data.password.length < 6) return "Password must be at least 6 characters long";
+      if (data.password && data.password !== data.confirmPassword) return "Passwords don't match";
+    }
     
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,7 +112,7 @@ export default function AddStudent({ onClose, theme = 'light' }) {
     return null;
   };
 
-  // Submit signup request
+  // Submit request (create or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -94,38 +129,87 @@ export default function AddStudent({ onClose, theme = 'light' }) {
     try {
       // Create FormData for file upload
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (key !== 'confirmPassword') {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
       
-      if (profileImage) {
-        formDataToSend.append('profileImage', profileImage);
-      }
-
-      const response = await axios.post('http://localhost:3000/addStudent', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      if (isEditing) {
+        // For updating
+        const studentId = editingStudent.sid || editingStudent.id;
+        formDataToSend.append('id', studentId);
+        formDataToSend.append('name', formData.name);
+        formDataToSend.append('email', formData.email);
+        formDataToSend.append('contact', formData.contact);
+        formDataToSend.append('address', formData.address);
+        
+        // Only append password if it's provided
+        if (formData.password) {
+          formDataToSend.append('password', formData.password);
         }
-      });
 
-      if (response.data.success) {
-        setSuccess('Student account created successfully!');
+        // Add current profile image name for reference
+        if (editingStudent.profileImage) {
+          formDataToSend.append('currentProfileImage', editingStudent.profileImage);
+        }
+
+        // Add new image if selected
+        if (profileImage) {
+          formDataToSend.append('profileImage', profileImage);
+        }
+        console.log("I am Here");
+
+        const response = await axios.put('http://localhost:3000/updateStudent', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log("I am Here");
+
+        if (response.data.message === "Update Successfully") {
+          setSuccess('Student updated successfully!');
+          
+          // Show success message and close modal after delay
+          setTimeout(() => {
+            alert('Student updated successfully!');
+            if (onUpdateSuccess) {
+              onUpdateSuccess();
+            } else if (onClose) {
+              onClose();
+            }
+          }, 1000);
+        }
+      } else {
+        // For creating new student
+        Object.keys(formData).forEach(key => {
+          if (key !== 'confirmPassword') {
+            formDataToSend.append(key, formData[key]);
+          }
+        });
         
-        // Reset form after successful submission
-        setFormData(initialFormData);
-        setProfileImage(null);
-        setImagePreview(null);
-        
-        setTimeout(() => {
-          setSuccess(null);
-          if (onClose) onClose();
-        }, 2000);
+        if (profileImage) {
+          formDataToSend.append('profileImage', profileImage);
+        }
+
+        const response = await axios.post('http://localhost:3000/addStudent', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.data.success) {
+          setSuccess('Student account created successfully!');
+          
+          // Reset form after successful submission
+          setFormData(initialFormData);
+          setProfileImage(null);
+          setImagePreview(null);
+          
+          setTimeout(() => {
+            setSuccess(null);
+            if (onClose) onClose();
+          }, 2000);
+        }
       }
     } catch (error) {
       console.error(error);
-      setError(error.response?.data?.error || "Server Error. Please try again later.");
+      setError(error.response?.data?.error || error.response?.data?.message || "Server Error. Please try again later.");
     } finally {
       setSubmitting(false);
     }
@@ -223,19 +307,25 @@ export default function AddStudent({ onClose, theme = 'light' }) {
             <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
               theme === 'dark' ? 'bg-blue-600/90' : 'bg-blue-100/90'
             }`}>
-              <User className={`w-8 h-8 ${
-                theme === 'dark' ? 'text-white' : 'text-blue-600'
-              }`} />
+              {isEditing ? (
+                <Edit2 className={`w-8 h-8 ${
+                  theme === 'dark' ? 'text-white' : 'text-blue-600'
+                }`} />
+              ) : (
+                <User className={`w-8 h-8 ${
+                  theme === 'dark' ? 'text-white' : 'text-blue-600'
+                }`} />
+              )}
             </div>
             <h2 className={`text-2xl font-bold mb-2 ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
             }`}>
-              Add New Student
+              {isEditing ? 'Update Student' : 'Add New Student'}
             </h2>
             <p className={`${
               theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
             }`}>
-              Create a new student account
+              {isEditing ? 'Update student information' : 'Create a new student account'}
             </p>
           </div>
         </div>
@@ -352,8 +442,8 @@ export default function AddStudent({ onClose, theme = 'light' }) {
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   className={getInputClasses()}
-                  placeholder="Password"
-                  required
+                  placeholder={isEditing ? "New Password (leave blank to keep current)" : "Password"}
+                  required={!isEditing}
                 />
                 <button
                   type="button"
@@ -376,8 +466,8 @@ export default function AddStudent({ onClose, theme = 'light' }) {
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                   className={getInputClasses()}
-                  placeholder="Confirm Password"
-                  required
+                  placeholder={isEditing ? "Confirm New Password" : "Confirm Password"}
+                  required={!isEditing ? true : formData.password.length > 0}
                 />
                 <button
                   type="button"
@@ -404,12 +494,12 @@ export default function AddStudent({ onClose, theme = 'light' }) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Creating Account...
+                    {isEditing ? 'Updating...' : 'Creating Account...'}
                   </span>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Create Student Account
+                    {isEditing ? <Edit2 className="w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    {isEditing ? 'Update Student' : 'Create Student Account'}
                   </>
                 )}
               </button>

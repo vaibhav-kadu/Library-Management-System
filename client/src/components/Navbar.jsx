@@ -2,11 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { 
-  Sun, 
-  Moon, 
-  User, 
-  LogOut, 
-  ChevronDown, 
+  Sun, Moon, 
+  User,BookUp,BookDown,History, 
+  LogOut, Clock,AlertCircle,
+  ChevronDown, DollarSign,Calendar,FileText,
   BookOpen,
   Menu,
   X,
@@ -19,7 +18,7 @@ import {
   Library,
   Edit3,
   Trash2,
-  Tag
+  Tag,ArrowRightLeft
 } from 'lucide-react';
 
 const Navbar = ({ 
@@ -402,9 +401,7 @@ const Navbar = ({
             dropdownKey={`students-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
               { label: 'Add Student', path: '/addStudents', icon: Plus },
-              { label: 'View Students', path: '/viewStudents', icon: Eye },
-              { label: 'Update Student', path: '/updateStudent', icon: Edit3 },
-              { label: 'Delete Student', path: '/deleteStudent', icon: Trash2 }
+              { label: 'View Students', path: '/viewStudents', icon: Eye }
             ]}
           />
         </>
@@ -416,6 +413,22 @@ const Navbar = ({
       return (
         <>
           {dashboardButton}
+           <DropdownComponent
+            key={`transactions-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
+            title="Transactions"
+            icon={ArrowRightLeft}
+            dropdownKey={`transactions-${isMobile ? 'mobile' : 'desktop'}`}
+            items={[
+              { label: 'Issue Book', path: '/issueBook', icon: BookUp },
+              { label: 'Return Book', path: '/returnBook', icon: BookDown },
+              { label: 'Transaction History', path: '/transactionHistory', icon: History },
+              { label: 'Active Loans', path: '/activeLoans', icon: Clock },
+              { label: 'Overdue Books', path: '/overdueBooks', icon: AlertCircle },
+              { label: 'Manage Fines', path: '/manageFines', icon: DollarSign },
+              { label: 'Renew Book', path: '/renewBook', icon: Calendar },
+              { label: 'Reports', path: '/transactionReports', icon: FileText }
+            ]}
+          />
           <DropdownComponent
             key={`books-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Books"
@@ -447,9 +460,7 @@ const Navbar = ({
             dropdownKey={`students-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
               { label: 'Add Student', path: '/addStudents', icon: Plus },
-              { label: 'View Students', path: '/viewStudents', icon: Eye },
-              { label: 'Update Student', path: '/updateStudent', icon: Edit3 },
-              { label: 'Delete Student', path: '/deleteStudent', icon: Trash2 }
+              { label: 'View Students', path: '/viewStudents', icon: Eye }
             ]}
           />
           <DropdownComponent
@@ -459,9 +470,7 @@ const Navbar = ({
             dropdownKey={`librarians-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
               { label: 'Add Librarian', path: '/addLibrarian', icon: Plus },
-              { label: 'View Librarians', path: '/viewLibrarians', icon: Eye },
-              { label: 'Update Librarian', path: '/updateLibrarian', icon: Edit3 },
-              { label: 'Delete Librarian', path: '/deleteLibrarian', icon: Trash2 }
+              { label: 'View Librarians', path: '/viewLibrarians', icon: Eye }
             ]}
           />
         </>

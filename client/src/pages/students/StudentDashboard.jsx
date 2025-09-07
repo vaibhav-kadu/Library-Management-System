@@ -16,7 +16,6 @@ import {
   Library
 } from 'lucide-react';
 import ViewAllBooks from '../books/ViewAllBooks';
-import StudentProfile from './StudentProfile ';
 
 const StudentDashboard = () => {
   const { user, loading, logout } = useAuth();

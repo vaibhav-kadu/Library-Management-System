@@ -12,7 +12,6 @@ import ViewAllBooks from './pages/books/ViewAllBooks';
 import StudentDashboard from './pages/students/StudentDashboard';
 import AddLibrarian from './pages/librarian/AddLibrarian';
 import AddBook from './pages/books/AddBook';
-import StudentProfile from './pages/students/StudentProfile ';
 import AddCategory from './pages/category/AddCategory';
 import ViewCategories from './pages/category/ViewCategories';
 import Home from './pages/Home';
@@ -22,6 +21,7 @@ import BackgroundWrapper from './components/BackgroundWrapper';
 import SignUp from './pages/SignUp';
 import ViewLibrarian from './pages/librarian/ViewLibrarian';
 import ViewStudent from './pages/students/ViewStudent';   // ✅ import
+import StudentProfile from './pages/students/StudentProfile';
 
 function AppContent() {
   const current_theme = localStorage.getItem('current_theme');

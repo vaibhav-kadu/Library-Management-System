@@ -6,8 +6,6 @@ const bcrypt=require('bcrypt');
 
 exports.addStudent = async (req, res) => {
   try {
-    // fields from formData
-    console.log(req.file?"Get File":"Not Avalibale");
     
     const { name, contact, email, password, address } = req.body;
     // Get filename from multer
@@ -70,10 +68,90 @@ exports.getStudents = (req, res) => {
         });
 };
 
+exports.verifyStudent=(req,res)=>{
+    let {lid}=req.body;
+
+    let promise=studentModel.verifyStudent(lid);
+        promise.then((result)=>{
+            res.status(200).json({message:'Update Successfully'});
+        });
+        promise.catch((err)=>{
+            res.status(500).json({message:'Internal Server Error = '+err});
+        });
+};
+
+exports.updateStudent = async (req, res) => {
+    console.log("I am Here");
+  try {
+    const { sid, name, contact, email, currentProfileImage ,address} = req.body;
+    let profileImage = currentProfileImage; // Keep existing image by default
+
+    // If a new image is uploaded
+    if (req.file) {
+      // If there's an existing image, use its filename to overwrite
+      if (currentProfileImage) {
+        const ext = path.extname(req.file.originalname);
+        const oldExt = path.extname(currentProfileImage);
+        
+        // Create new filename with same base name but potentially different extension
+        const baseName = path.basename(currentProfileImage, oldExt);
+        const newFilename = `${baseName}${ext}`;
+        
+        const uploadPath = path.join(__dirname, "..", "public", "student_images");
+        const oldFilePath = path.join(uploadPath, currentProfileImage);
+        const newFilePath = path.join(uploadPath, newFilename);
+        
+        try {
+          // Delete old file if it exists and has different extension
+          if (oldExt !== ext && fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+          }
+          
+          // Move uploaded file to the desired filename
+          fs.renameSync(req.file.path, newFilePath);
+          profileImage = newFilename;
+          
+        } catch (fileError) {
+          console.error('File operation error:', fileError);
+          // If file operations fail, keep the original uploaded filename
+          profileImage = req.file.filename;
+        }
+      } else {
+        // No existing image, use the uploaded file's name
+        profileImage = req.file.filename;
+      }
+    }
+
+    // Update student in database
+    const updateResult = await studentModel.updateStudent(sid, name, contact, email, profileImage,address);
+    
+    if (updateResult) {
+      res.status(200).json({ 
+        success: true, 
+        message: 'Student updated successfully', 
+        profileImage: profileImage 
+      });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        error: 'Failed to update student' 
+      });
+    }
+
+  } catch (error) {
+    console.error('Update student error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal Server Error' 
+    });
+  }
+};
+
+
 
 exports.getStudentById=(req,res)=>{
-    const {id}=req.body;
-    let promise=studentModel.findStudentById(id);
+    const {sid}=req.body;
+    let promise=studentModel.findStudentById(sid);
         promise.then((result)=>{
             res.status(200).json({message:result});
         });
@@ -93,21 +171,11 @@ exports.getStudentByEmail=(req,res)=>{
         });
 }
 
-exports.updateStudent=(req,res)=>{
-    let {id,name,contact,email,password,address}=req.body;
 
-    let promise=studentModel.updateStudent(id,name,contact,email,password,address);
-        promise.then((result)=>{
-            res.status(200).json({message:'Update Successfully'});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
-};
 
 exports.deleteStudent=(req,res)=>{
-    const {id}=req.body;
-    let promise=studentModel.deleteStudent(id);
+    const {sid}=req.body;
+    let promise=studentModel.deleteStudent(sid);
         promise.then((result)=>{
             res.status(200).json({message:'Student Deleted'});
         });
