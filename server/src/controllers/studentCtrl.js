@@ -51,37 +51,7 @@ exports.addStudent = async (req, res) => {
   }
 };
 
-// ---------------- Get All Students ----------------
-exports.getStudents = (req, res) => {
-    studentModel.getStudents()
-        .then((result) => {
-            res.status(200).json({
-                success: true,
-                students: result   // ✅ return as "students"
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({
-                success: false,
-                error: 'Internal Server Error: ' + err
-            });
-        });
-};
-
-exports.verifyStudent=(req,res)=>{
-    let {lid}=req.body;
-
-    let promise=studentModel.verifyStudent(lid);
-        promise.then((result)=>{
-            res.status(200).json({message:'Update Successfully'});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
-};
-
 exports.updateStudent = async (req, res) => {
-    console.log("I am Here");
   try {
     const { sid, name, contact, email, currentProfileImage ,address} = req.body;
     let profileImage = currentProfileImage; // Keep existing image by default
@@ -146,6 +116,37 @@ exports.updateStudent = async (req, res) => {
     });
   }
 };
+
+// ---------------- Get All Students ----------------
+exports.getStudents = (req, res) => {
+    studentModel.getStudents()
+        .then((result) => {
+            res.status(200).json({
+                success: true,
+                students: result   // ✅ return as "students"
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                success: false,
+                error: 'Internal Server Error: ' + err
+            });
+        });
+};
+
+exports.verifyStudent=(req,res)=>{
+    let {lid}=req.body;
+
+    let promise=studentModel.verifyStudent(lid);
+        promise.then((result)=>{
+            res.status(200).json({message:'Update Successfully'});
+        });
+        promise.catch((err)=>{
+            res.status(500).json({message:'Internal Server Error = '+err});
+        });
+};
+
+
 
 
 

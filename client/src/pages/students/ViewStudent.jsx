@@ -60,8 +60,8 @@ export default function ViewStudent({ theme = "light" }) {
 
   // Verify student
   const handleVerifyStudent = async (studentId) => {
-    const librarianId = getCurrentLibrarianId();
-    if (!librarianId) {
+    const lid = getCurrentLibrarianId();
+    if (!lid) {
       setError("Please log in as a librarian to verify students");
       return;
     }
@@ -72,14 +72,14 @@ export default function ViewStudent({ theme = "light" }) {
     try {
       const response = await axios.post('http://localhost:3000/verifyStudent', {
         studentId: studentId,
-        librarianId: librarianId
+        lid: lid
       });
 
       if (response.data.success) {
         // Update the student in the list
         setStudents(students.map(student => 
           (student.sid || student.id) === studentId 
-            ? { ...student, lid: librarianId, verified: true }
+            ? { ...student, lid: lid, verified: true }
             : student
         ));
         setSuccess("Student verified successfully!");

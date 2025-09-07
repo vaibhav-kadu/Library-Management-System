@@ -37,8 +37,8 @@ routes.delete("/deleteLibrarian", libCtrl.deleteLibrarian);
 // ---------------- Students ----------------
 // ✅ student signup with image
 routes.post('/addStudent',  upload.single('profileImage'),  studentCtrl.addStudent);
-routes.post('/verifyStudent', studentCtrl.verifyStudent);
 routes.post('/updateStudent',  upload.single('profileImage'),  studentCtrl.updateStudent);
+routes.post('/verifyStudent', studentCtrl.verifyStudent);
 routes.get('/getStudents', studentCtrl.getStudents); 
 routes.get('/getStudentByEmail', studentCtrl.getStudentByEmail);
 routes.get('/getStudentById', studentCtrl.getStudentById);

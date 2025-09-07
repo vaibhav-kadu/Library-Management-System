@@ -130,8 +130,8 @@ export default function AddLibrarian({ onClose, theme = 'light', editingLibraria
       
       if (isEditing) {
         // For updating
-        const librarianId = editingLibrarian.lid || editingLibrarian.id;
-        formDataToSend.append('id', librarianId);
+        const lid = editingLibrarian.lid || editingLibrarian.id;
+        formDataToSend.append('id', lid);
         formDataToSend.append('name', formData.name);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('contact', formData.contact);
