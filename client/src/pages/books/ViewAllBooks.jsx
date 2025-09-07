@@ -11,7 +11,6 @@ import {
   User,
   Hash,
   Filter,
-  Star,
 } from "lucide-react";
 
 export default function ViewAllBook({ theme = "light" }) {
@@ -20,7 +19,7 @@ export default function ViewAllBook({ theme = "light" }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [editingData, setEditingData] = useState({ title: "", author: "", isbn: "" });
+  const [editingData, setEditingData] = useState({ title: "", author: "", total_copies: 0 });
   const [deleting, setDeleting] = useState(null);
   const [updating, setUpdating] = useState(null);
   const [search, setSearch] = useState("");
@@ -49,12 +48,12 @@ export default function ViewAllBook({ theme = "light" }) {
   // Edit handlers
   const handleEdit = (book) => {
     setEditingId(book.book_id || book.id);
-    setEditingData({ title: book.title, author: book.author, isbn: book.isbn });
+    setEditingData({ title: book.title, author: book.author, total_copies: book.total_copies });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setEditingData({ title: "", author: "", isbn: "" });
+    setEditingData({ title: "", author: "", total_copies: 0 });
   };
 
   const handleUpdate = async (bookId) => {
@@ -118,8 +117,7 @@ export default function ViewAllBook({ theme = "light" }) {
     .filter(
       (b) =>
         b.title.toLowerCase().includes(search.toLowerCase()) ||
-        b.author.toLowerCase().includes(search.toLowerCase()) ||
-        (b.isbn || "").toLowerCase().includes(search.toLowerCase())
+        b.author.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       switch (sortBy) {
@@ -135,6 +133,13 @@ export default function ViewAllBook({ theme = "light" }) {
   const BookCard = ({ book, index }) => {
     const bookId = book.book_id || book.id;
     const isEditing = editingId === bookId;
+
+    const issuedCount = book.issued_copies || 0; // <-- corrected
+    const totalCopies = book.total_copies || 0;
+
+    const availableCopies = totalCopies - issuedCount;
+    const availabilityStatus = availableCopies > 0 ? "Available" : "Unavailable";
+    const availabilityColor = availableCopies > 0 ? "text-green-500" : "text-red-500";
 
     return (
       <div
@@ -201,35 +206,18 @@ export default function ViewAllBook({ theme = "light" }) {
             )}
           </div>
 
-          {/* ISBN */}
+          {/* Total Copies - Issued */}
           <div className="flex items-center space-x-3">
             <Hash className="w-4 h-4 text-gray-400" />
-            {isEditing ? (
-              <input
-                type="text"
-                value={editingData.isbn}
-                onChange={(e) => setEditingData({ ...editingData, isbn: e.target.value })}
-                className={`flex-1 px-3 py-2 border-2 rounded-xl ${
-                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                }`}
-                placeholder="ISBN"
-              />
-            ) : (
-              <code className={`text-sm px-2 py-1 rounded-lg ${
-                theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
-              }`}>
-                {book.isbn || "N/A"}
-              </code>
-            )}
+            <span className={theme === "dark" ? "text-gray-200" : "text-gray-900"}>
+              Total: {totalCopies} - Issued: {issuedCount}
+            </span>
           </div>
 
-          {/* Book ID */}
+          {/* Availability */}
           <div className="flex items-center justify-between pt-2 border-t border-gray-700">
             <span className="text-sm font-medium text-gray-300">Book ID: {bookId}</span>
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-gray-300">New</span>
-            </div>
+            <span className={`text-sm font-semibold ${availabilityColor}`}>{availabilityStatus}</span>
           </div>
 
           {/* Buttons */}
@@ -298,7 +286,7 @@ export default function ViewAllBook({ theme = "light" }) {
                 className={`w-full pl-12 pr-6 py-4 rounded-2xl border-2 ${
                   theme === "dark" ? "bg-gray-900 text-white border-gray-600 placeholder-gray-400" : "bg-white text-gray-900 border-gray-300 placeholder-gray-500"
                 }`}
-                placeholder="Search books by title, author, or ISBN..."
+                placeholder="Search books by title or author..."
               />
             </div>
             <div className="flex items-center space-x-3">
