@@ -26,7 +26,7 @@ export default function ViewAllBook({ theme = "light" }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [editingData, setEditingData] = useState({ title: "", author: "", total_copies: 0 });
+  const [editingData, setEditingData] = useState({ title: "", author: "", isbn: "" });
   const [deleting, setDeleting] = useState(null);
   const [updating, setUpdating] = useState(null);
   const [borrowing, setBorrowing] = useState(null);
@@ -58,12 +58,12 @@ export default function ViewAllBook({ theme = "light" }) {
   // Edit handlers (for admin)
   const handleEdit = (book) => {
     setEditingId(book.book_id || book.id);
-    setEditingData({ title: book.title, author: book.author, total_copies: book.total_copies });
+    setEditingData({ title: book.title, author: book.author, isbn: book.isbn });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setEditingData({ title: "", author: "", total_copies: 0 });
+    setEditingData({ title: "", author: "", isbn: "" });
   };
 
   const handleUpdate = async (bookId) => {
@@ -232,7 +232,8 @@ export default function ViewAllBook({ theme = "light" }) {
     .filter(
       (b) =>
         b.title.toLowerCase().includes(search.toLowerCase()) ||
-        b.author.toLowerCase().includes(search.toLowerCase())
+        b.author.toLowerCase().includes(search.toLowerCase()) ||
+        (b.isbn || "").toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       switch (sortBy) {
@@ -405,15 +406,29 @@ export default function ViewAllBook({ theme = "light" }) {
             )}
           </div>
 
-          {/* Total Copies - Issued */}
+          {/* ISBN */}
           <div className="flex items-center space-x-3">
             <Hash className="w-4 h-4 text-gray-400" />
-            <span className={theme === "dark" ? "text-gray-200" : "text-gray-900"}>
-              Total: {totalCopies} - Issued: {issuedCount}
-            </span>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editingData.isbn}
+                onChange={(e) => setEditingData({ ...editingData, isbn: e.target.value })}
+                className={`flex-1 px-3 py-2 border-2 rounded-xl ${
+                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
+                }`}
+                placeholder="ISBN"
+              />
+            ) : (
+              <code className={`text-sm px-2 py-1 rounded-lg ${
+                theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
+              }`}>
+                {book.isbn || "N/A"}
+              </code>
+            )}
           </div>
 
-          {/* Availability */}
+          {/* Book ID */}
           <div className="flex items-center justify-between pt-2 border-t border-gray-700">
             <span className="text-sm font-medium text-gray-300">Book ID: {bookId}</span>
             <div className="flex items-center space-x-1">
@@ -459,7 +474,7 @@ export default function ViewAllBook({ theme = "light" }) {
                 className={`w-full pl-12 pr-6 py-4 rounded-2xl border-2 ${
                   theme === "dark" ? "bg-gray-900 text-white border-gray-600 placeholder-gray-400" : "bg-white text-gray-900 border-gray-300 placeholder-gray-500"
                 }`}
-                placeholder="Search books by title or author..."
+                placeholder="Search books by title, author, or ISBN..."
               />
             </div>
             <div className="flex items-center space-x-3">
