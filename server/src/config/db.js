@@ -38,9 +38,12 @@ function initializeTables(connection) {
             UNIQUE KEY (name)
         )`,
 
-        `INSERT INTO categories (name) VALUES   ('Science Fiction'),('Romance'),('History'),
-                                            ('Biographies'),('Children'),('Fantasy'),('Mystery'),
-                                            ('Self-Help'),('Technology'),('Philosophy')`,
+        `INSERT INTO categories (name) VALUES
+            ('Computer Science & Engineering'),
+            ('Electronics & Communication'),
+            ('Mechanical Engineering'),
+            ('Civil Engineering'),
+            ('Management & Commerce')`,
 
 
         `CREATE TABLE IF NOT EXISTS librarians (
@@ -114,22 +117,7 @@ VALUES
 ('Tanya Saxena', '9000000012', 'tanya.saxena@example.com', '9000000012', 'Bhopal, India', 2),
 ('Aditya Singh', '9000000013', 'aditya.singh@example.com', '9000000013', 'Varanasi, India', 3),
 ('Pooja Dey', '9000000014', 'pooja.dey@example.com', '9000000014', 'Kolkata, India', 4),
-('Rohan Nair', '9000000015', 'rohan.nair@example.com', '9000000015', 'Trivandrum, India', 5),
-('Aisha Khan', '9000000016', 'aisha.khan@example.com', '9000000016', 'Jaipur, India', 1),
-('Manav Chauhan', '9000000017', 'manav.chauhan@example.com', '9000000017', 'Surat, India', 2),
-('Nitya Patel', '9000000018', 'nitya.patel@example.com', '9000000018', 'Rajkot, India', 3),
-('Siddharth Rao', '9000000019', 'siddharth.rao@example.com', '9000000019', 'Mangalore, India', 4),
-('Ritika Aggarwal', '9000000020', 'ritika.aggarwal@example.com', '9000000020', 'Amritsar, India', 5),
-('Harshit Yadav', '9000000021', 'harshit.yadav@example.com', '9000000021', 'Patna, India', 1),
-('Nandini Das', '9000000022', 'nandini.das@example.com', '9000000022', 'Guwahati, India', 2),
-('Ayush Bansal', '9000000023', 'ayush.bansal@example.com', '9000000023', 'Rohtak, India', 3),
-('Shruti Pillai', '9000000024', 'shruti.pillai@example.com', '9000000024', 'Panaji, India', 4),
-('Devansh Arora', '9000000025', 'devansh.arora@example.com', '9000000025', 'Noida, India', 5),
-('Ira Mishra', '9000000026', 'ira.mishra@example.com', '9000000026', 'Gorakhpur, India', 1),
-('Kunal Bhatt', '9000000027', 'kunal.bhatt@example.com', '9000000027', 'Dehradun, India', 2),
-('Tanvi Sinha', '9000000028', 'tanvi.sinha@example.com', '9000000028', 'Raipur, India', 3),
-('Rajeev Menon', '9000000029', 'rajeev.menon@example.com', '9000000029', 'Thiruvananthapuram, India', 4),
-('Prerna Kaur', '9000000030', 'prerna.kaur@example.com', '9000000030', 'Chandigarh, India', 5)`
+('Rohan Nair', '9000000015', 'rohan.nair@example.com', '9000000015', 'Trivandrum, India', 5)`
         ,
 
         `CREATE TABLE IF NOT EXISTS books (
@@ -149,28 +137,22 @@ VALUES
             ON UPDATE CASCADE
         )`,
 
-        `INSERT INTO books (title, author, isbn, publisher, category_id, total_copies, issued_copies, image)
-VALUES
-('Dune', 'Frank Herbert', '9780441013593', 'Ace Books', 1, 10, 2, 'dune.jpg'),
-('Pride and Prejudice', 'Jane Austen', '9780141439518', 'Penguin Classics', 2, 15, 5, 'pride.jpg'),
-('Sapiens: A Brief History of Humankind', 'Yuval Noah Harari', '9780062316097', 'Harper', 3, 8, 3, 'sapiens.jpg'),
-('Steve Jobs', 'Walter Isaacson', '9781451648539', 'Simon & Schuster', 4, 6, 1, 'jobs.jpg'),
-('Harry Potter and the Sorcerers Stone', 'J.K. Rowling', '9780439708180', 'Scholastic', 5, 20, 10, 'hp1.jpg'),
-('The Hobbit', 'J.R.R. Tolkien', '9780261103344', 'HarperCollins', 6, 10, 4, 'hobbit.jpg'),
-('The Da Vinci Code', 'Dan Brown', '9780307474278', 'Doubleday', 7, 12, 6, 'davinci.jpg'),
-('Atomic Habits', 'James Clear', '9780735211292', 'Penguin Random House', 8, 18, 7, 'atomic.jpg'),
-('Clean Code', 'Robert C. Martin', '9780132350884', 'Prentice Hall', 9, 9, 2, 'cleancode.jpg'),
-('Meditations', 'Marcus Aurelius', '9780140449334', 'Penguin Classics', 10, 7, 1, 'meditations.jpg'),
-('Enders Game', 'Orson Scott Card', '9780812550702', 'Tor Books', 1, 11, 3, 'enders.jpg'),
-('Me Before You', 'Jojo Moyes', '9780143124542', 'Penguin Books', 2, 14, 5, 'mebefore.jpg'),
-('Gun"s", Germs, and Steel', 'Jared Diamond', '9780393317558', 'W.W. Norton', 3, 10, 2, 'guns.jpg'),
-('Becoming', 'Michelle Obama', '9781524763138', 'Crown Publishing', 4, 13, 4, 'becoming.jpg'),
-('The Cat in the Hat', 'Dr. Seuss', '9780394800011', 'Random House', 5, 17, 9, 'catinhat.jpg'),
-('The Name of the Wind', 'Patrick Rothfuss', '9780756404741', 'DAW Books', 6, 12, 4, 'namewind.jpg'),
-('Gone Girl', 'Gillian Flynn', '9780307588371', 'Crown Publishing', 7, 8, 3, 'gonegirl.jpg'),
-('The Power of Now', 'Eckhart Tolle', '9781577314806', 'New World Library', 8, 6, 1, 'powerofnow.jpg'),
-('The Pragmatic Programmer', 'Andy Hunt', '9780201616224', 'Addison-Wesley', 9, 7, 1, 'pragmatic.jpg'),
-('Beyond Good and Evil', 'Friedrich Nietzsche', '9780140449233', 'Penguin Classics', 10, 5, 0, 'beyond.jpg')`,
+        `INSERT INTO books (title, author, isbn, publisher, category_id, total_copies, issued_copies, image) VALUES
+            ('Introduction to Algorithms', 'Thomas H. Cormen', '9780262033848', 'MIT Press', 1, 10, 2, 'null'),
+            ('Database System Concepts', 'Abraham Silberschatz', '9780078022159', 'McGraw-Hill', 1, 8, 1, 'null'),
+            ('Operating System Concepts', 'Abraham Silberschatz', '9781118063330', 'Wiley', 1, 12, 3, 'null'),
+            ('Microelectronic Circuits', 'Adel S. Sedra', '9780199339136', 'Oxford University Press', 2, 7, 2, 'null'),
+            ('Signals and Systems', 'Alan V. Oppenheim', '9780138147570', 'Pearson', 2, 9, 1, 'null'),
+            ('Digital Design', 'M. Morris Mano', '9780132774208', 'Pearson', 2, 10, 4, 'null'),
+            ('Engineering Thermodynamics', 'P. K. Nag', '9780070151314', 'McGraw-Hill', 3, 11, 2, 'null'),
+            ('Strength of Materials', 'R. K. Bansal', '9788131808146', 'Laxmi Publications', 3, 8, 1, 'null'),
+            ('Theory of Machines', 'S. S. Rattan', '9789352602138', 'McGraw-Hill', 3, 9, 3, 'null'),
+            ('Basic Structural Analysis', 'C. S. Reddy', '9781259006395', 'McGraw-Hill', 4, 10, 2, 'null'),
+            ('Surveying Vol. 1', 'B. C. Punmia', '9789382335121', 'Laxmi Publications', 4, 7, 1, 'null'),
+            ('Soil Mechanics and Foundations', 'B. C. Punmia', '9789382335244', 'Laxmi Publications', 4, 8, 2, 'null'),
+            ('Principles of Management', 'P. C. Tripathi', '9781259026843', 'McGraw-Hill', 5, 12, 2, 'null'),
+            ('Marketing Management', 'Philip Kotler', '9789335518976', 'Pearson', 5, 10, 3, 'null'),
+            ('Financial Management', 'I. M. Pandey', '9789352601858', 'Vikas Publishing', 5, 9, 1, 'null')`,
 
 
         `CREATE TABLE IF NOT EXISTS transactions (
@@ -189,7 +171,20 @@ VALUES
             FOREIGN KEY (sid) REFERENCES students(sid),
             FOREIGN KEY (issued_by) REFERENCES librarians(lid),
     	    FOREIGN KEY (return_to) REFERENCES librarians(lid)
-        )`
+        )`, `INSERT INTO transactions 
+(book_id, sid, issued_by, issue_date, due_date, return_to, return_date, status, fine) 
+VALUES
+(1, 3, 2, '2025-09-01 10:30:00', '2025-09-07', NULL, NULL, 'issued', 0.0),
+(2, 5, 1, '2025-08-25 14:00:00', '2025-08-31', 3, '2025-08-30', 'returned', 0.0),
+(4, 8, 4, '2025-08-20 09:15:00', '2025-08-26', NULL, NULL, 'overdue', 50.0),
+(6, 10, 5, '2025-09-08 11:45:00', '2025-09-14', NULL, NULL, 'issued', 0.0),
+(3, 2, 2, '2025-08-15 12:00:00', '2025-08-21', 1, '2025-08-24', 'returned', 30.0),
+(7, 6, 3, '2025-09-07 15:00:00', '2025-09-13', NULL, NULL, 'pending', 0.0),
+(9, 12, 1, '2025-09-02 10:00:00', '2025-09-08', 4, '2025-09-08', 'returned', 0.0),
+(5, 14, 5, '2025-08-10 16:00:00', '2025-08-16', NULL, NULL, 'overdue', 120.0),
+(8, 7, 2, '2025-09-06 13:20:00', '2025-09-12', NULL, NULL, 'issued', 0.0),
+(10, 1, 3, '2025-08-28 09:40:00', '2025-09-03', 2, '2025-09-05', 'returned', 20.0);
+`
     ];
 
     tableQueries.forEach(query => {

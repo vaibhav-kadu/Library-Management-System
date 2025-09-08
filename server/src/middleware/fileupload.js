@@ -7,12 +7,11 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = path.join(__dirname, "..", "public", "uploads"); // default fallback
 
-    // Fixed path detection to include updateStudent
     if (req.originalUrl.includes("addBook")) {
       uploadPath = path.join(__dirname, "..", "public", "book_images");
-    } else if (req.originalUrl.includes("Student")) { // This covers both addStudent and updateStudent
+    } else if (req.originalUrl.includes("Student")) { 
       uploadPath = path.join(__dirname, "..", "public", "student_images");
-    } else if (req.originalUrl.includes("Librarian")) { // This covers both addLibrarian and updateLibrarian
+    } else if (req.originalUrl.includes("Librarian")) { 
       uploadPath = path.join(__dirname, "..", "public", "librarian_images");
     }
 
@@ -23,7 +22,15 @@ const storage = multer.diskStorage({
   },
 
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
+    // Get extension from original filename
+    let ext = path.extname(file.originalname);
+
+    // If no extension, fallback to MIME type
+    if (!ext) {
+      const mimeExt = file.mimetype.split("/")[1]; // e.g. "image/jpeg" -> "jpeg"
+      ext = "." + mimeExt;
+    }
+
     const randomStr = crypto.randomBytes(2).toString("hex"); // 4 chars
     const filename = `${Date.now()}-${randomStr}${ext}`;
     cb(null, filename);
