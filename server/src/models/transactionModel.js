@@ -16,8 +16,8 @@ exports.getAllTransactions = () => {
   return new Promise((resolve, reject) => {
     const sql = `
       SELECT 
-        t.transaction_id, s.name AS student_name, b.title AS book_name, l1.name AS issued_by,
-        t.issue_date, t.due_date, l2.name AS return_to, t.return_date, t.status,  t.fine
+        t.transaction_id, s.name AS student_name,s.sid, b.title AS book_name, b.book_id, l1.name AS issued_by,
+        l1.lid As issue_lid,t.issue_date, t.due_date, l2.name AS return_to, l2.lid As return_lid, t.return_date, t.status,  t.fine
       FROM transactions t
       INNER JOIN students s ON t.sid = s.sid
       INNER JOIN books b ON t.book_id = b.book_id
@@ -34,9 +34,9 @@ exports.getAllTransactions = () => {
 
 
 // Issue Book
-exports.issueBook = (lid,issue_date,transaction_id) => {
+exports.issueBook = (lid,issue_date, due_date, transaction_id) => {
     return new Promise((resolve, reject) => {
-        db.query(`UPDATE transactions SET issued_by=?, issue_date=? WHERE transaction_id = ?`, [lid,issue_date,transaction_id], (err, result) => {
+        db.query(`UPDATE transactions SET issued_by=?, issue_date=?, due_date = ?, status=? WHERE transaction_id = ?`, [lid,issue_date, due_date,'issued',transaction_id], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -46,7 +46,7 @@ exports.issueBook = (lid,issue_date,transaction_id) => {
 // Return Book
 exports.returnBook = (lid,return_date,transaction_id) => {
     return new Promise((resolve, reject) => {
-        db.query(`UPDATE transactions SET return_to=?, return_date=? WHERE transaction_id = ?`, [lid,return_date,transaction_id], (err, result) => {
+        db.query(`UPDATE transactions SET return_to=?, return_date=?, status=? WHERE transaction_id = ?`, [lid,return_date,'returned',transaction_id], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });

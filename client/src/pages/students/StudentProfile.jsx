@@ -7,7 +7,7 @@ export default function StudentProfile({ student, onClose, theme = 'light', onVe
   const { user } = useAuth();
   const [verifying, setVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState(null);
-  const [isVerified, setIsVerified] = useState(student.lid != null);
+  const [isVerified, setIsVerified] = useState(null);
 
   if (!student) return null;
 

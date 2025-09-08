@@ -20,20 +20,12 @@ exports.getBooks=()=>{
 };
 
 
-exports.getBookBy=(input)=>{
+exports.getBookBy=(id)=>{
     return new Promise((resolve,reject)=>{
-        if(!Number.isInteger(input)){
-            db.query('select * from books where title=?',[input],(err,result)=>{
-                if(err) return reject(err);
-                resolve(result);
-            });
-        }
-        else{
-            db.query('select * from books where category_id=?',[input],(err,result)=>{
-                if(err) return reject(err);
-                resolve(result);
-            });
-        };
+        db.query('select * from books where book_id=?',[id],(err,result)=>{
+            if(err) return reject(err);
+            resolve(result);
+        });
     });
 };
 

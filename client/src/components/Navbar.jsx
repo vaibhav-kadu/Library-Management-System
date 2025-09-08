@@ -388,7 +388,7 @@ const Navbar = ({
             icon={ArrowRightLeft}
             dropdownKey={`transactions-${isMobile ? 'mobile' : 'desktop'}`}
             items={[
-              { label: 'Issue Book', path: '/issueBook', icon: BookUp },
+              { label: 'All Transactions', path: '/viewAllTransactions', icon: BookUp },
               { label: 'Return Book', path: '/returnBook', icon: BookDown },
               { label: 'Transaction History', path: '/transactionHistory', icon: History },
               { label: 'Active Loans', path: '/activeLoans', icon: Clock },

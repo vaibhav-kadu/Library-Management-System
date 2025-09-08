@@ -18,12 +18,21 @@ exports.getAllTransactions = (req, res) => {
 // Issue Book
 exports.issueBook = (req, res) => {
   const { lid, transaction_id } = req.body;
-  const issue_date = new Date().toISOString().slice(0, 19).replace('T', ' '); // current datetime
 
-  transactionModel.issueBook(lid,issue_date, transaction_id)
+  // Current DateTime (MySQL DATETIME format)
+  const issue_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+  // Due Date = +6 days
+  const dueDateObj = new Date();
+  dueDateObj.setDate(dueDateObj.getDate() + 7);
+  const due_date = dueDateObj.toISOString().slice(0, 19).replace('T', ' ');
+  console.log("Ctrl "+lid,issue_date, due_date);
+
+  transactionModel.issueBook(lid, issue_date, due_date, transaction_id)
     .then(result => res.status(200).json({ success: true, result }))
     .catch(err => res.status(404).json({ success: false, message: 'Transaction Not Found', error: err }));
 };
+
 
 // Return Book
 exports.returnBook = (req, res) => {
