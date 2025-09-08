@@ -26,7 +26,6 @@ exports.issueBook = (req, res) => {
   const dueDateObj = new Date();
   dueDateObj.setDate(dueDateObj.getDate() + 7);
   const due_date = dueDateObj.toISOString().slice(0, 19).replace('T', ' ');
-  console.log("Ctrl "+lid,issue_date, due_date);
 
   transactionModel.issueBook(lid, issue_date, due_date, transaction_id)
     .then(result => res.status(200).json({ success: true, result }))
@@ -69,7 +68,6 @@ exports.updateTransaction = async (req, res) => {
 
         let fine = 0;
         const status = 'returned';
-console.log(returnDateOnly+"   =  "+dueDate);
         if (returnDateOnly > dueDateOnly) {
             fine = 200;
         }

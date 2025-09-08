@@ -113,7 +113,6 @@ export default function SignUp({ onClose, theme }) {
       if (profileImages[userType]) {
         formDataToSend.append('profileImage', profileImages[userType]);
       }
-console.log();
 
       const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, formDataToSend, {
         headers: {

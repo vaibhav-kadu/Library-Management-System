@@ -154,7 +154,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
     setShowStudentDetails(true);
   };
 
-  const handleLibrarianClick = (lid) => {
+  const handleLibrarianClick = (lid) => {    
     setSelectedLibrarianId(lid);
     setShowLibrarianDetails(true);
   };
@@ -392,7 +392,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
                         }`}>
                           {transaction.issued_by ? (
                             <button
-                              onClick={() => handleLibrarianClick(transaction.issued_by_lid)}
+                              onClick={() => handleLibrarianClick(transaction.issue_lid)}
                               className={`text-sm hover:underline transition-colors ${
                                 isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"
                               }`}
@@ -435,7 +435,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
                         }`}>
                           {transaction.return_to ? (
                             <button
-                              onClick={() => handleLibrarianClick(transaction.return_to_lid)}
+                              onClick={() => handleLibrarianClick(transaction.return_lid)}
                               className={`text-sm hover:underline transition-colors ${
                                 isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"
                               }`}

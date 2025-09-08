@@ -156,10 +156,10 @@ exports.verifyStudent=(req,res)=>{
 
     let promise=studentModel.verifyStudent(lid,sid);
         promise.then((result)=>{
-            res.status(200).json({message:'Update Successfully'});
+            res.status(200).json({success: true,message:'Update Successfully'});
         });
         promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
+            res.status(500).json({success: false,message:'Internal Server Error = '+err});
         });
 };
 
@@ -168,13 +168,14 @@ exports.verifyStudent=(req,res)=>{
 
 
 exports.getStudentById=(req,res)=>{
-    const {sid}=req.body;
+    const {sid}=req.query;
+    
     let promise=studentModel.findStudentById(sid);
         promise.then((result)=>{
-            res.status(200).json({message:result});
+            res.status(200).json({success: true,student:result});
         });
         promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
+            res.status(500).json({success: false,message:'Internal Server Error = '+err});
         });
 }
 
@@ -182,10 +183,10 @@ exports.getStudentByEmail=(req,res)=>{
     const {email}=req.body;
     let promise=studentModel.findStudentByEmail(email);
         promise.then((result)=>{
-            res.status(200).json({message:result});
+            res.status(200).json({success: true,message:result});
         });
         promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
+            res.status(500).json({success: false,message:'Internal Server Error = '+err});
         });
 }
 

@@ -13,8 +13,8 @@ export default function BookDetails({ bookId, onClose, theme = "light" }) {
     const fetchBookDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/getBookById/${bookId}`);
-        if (response.data.success) {
+        const response = await axios.get("http://localhost:3000/getBookById",{params:{book_id:bookId}});
+        if (response.data.success) {            
           setBook(response.data.book);
         } else {
           setError("Failed to load book details");

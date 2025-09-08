@@ -48,19 +48,19 @@ exports.getLibrarianByEmail = (req, res) => {
   const { email } = req.body;
   let promise = libmodel.findLibrarianByEmail(email);
   promise.then((result) => {
-    res.status(302).json({ message: result });//,msg:msg
+    res.status(302).json({success:true, message: result });//,msg:msg
   }).catch((err) => {
-    res.status(404).json({ message: err });
+    res.status(404).json({success:false, message: err });
   });
 }
 
 exports.getLibrarianById = (req, res) => {
-  const { lid } = req.body;
+  const { lid } = req.query;
   let promise = libmodel.findLibrarianById(lid);
   promise.then((result) => {
-    res.status(302).json({ message: result });//,msg:msg
+    res.status(200).json({success:true, librarian:result });//,msg:msg
   }).catch((err) => {
-    res.status(404).json({ message: err });
+    res.status(404).json({success:false, message: err });
   });
 }
 

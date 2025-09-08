@@ -51,7 +51,6 @@ exports.updateCategory=(category_id,name)=>{
 
 exports.deleteCategory=(category_id)=>{
     return new Promise((resolve,reject)=>{
-        console.log(category_id);
         db.query('delete from categories where category_id=?',[category_id],(err,result)=>{
             if(err){
                 reject(err);

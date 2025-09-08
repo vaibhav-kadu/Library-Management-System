@@ -65,7 +65,6 @@ exports.updateLibrarian=(lid,name, contact, email, profileImage)=>{
 
 exports.deleteLibrarian=(lid)=>{
     return new Promise((resolve,reject)=>{
-        console.log(lid);
         db.query('delete from librarians where lid=?',[lid],(err,result)=>{
             if(err){
                 reject(err);

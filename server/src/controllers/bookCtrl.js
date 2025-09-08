@@ -1,20 +1,5 @@
 const bookModel=require('../models/bookModel');
 
-/*
-exports.addBook=(req,res)=>{
-    const {title,author,isbn,publisher,category_id,total_copies,image}=req.body;
-
-    const promise=bookModel.addBook(title,author,isbn,publisher,category_id,total_copies,image);
-            promise.then((result)=>{
-                res.status(200).json({success : true,message:'Book Added'});
-            });
-            promise.catch((err)=>{
-                res.status(400).json({success : false,message:'Book Not Added Because = '+err});
-        });
-};
-
-*/
-
 exports.addBook = (req, res) => {
     const { title, author, isbn, publisher, category_id, total_copies } = req.body;
     const image = req.file ? req.file.filename : null; // Get uploaded image filename
@@ -48,13 +33,13 @@ exports.getAllBooks = (req, res) => {
 
 
 exports.getBookBy=(req,res)=>{
-    let {input}=req.body;
-    let promise=bookModel.getBookBy(input);
+    let {book_id}=req.query;
+    let promise=bookModel.getBookBy(book_id);
         promise.then((result)=>{
-            res.status(200).json({message:result});
+            res.status(200).json({success:true,book:result});
         });
         promise.catch((err)=>{
-            res.status(500).json({message:'Inter Nal Server Error = '+err});
+            res.status(500).json({success:false,message:'Inter Nal Server Error = '+err});
         });
 };
 
@@ -65,10 +50,10 @@ exports.updateBook=(req,res)=>{
 
     let promise=bookModel.updateBook(book_id,title,author,isbn,publisher,category_id,total_copies,issued_copies);
         promise.then((result)=>{
-            res.status(201).json({message:'Book Updated'});
+            res.status(201).json({success:true,message:'Book Updated'});
         });
         promise.catch((err)=>{
-            res.catch(500).json({message:'Internal Server Error = '+err});
+            res.catch(500).json({success:false,message:'Internal Server Error = '+err});
         });
 };
 
@@ -76,15 +61,15 @@ exports.deleteBook = (req, res) => {
     let { id } = req.body; // ✅ get book id from request body
 
     if (!id) {
-        return res.status(400).json({ message: "Book ID is required" });
+        return res.status(400).json({success:false, message: "Book ID is required" });
     }
 
     bookModel.deleteBook(id)
         .then((result) => {
-            res.status(200).json({ message: "Book Deleted" });
+            res.status(200).json({success:true, message: "Book Deleted" });
         })
         .catch((err) => {
             console.error(err);
-            res.status(500).json({ message: "Internal Server Error" });
+            res.status(500).json({success:false, message: "Internal Server Error" });
         });
 };

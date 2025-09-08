@@ -24,7 +24,7 @@ exports.getBookBy=(id)=>{
     return new Promise((resolve,reject)=>{
         db.query('select * from books where book_id=?',[id],(err,result)=>{
             if(err) return reject(err);
-            resolve(result);
+            resolve(result[0]);
         });
     });
 };

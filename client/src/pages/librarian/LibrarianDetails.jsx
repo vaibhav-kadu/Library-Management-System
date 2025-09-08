@@ -13,14 +13,15 @@ export default function LibrarianDetails({ librarianId, onClose, theme = "light"
     const fetchLibrarianDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/getLibrarianById/${librarianId}`);
-        if (response.data.success) {
+        const response = await axios.get("http://localhost:3000/getLibrarianById",{params:{lid:librarianId}});
+        
+        if (response.data.success) {          
           setLibrarian(response.data.librarian);
         } else {
           setError("Failed to load librarian details");
         }
       } catch (err) {
-        setError("Server error while fetching librarian details");
+        setError("Server error while fetching librarian details"+err);
       } finally {
         setLoading(false);
       }
