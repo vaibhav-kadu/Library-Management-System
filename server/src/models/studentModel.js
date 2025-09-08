@@ -24,16 +24,16 @@ exports.findStudentByEmail=(email)=>{
 };
 
 
-exports.addStudent=(name,contact,email,image,password,address)=>{
+exports.addStudent=(name,contact,email,profileImage,password,address)=>{
     return new Promise((resolve,reject)=>{
-        db.query('insert into students (name,contact,email,image,password,address) values(?,?,?,?,?,?)',[name,contact,email,image,password,address],(err,result)=>{
+        db.query('insert into students (name,contact,email,profileImage,password,address) values(?,?,?,?,?,?)',[name,contact,email,profileImage,password,address],(err,result)=>{
             if(err) return reject('Student Not Added Because = '+err);
             resolve(result);
         });
     });
 };
 
-exports.verifyStudent=(lid)=>{
+exports.verifyStudent=(lid,sid)=>{
     return new Promise((resolve,reject)=>{
         db.query('update students set lid=? where sid=?',[lid,sid],(err,result)=>{
             if(err) return reject(err);

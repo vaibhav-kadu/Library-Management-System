@@ -177,16 +177,18 @@ VALUES
             transaction_id INT NOT NULL AUTO_INCREMENT,
             book_id INT NOT NULL,
             sid INT NOT NULL,
-            issued_by INT NOT NULL,
-            issue_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-            due_date DATE NOT NULL,
+            issued_by INT DEFAULT NULL,
+            issue_date DATETIME DEFAULT NULL,
+            due_date DATE ,
+    	    return_to INT DEFAULT NULL,
             return_date DATE DEFAULT NULL,
-            status ENUM('issued','returned','overdue') DEFAULT 'issued',
-            fine DOUBLE DEFAULT NULL,
+            status ENUM('pending','issued','returned','overdue') DEFAULT 'pending',
+            fine DOUBLE DEFAULT 0.0,
             PRIMARY KEY (transaction_id),
             FOREIGN KEY (book_id) REFERENCES books(book_id),
             FOREIGN KEY (sid) REFERENCES students(sid),
-            FOREIGN KEY (issued_by) REFERENCES librarians(lid)
+            FOREIGN KEY (issued_by) REFERENCES librarians(lid),
+    	    FOREIGN KEY (return_to) REFERENCES librarians(lid)
         )`
     ];
 

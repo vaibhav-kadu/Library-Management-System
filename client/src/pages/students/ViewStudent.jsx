@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { User, Loader, Edit2, Trash2, Search, UserCircle, CheckCircle, XCircle } from "lucide-react";
 import AddStudent from "./AddStudent";
-import StudentProfile from "./StudentProfile"; // Import the StudentProfile component
+import StudentProfile from "./StudentProfile";
+import { useAuth } from "../../context/authContext";
 
 export default function ViewStudent({ theme = "light" }) {
+    const { user} = useAuth();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,9 +23,7 @@ export default function ViewStudent({ theme = "light" }) {
 
   // Get current librarian sid from localStorage or session
   const getCurrentLibrarianId = () => {
-    // Assuming you store the logged-in librarian's sid in localStorage
-    const loginData = JSON.parse(localStorage.getItem('loginData') || '{}');
-    return loginData.lid || loginData.sid;
+    return user.lid;
   };
 
   // Fetch students

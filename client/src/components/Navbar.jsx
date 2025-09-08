@@ -382,6 +382,22 @@ const Navbar = ({
       return (
         <>
           {dashboardButton}
+           <DropdownComponent
+            key={`transactions-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
+            title="Transactions"
+            icon={ArrowRightLeft}
+            dropdownKey={`transactions-${isMobile ? 'mobile' : 'desktop'}`}
+            items={[
+              { label: 'Issue Book', path: '/issueBook', icon: BookUp },
+              { label: 'Return Book', path: '/returnBook', icon: BookDown },
+              { label: 'Transaction History', path: '/transactionHistory', icon: History },
+              { label: 'Active Loans', path: '/activeLoans', icon: Clock },
+              { label: 'Overdue Books', path: '/overdueBooks', icon: AlertCircle },
+              { label: 'Manage Fines', path: '/manageFines', icon: DollarSign },
+              { label: 'Renew Book', path: '/renewBook', icon: Calendar },
+              { label: 'Reports', path: '/transactionReports', icon: FileText }
+            ]}
+          />
           <DropdownComponent
             key={`books-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Books"

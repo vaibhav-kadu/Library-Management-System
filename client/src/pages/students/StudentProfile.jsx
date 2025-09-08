@@ -1,11 +1,59 @@
-import React from 'react';
-import { X, User, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle, UserCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, User, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle, UserCircle, Shield } from 'lucide-react';
+import { useAuth } from '../../context/authContext';
+import axios from 'axios';
 
-export default function StudentProfile({ student, onClose, theme = 'light' }) {
+export default function StudentProfile({ student, onClose, theme = 'light', onVerificationSuccess }) {
+  const { user } = useAuth();
+  const [verifying, setVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState(null);
+  const [isVerified, setIsVerified] = useState(student.lid != null);
+
   if (!student) return null;
 
   const isDark = theme === 'dark';
-  const isVerified = student.lid != null;
+  // Check if user is librarian - following your navbar pattern
+  const isLibrarian = user && user.role === 'librarian';
+
+  // Handle verification
+  const handleVerifyStudent = async () => {
+    if (!window.confirm(`Are you sure you want to verify "${student.name}"?`)) {
+      return;
+    }
+
+    // Get librarian ID - following your navbar/auth pattern
+    const lid = user.lid; // Based on your ViewStudent component pattern
+    const sid = student.sid || student.id;
+
+    if (!lid) {
+      setVerificationError("Please log in as a librarian to verify students");
+      return;
+    }
+
+    setVerifying(true);
+    setVerificationError(null);
+
+    try {
+      const response = await axios.post('http://localhost:3000/verifyStudent', {
+        sid: sid,
+        lid: lid
+      });
+
+      if (response.data.success) {
+        setIsVerified(true);
+        // Call parent callback if provided to update the main list
+        if (onVerificationSuccess) {
+          onVerificationSuccess(sid, lid);
+        }
+      } else {
+        setVerificationError("Failed to verify student");
+      }
+    } catch (err) {
+      setVerificationError(err.response?.data?.error || "Failed to verify student");
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -78,7 +126,7 @@ export default function StudentProfile({ student, onClose, theme = 'light' }) {
               {student.name}
             </h2>
             
-            <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+            <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-4 ${
               isVerified
                 ? isDark 
                   ? 'bg-green-900/20 text-green-400 border border-green-800'
@@ -89,6 +137,57 @@ export default function StudentProfile({ student, onClose, theme = 'light' }) {
             }`}>
               {isVerified ? 'Verified Student' : 'Unverified Student'}
             </div>
+
+            {/* Verification Button - Only show for librarians and unverified students */}
+            {isLibrarian && !isVerified && (
+              <div className="w-full">
+                {verificationError && (
+                  <div className={`mb-3 p-2 rounded-lg text-sm ${
+                    isDark
+                      ? "bg-red-900/20 border border-red-800 text-red-400"
+                      : "bg-red-50 border border-red-200 text-red-700"
+                  }`}>
+                    {verificationError}
+                  </div>
+                )}
+                <button
+                  onClick={handleVerifyStudent}
+                  disabled={verifying}
+                  className={`inline-flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                    verifying
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'transform hover:scale-105'
+                  } ${
+                    isDark
+                      ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20'
+                      : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20'
+                  }`}
+                >
+                  <Shield className={`w-5 h-5 mr-2 ${verifying ? 'animate-spin' : ''}`} />
+                  {verifying ? 'Verifying...' : 'Verify Student'}
+                </button>
+              </div>
+            )}
+
+            {/* Success Message for Verified Students by Librarians */}
+            {isLibrarian && isVerified && (
+              <div className={`w-full p-3 rounded-lg ${
+                isDark 
+                  ? 'bg-green-900/10 border border-green-800'
+                  : 'bg-green-50 border border-green-200'
+              }`}>
+                <div className="flex items-center justify-center space-x-2">
+                  <CheckCircle className={`w-5 h-5 ${
+                    isDark ? 'text-green-400' : 'text-green-600'
+                  }`} />
+                  <p className={`text-sm font-medium ${
+                    isDark ? 'text-green-400' : 'text-green-700'
+                  }`}>
+                    Student has been successfully verified
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -215,8 +314,8 @@ export default function StudentProfile({ student, onClose, theme = 'light' }) {
             )}
           </div>
 
-          {/* Additional Info Section */}
-          {isVerified && (
+          {/* Additional Info Section - Only for non-librarians viewing verified students */}
+          {!isLibrarian && isVerified && (
             <div className={`rounded-lg p-4 ${
               isDark 
                 ? 'bg-green-900/10 border border-green-800'

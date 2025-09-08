@@ -12,9 +12,15 @@ import {
   Hash,
   Filter,
   Star,
+  BookUp,
+  BookDown,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
+import { useAuth } from "../../context/authContext";
 
 export default function ViewAllBook({ theme = "light" }) {
+  const { user } = useAuth();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,6 +29,9 @@ export default function ViewAllBook({ theme = "light" }) {
   const [editingData, setEditingData] = useState({ title: "", author: "", isbn: "" });
   const [deleting, setDeleting] = useState(null);
   const [updating, setUpdating] = useState(null);
+  const [borrowing, setBorrowing] = useState(null);
+  const [issuing, setIssuing] = useState(null);
+  const [returning, setReturning] = useState(null);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("title");
 
@@ -46,7 +55,7 @@ export default function ViewAllBook({ theme = "light" }) {
     fetchBooks();
   }, []);
 
-  // Edit handlers
+  // Edit handlers (for admin)
   const handleEdit = (book) => {
     setEditingId(book.book_id || book.id);
     setEditingData({ title: book.title, author: book.author, isbn: book.isbn });
@@ -90,7 +99,7 @@ export default function ViewAllBook({ theme = "light" }) {
     }
   };
 
-  // DELETE handler
+  // DELETE handler (for admin)
   const handleDelete = async (bookId, bookTitle) => {
     if (!window.confirm(`Are you sure you want to delete "${bookTitle}"?`)) return;
 
@@ -111,6 +120,111 @@ export default function ViewAllBook({ theme = "light" }) {
       setError(err.response?.data?.message || "Failed to delete book");
     } finally {
       setDeleting(null);
+    }
+  };
+
+  // BORROW handler (for student)
+  const handleBorrow = async (bookId, bookTitle) => {
+    if (!window.confirm(`Do you want to borrow "${bookTitle}"?`)) return;
+
+    setBorrowing(bookId);
+    setError(null);
+    setSuccess(null);
+    
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3000/borrowBook",
+        { book_id: bookId , sid: user.sid},
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      if (response.data.success) {
+        setSuccess(`Successfully borrowed "${bookTitle}"!`);
+        setTimeout(() => setSuccess(null), 3000);
+        // Optionally refresh books to update availability
+        fetchBooks();
+      } else {
+        setError(response.data.message || "Failed to borrow book");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to borrow book");
+    } finally {
+      setBorrowing(null);
+    }
+  };
+
+  // ISSUE handler (for librarian)
+  const handleIssue = async (bookId, bookTitle) => {
+    const studentId = prompt(`Enter Student ID to issue "${bookTitle}" to:`);
+    if (!studentId) return;
+
+    setIssuing(bookId);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3000/issueBook",
+        { 
+          book_id: bookId,
+          student_id: parseInt(studentId)
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      if (response.data.success) {
+        setSuccess(`Successfully issued "${bookTitle}" to student ${studentId}!`);
+        setTimeout(() => setSuccess(null), 3000);
+        fetchBooks();
+      } else {
+        setError(response.data.message || "Failed to issue book");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to issue book");
+    } finally {
+      setIssuing(null);
+    }
+  };
+
+  // RETURN handler (for librarian)
+  const handleReturn = async (bookId, bookTitle) => {
+    const transactionId = prompt(`Enter Transaction ID to return "${bookTitle}":`);
+    if (!transactionId) return;
+
+    setReturning(bookId);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3000/returnBook",
+        { 
+          transaction_id: parseInt(transactionId),
+          book_id: bookId
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      if (response.data.success) {
+        setSuccess(`Successfully returned "${bookTitle}"!`);
+        setTimeout(() => setSuccess(null), 3000);
+        fetchBooks();
+      } else {
+        setError(response.data.message || "Failed to return book");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to return book");
+    } finally {
+      setReturning(null);
     }
   };
 
@@ -135,6 +249,97 @@ export default function ViewAllBook({ theme = "light" }) {
   const BookCard = ({ book, index }) => {
     const bookId = book.book_id || book.id;
     const isEditing = editingId === bookId;
+
+    const renderActionButtons = () => {
+      if (isEditing) {
+        return (
+          <>
+            <button
+              onClick={() => handleUpdate(bookId)}
+              disabled={updating === bookId}
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+            >
+              {updating === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+              Save
+            </button>
+            <button
+              onClick={handleCancelEdit}
+              className="flex-1 px-4 py-2 bg-gray-500/80 hover:bg-gray-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors duration-200"
+            >
+              <X className="w-5 h-5" /> Cancel
+            </button>
+          </>
+        );
+      }
+
+      // Role-based buttons
+      if (!user) {
+        return (
+          <div className="text-center text-gray-500 py-2">
+            <span className="text-sm">Login to interact with books</span>
+          </div>
+        );
+      }
+
+      switch (user.role) {
+        case 'student':
+          return (
+            <button
+              onClick={() => handleBorrow(bookId, book.title)}
+              disabled={borrowing === bookId}
+              className="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+            >
+              {borrowing === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+              Borrow Book
+            </button>
+          );
+
+        case 'librarian':
+          return (
+            <>
+              <button
+                onClick={() => handleIssue(bookId, book.title)}
+                disabled={issuing === bookId}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+              >
+                {issuing === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <BookUp className="w-5 h-5" />}
+                Issue
+              </button>
+              <button
+                onClick={() => handleReturn(bookId, book.title)}
+                disabled={returning === bookId}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+              >
+                {returning === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <BookDown className="w-5 h-5" />}
+                Return
+              </button>
+            </>
+          );
+
+        case 'admin':
+          return (
+            <>
+              <button
+                onClick={() => handleEdit(book)}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+              >
+                <Edit2 className="w-5 h-5" /> Edit
+              </button>
+              <button
+                onClick={() => handleDelete(bookId, book.title)}
+                disabled={deleting === bookId}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+              >
+                {deleting === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                Delete
+              </button>
+            </>
+          );
+
+        default:
+          return null;
+      }
+    };
 
     return (
       <div
@@ -228,47 +433,13 @@ export default function ViewAllBook({ theme = "light" }) {
             <span className="text-sm font-medium text-gray-300">Book ID: {bookId}</span>
             <div className="flex items-center space-x-1">
               <Star className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-gray-300">New</span>
+              <span className="text-sm text-gray-300">Available</span>
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="flex justify-between mt-4 gap-2">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={() => handleUpdate(bookId)}
-                  disabled={updating === bookId}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
-                >
-                  {updating === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  Save
-                </button>
-                <button
-                  onClick={handleCancelEdit}
-                  className="flex-1 px-4 py-2 bg-gray-500/80 hover:bg-gray-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors duration-200"
-                >
-                  <X className="w-5 h-5" /> Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => handleEdit(book)}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
-                >
-                  <Edit2 className="w-5 h-5" /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(bookId, book.title)}
-                  disabled={deleting === bookId}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
-                >
-                  {deleting === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-                  Delete
-                </button>
-              </>
-            )}
+            {renderActionButtons()}
           </div>
         </div>
       </div>
@@ -282,6 +453,11 @@ export default function ViewAllBook({ theme = "light" }) {
         <div className={`rounded-3xl shadow-2xl p-8 mb-8 ${theme === "dark" ? "bg-gray-800 text-white border border-gray-700" : "bg-white text-gray-900 border border-gray-200"}`}>
           <h1 className="text-4xl font-black mb-2">Book Collection</h1>
           <p className="text-lg font-medium">{books.length} {books.length === 1 ? "book" : "books"} in your digital library</p>
+          {user && (
+            <p className="text-sm text-gray-500 mt-1">
+              Logged in as: <span className="font-semibold capitalize">{user.role}</span> - {user.name}
+            </p>
+          )}
           {error && <p className="text-red-500 mt-2">{error}</p>}
           {success && <p className="text-green-500 mt-2">{success}</p>}
         </div>

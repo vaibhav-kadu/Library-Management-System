@@ -152,9 +152,9 @@ exports.getStudents = (req, res) => {
 };
 
 exports.verifyStudent=(req,res)=>{
-    let {lid}=req.body;
+    let {lid,sid}=req.body;
 
-    let promise=studentModel.verifyStudent(lid);
+    let promise=studentModel.verifyStudent(lid,sid);
         promise.then((result)=>{
             res.status(200).json({message:'Update Successfully'});
         });

@@ -67,7 +67,7 @@ exports.loginLibrarian=(req,res)=>{
             
             if(password==result.password){
                             const token = jwt.sign(
-                                {id: result.id,role:"librarian"},
+                                {lid: result.lid,role:"librarian"},
                                 process.env.JWT_KEY, 
                                 { expiresIn: '1h' }
                             );
@@ -77,7 +77,7 @@ exports.loginLibrarian=(req,res)=>{
                             .json({
                                 success: true, 
                                 token, 
-                                user:{id:result.id, name: result.name, role:"librarian"},
+                                user:{lid:result.lid, name: result.name, role:"librarian"},
                                 message:"Login Success"
                             });
 
@@ -103,7 +103,7 @@ exports.loginStudent = (req, res) => {
 
     if (password == result.password) {
       const token = jwt.sign(
-        { id: result.id, role: "student"},
+        { sid: result.sid, role: "student"},
         process.env.JWT_KEY,
         { expiresIn: '1h' }
       );
@@ -111,7 +111,7 @@ exports.loginStudent = (req, res) => {
       return res.status(200).json({
         success: true,
         token,
-        user: { id: result.id, name: result.name, role: "student" },
+        user: { sid: result.sid, name: result.name, role: "student" },
         message: "Login Success"
       });
     } else {

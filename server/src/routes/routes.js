@@ -38,7 +38,7 @@ routes.delete("/deleteLibrarian", libCtrl.deleteLibrarian);
 // ✅ student signup with image
 routes.post('/addStudent',  upload.single('profileImage'),  studentCtrl.addStudent);
 routes.put('/updateStudent/:sid',  upload.single('profileImage'),  studentCtrl.updateStudent);
-routes.post('/verifyStudent', studentCtrl.verifyStudent);
+routes.put('/verifyStudent', studentCtrl.verifyStudent);
 routes.get('/getStudents', studentCtrl.getStudents); 
 routes.get('/getStudentByEmail', studentCtrl.getStudentByEmail);
 routes.get('/getStudentById', studentCtrl.getStudentById);
@@ -61,9 +61,10 @@ routes.put('/updateBook', upload2.single("profilephoto"), bookCtrl.updateBook);
 routes.delete('/deleteBook', bookCtrl.deleteBook);
 
 // ---------------- Transactions ----------------
-routes.post('/addTransaction', transCtrl.addTransaction);
+routes.post('/borrowBook', transCtrl.addTransaction);
 routes.get('/getAllTransactions', transCtrl.getAllTransactions);
-routes.post('/getTransactionById', transCtrl.getTransactionById);
+routes.put('/issueBook', transCtrl.issueBook);
+routes.put('/returnBook', transCtrl.returnBook);
 routes.put('/updateTransaction', transCtrl.updateTransaction);
 routes.delete('/deleteTransaction', transCtrl.deleteTransaction);
 

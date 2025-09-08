@@ -1,30 +1,52 @@
 const db = require('../config/db.js');
 
 // Create
-exports.addTransaction = (book_id, id, issued_by, due_date) => {
+exports.addTransaction = (book_id, sid) => {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO transactions (book_id, id, issued_by, due_date) VALUES (?, ?, ?, ?)`;
-        db.query(sql, [book_id, id, issued_by, due_date], (err, result) => {
+        const sql = `INSERT INTO transactions (book_id, sid) VALUES (?, ?)`;
+        db.query(sql, [book_id, sid], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
     });
 };
 
-// Read All
+// Read All Transactions with Joins
 exports.getAllTransactions = () => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        t.transaction_id, s.name AS student_name, b.title AS book_name, l1.name AS issued_by,
+        t.issue_date, t.due_date, l2.name AS return_to, t.return_date, t.status,  t.fine
+      FROM transactions t
+      INNER JOIN students s ON t.sid = s.sid
+      INNER JOIN books b ON t.book_id = b.book_id
+      LEFT JOIN librarians l1 ON t.issued_by = l1.lid
+      LEFT JOIN librarians l2 ON t.return_to = l2.lid
+      ORDER BY t.transaction_id DESC
+    `;
+    db.query(sql, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+};
+
+
+// Issue Book
+exports.issueBook = (lid,issue_date,transaction_id) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM transactions`, (err, result) => {
+        db.query(`UPDATE transactions SET issued_by=?, issue_date=? WHERE transaction_id = ?`, [lid,issue_date,transaction_id], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
     });
 };
 
-// Read One
-exports.getTransactionById = (transaction_id) => {
+// Return Book
+exports.returnBook = (lid,return_date,transaction_id) => {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM transactions WHERE transaction_id = ?`, [transaction_id], (err, result) => {
+        db.query(`UPDATE transactions SET return_to=?, return_date=? WHERE transaction_id = ?`, [lid,return_date,transaction_id], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });

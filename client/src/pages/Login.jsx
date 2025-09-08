@@ -78,7 +78,12 @@ export default function Login({ onClose, theme }) {
         localStorage.setItem("role", role);
         
         if (role === "student") navigate('/student-dashboard');
-        else if (role === "librarian") navigate('/librarian-dashboard');
+        else if (role === "librarian") {
+          
+        const lid = response.data.user?.lid;
+        localStorage.setItem("lid", lid);
+          navigate('/librarian-dashboard');
+        }
         else if (role === "admin") navigate('/admin-dashboard');
         else navigate('/');
         
