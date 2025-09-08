@@ -189,15 +189,15 @@ exports.getStudentByEmail=(req,res)=>{
         });
 }
 
+// controller/studentCtrl.js
+exports.deleteStudent = (req, res) => {
+  const { sid } = req.params;   // ✅ read from params, not body
 
-
-exports.deleteStudent=(req,res)=>{
-    const {sid}=req.body;
-    let promise=studentModel.deleteStudent(sid);
-        promise.then((result)=>{
-            res.status(200).json({message:'Student Deleted'});
-        });
-        promise.catch((err)=>{
-            res.status(500).json({message:'Internal Server Error = '+err});
-        });
+  let promise = studentModel.deleteStudent(sid);
+  promise.then((result) => {
+    res.status(200).json({ success: true, message: 'Student Deleted' });
+  });
+  promise.catch((err) => {
+    res.status(500).json({ success: false, message: 'Internal Server Error = ' + err });
+  });
 };
