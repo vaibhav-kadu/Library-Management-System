@@ -1,66 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
-  Shield, Users, BookOpen, Settings, BarChart3, 
-  TrendingUp, Database, UserPlus, Bell, LogOut, Activity,
-  Server, AlertTriangle, CheckCircle, Clock, Eye, Lock, Trash2,
-  Tag, Book, UserPlus2
+  Shield, Users, BookOpen, Layers, BookUp, Folder 
 } from 'lucide-react';
-import AddCategory from '../category/AddCategory';
-import AddBook from '../books/AddBook';
-import AddStudent from '../students/AddStudent';
-import AddLibrarian from '../librarian/AddLibrarian';
 
 const AdminDashboard = ({ theme }) => {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [addCategory, setAddCategory] = useState(false);
-  const [addBook, setAddBook] = useState(false);
-  const [addStudent, setAddStudent] = useState(false);
-  const [addLibrarian, setAddLibrarian] = useState(false);
-
-  const toggleAddCategory = () => setAddCategory(prev => !prev);
-  const toggleAddBook = () => setAddBook(prev => !prev);
-  const toggleAddStudent = () => setAddStudent(prev => !prev);
-  const toggleAddLibrarian = () => setAddLibrarian(prev => !prev);
-
-  // Sample data - replace with actual API calls
   const [systemStats, setSystemStats] = useState({
-    totalUsers: 1567,
-    totalBooks: 12450,
-    activeLibrarians: 8,
-    dailyTransactions: 234
+    totalStudents: 0,
+    totalLibrarians: 0,
+    totalBooks: 0,
+    totalCopies: 0,
+    issuedBooks: 0,
+    totalCategories: 0,   // ✅ new state
   });
 
-  const [recentUsers, setRecentUsers] = useState([
-    { id: 1, name: "Alice Johnson", role: "Student", joinDate: "2025-08-20", status: "active" },
-    { id: 2, name: "Bob Wilson", role: "Librarian", joinDate: "2025-08-19", status: "active" },
-    { id: 3, name: "Carol Smith", role: "Student", joinDate: "2025-08-18", status: "pending" },
-    { id: 4, name: "David Brown", role: "Student", joinDate: "2025-08-17", status: "active" }
-  ]);
-
-  const [systemAlerts, setSystemAlerts] = useState([
-    { id: 1, type: "warning", message: "Database backup overdue", time: "2 hours ago", severity: "medium" },
-    { id: 2, type: "error", message: "Failed login attempts detected", time: "4 hours ago", severity: "high" },
-    { id: 3, type: "info", message: "System update available", time: "1 day ago", severity: "low" },
-    { id: 4, type: "success", message: "Backup completed successfully", time: "2 days ago", severity: "low" }
-  ]);
-
-  const [libraryStats, setLibraryStats] = useState([
-    { branch: "Main Library", books: 8500, members: 1200, status: "active" },
-    { branch: "Science Wing", books: 2200, members: 250, status: "active" },
-    { branch: "Arts Section", books: 1750, members: 117, status: "maintenance" }
-  ]);
-
-  const handleLogout = async (e) => {
-    e.preventDefault();
+  // Fetch students
+  const fetchStudents = async () => {
     try {
-      await logout();
-      navigate("/");
-    } catch (error) {
-      console.log(error);
+      const res = await axios.get("http://localhost:3000/getStudents");
+      if (res.data.success) {
+        const students = res.data.students || [];
+        setSystemStats(prev => ({ ...prev, totalStudents: students.length }));
+      }
+    } catch (err) {
+      console.error("Error fetching students:", err);
+    }
+  };
+
+  // Fetch librarians
+  const fetchLibrarians = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/getLibrarian");
+      if (res.data.success) {
+        const librarians = res.data.librarians || [];
+        setSystemStats(prev => ({ ...prev, totalLibrarians: librarians.length }));
+      }
+    } catch (err) {
+      console.error("Error fetching librarians:", err);
+    }
+  };
+
+  // Fetch books
+  const fetchBooks = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/getBooks");
+      if (res.data.success) {
+        const books = res.data.books || [];
+        let totalCopies = 0, issuedCopies = 0;
+
+        books.forEach(b => {
+          totalCopies += b.total_copies || 0;
+          issuedCopies += b.issued_copies || 0;
+        });
+
+        setSystemStats(prev => ({
+          ...prev,
+          totalBooks: books.length,
+          totalCopies,
+          issuedBooks: issuedCopies,
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching books:", err);
+    }
+  };
+
+  // ✅ Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/getCategory");
+      if (res.data.success) {
+        const categories = res.data.categories || [];
+        setSystemStats(prev => ({ ...prev, totalCategories: categories.length }));
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
     }
   };
 
@@ -70,307 +89,98 @@ const AdminDashboard = ({ theme }) => {
     }
   }, [loading, user, navigate]);
 
-  if (loading) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${
-        theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'
-      }`}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchStudents();
+    fetchLibrarians();
+    fetchBooks();
+    fetchCategories();  // ✅ load categories
+  }, []);
 
-  const getAlertIcon = (type) => {
-    switch (type) {
-      case 'error': return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'success': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      default: return <Activity className="h-4 w-4 text-blue-600" />;
+  const statsConfig = [
+    {
+      title: "Total Students",
+      value: systemStats.totalStudents,
+      icon: Users,
+      color: "blue",
+      bgGradient: "from-blue-500 to-blue-600",
+      iconBg: "bg-blue-100 dark:bg-blue-900/30",
+      textColor: theme === "dark" ? "text-white" : "text-gray-900"
+    },
+    {
+      title: "Total Librarians", 
+      value: systemStats.totalLibrarians,
+      icon: Shield,
+      color: "purple",
+      bgGradient: "from-purple-500 to-purple-600",
+      iconBg: "bg-purple-100 dark:bg-purple-900/30",
+      textColor: theme === "dark" ? "text-white" : "text-gray-900"
+    },
+    {
+      title: "Total Books",
+      value: systemStats.totalBooks,
+      icon: BookOpen,
+      color: "green",
+      bgGradient: "from-green-500 to-green-600", 
+      iconBg: "bg-green-100 dark:bg-green-900/30",
+      textColor: theme === "dark" ? "text-white" : "text-gray-900"
+    },
+    {
+      title: "Total Copies",
+      value: systemStats.totalCopies,
+      icon: Layers,
+      color: "indigo",
+      bgGradient: "from-indigo-500 to-indigo-600",
+      iconBg: "bg-indigo-100 dark:bg-indigo-900/30",
+      textColor: theme === "dark" ? "text-white" : "text-gray-900"
+    },
+    {
+      title: "Issued Books",
+      value: systemStats.issuedBooks,
+      icon: BookUp,
+      color: "orange", 
+      bgGradient: "from-orange-500 to-orange-600",
+      iconBg: "bg-orange-100 dark:bg-orange-900/30",
+      textColor: theme === "dark" ? "text-white" : "text-gray-900"
+    },
+    {
+      title: "Total Categories",   // ✅ new card
+      value: systemStats.totalCategories,
+      icon: Folder,
+      color: "pink",
+      bgGradient: "from-pink-500 to-pink-600",
+      iconBg: "bg-pink-100 dark:bg-pink-900/30",
+      textColor: theme === "dark" ? "text-white" : "text-gray-900"
     }
-  };
-
-  const getAlertBgColor = (severity) => {
-    if (theme === 'dark') {
-      switch (severity) {
-        case 'high': return 'bg-red-900/30 border-red-700/50';
-        case 'medium': return 'bg-yellow-900/30 border-yellow-700/50';
-        default: return 'bg-blue-900/30 border-blue-700/50';
-      }
-    } else {
-      switch (severity) {
-        case 'high': return 'bg-red-50 border-red-200';
-        case 'medium': return 'bg-yellow-50 border-yellow-200';
-        default: return 'bg-blue-50 border-blue-200';
-      }
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    if (theme === 'dark') {
-      switch (status) {
-        case 'active': return 'bg-green-900/50 text-green-300 border border-green-700';
-        case 'pending': return 'bg-yellow-900/50 text-yellow-300 border border-yellow-700';
-        case 'maintenance': return 'bg-orange-900/50 text-orange-300 border border-orange-700';
-        default: return 'bg-gray-700 text-gray-300 border border-gray-600';
-      }
-    } else {
-      switch (status) {
-        case 'active': return 'bg-green-100 text-green-700 border border-green-200';
-        case 'pending': return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
-        case 'maintenance': return 'bg-orange-100 text-orange-700 border border-orange-200';
-        default: return 'bg-gray-100 text-gray-700 border border-gray-200';
-      }
-    }
-  };
+  ];
 
   return (
     <div className="min-h-screen">
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className={`text-3xl font-bold mb-2 ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}>
-            System Overview
-          </h2>
-          <p className={`${
-            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-          }`}>Monitor and manage your library system</p>
-        </div>
-
-   
         {/* System Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          <div className={`rounded-lg shadow-sm p-6 border backdrop-blur-sm ${
-            theme === 'dark' 
-              ? 'bg-gray-800/80 border-gray-700' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                }`}>Total Users</p>
-                <p className={`text-2xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>{systemStats.totalUsers.toLocaleString()}</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-          
-          <div className={`rounded-lg shadow-sm p-6 border backdrop-blur-sm ${
-            theme === 'dark' 
-              ? 'bg-gray-800/80 border-gray-700' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                }`}>Total Books</p>
-                <p className={`text-2xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>{systemStats.totalBooks.toLocaleString()}</p>
-              </div>
-              <BookOpen className="h-8 w-8 text-green-600" />
-            </div>
-          </div>
-          
-          <div className={`rounded-lg shadow-sm p-6 border backdrop-blur-sm ${
-            theme === 'dark' 
-              ? 'bg-gray-800/80 border-gray-700' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                }`}>Librarians</p>
-                <p className={`text-2xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>{systemStats.activeLibrarians}</p>
-              </div>
-              <Shield className="h-8 w-8 text-purple-600" />
-            </div>
-          </div>  
-          
-          <div className={`rounded-lg shadow-sm p-6 border backdrop-blur-sm ${
-            theme === 'dark' 
-              ? 'bg-gray-800/80 border-gray-700' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                }`}>Daily Transactions</p>
-                <p className={`text-2xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>{systemStats.dailyTransactions}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* System Alerts */}
-          <div className={`rounded-lg shadow-sm border backdrop-blur-sm ${
-            theme === 'dark' 
-              ? 'bg-gray-800/80 border-gray-700' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className={`p-6 border-b ${
-              theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-            }`}>
-              <h3 className={`text-lg font-semibold flex items-center ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                <AlertTriangle className="h-5 w-5 text-orange-600 mr-2" />
-                System Alerts
-              </h3>
-            </div>
-            <div className="p-6">
-              {systemAlerts.length > 0 ? (
-                <div className="space-y-4">
-                  {systemAlerts.map((alert) => (
-                    <div key={alert.id} className={`flex items-start space-x-3 p-3 border rounded-lg ${getAlertBgColor(alert.severity)}`}>
-                      <div className="flex-shrink-0 mt-1">
-                        {getAlertIcon(alert.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${
-                          theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}>{alert.message}</p>
-                        <p className={`text-xs mt-1 ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                        }`}>{alert.time}</p>
-                      </div>
-                    </div>
-                  ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-8 mb-12">
+          {statsConfig.map((stat, index) => (
+            <div
+              key={index}
+              className={`group relative overflow-hidden rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
+                theme === 'dark' 
+                  ? 'bg-gray-800/90 border-gray-700 backdrop-blur-sm' 
+                  : 'bg-white/90 border-gray-200 backdrop-blur-sm'
+              }`}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
+              <div className="relative p-8">
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 ${stat.iconBg}`}>
+                  <stat.icon className={`h-8 w-8 text-${stat.color}-600`} />
                 </div>
-              ) : (
-                <p className={`text-center py-8 ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`}>No system alerts</p>
-              )}
+                <h3 className={`text-sm font-semibold uppercase tracking-wider ${stat.textColor}`}>
+                  {stat.title}
+                </h3>
+                <span className={`text-4xl font-bold ${stat.textColor}`}>
+                  {stat.value.toLocaleString()}
+                </span>
+              </div>
             </div>
-          </div>
-
-          {/* Recent Users */}
-          <div className={`rounded-lg shadow-sm border backdrop-blur-sm ${
-            theme === 'dark' 
-              ? 'bg-gray-800/80 border-gray-700' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className={`p-6 border-b ${
-              theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-            }`}>
-              <h3 className={`text-lg font-semibold flex items-center ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                <Users className="h-5 w-5 text-blue-600 mr-2" />
-                Recent Users
-              </h3>
-            </div>
-            <div className="p-6">
-              {recentUsers.length > 0 ? (
-                <div className="space-y-4">
-                  {recentUsers.map((user) => (
-                    <div key={user.id} className={`flex items-center justify-between p-3 border rounded-lg ${
-                      theme === 'dark' 
-                        ? 'border-gray-700 bg-gray-800/50' 
-                        : 'border-gray-100 bg-gray-50/50'
-                    }`}>
-                      <div className="flex-1">
-                        <h4 className={`font-medium ${
-                          theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}>{user.name}</h4>
-                        <p className={`text-sm ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                        }`}>{user.role}</p>
-                        <p className={`text-xs mt-1 ${
-                          theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
-                        }`}>Joined: {new Date(user.joinDate).toLocaleDateString()}</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(user.status)}`}>
-                          {user.status}
-                        </span>
-                        <button className={`${
-                          theme === 'dark' ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-800'
-                        }`}>
-                          <Eye className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className={`text-center py-8 ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`}>No recent users</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Library Branch Stats */}
-        <div className={`rounded-lg shadow-sm border backdrop-blur-sm mb-8 ${
-          theme === 'dark' 
-            ? 'bg-gray-800/80 border-gray-700' 
-            : 'bg-white/80 border-gray-200'
-        }`}>
-          <div className={`p-6 border-b ${
-            theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-          }`}>
-            <h3 className={`text-lg font-semibold flex items-center ${
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>
-              <BarChart3 className="h-5 w-5 text-green-600 mr-2" />
-              Library Branch Overview
-            </h3>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {libraryStats.map((branch, index) => (
-                <div key={index} className={`border rounded-lg p-4 ${
-                  theme === 'dark' 
-                    ? 'border-gray-700 bg-gray-800/50' 
-                    : 'border-gray-200 bg-gray-50/50'
-                }`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className={`font-semibold ${
-                      theme === 'dark' ? 'text-white' : 'text-gray-900'
-                    }`}>{branch.branch}</h4>
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(branch.status)}`}>
-                      {branch.status}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className={`text-sm ${
-                        theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                      }`}>Books:</span>
-                      <span className={`text-sm font-medium ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>{branch.books.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className={`text-sm ${
-                        theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                      }`}>Members:</span>
-                      <span className={`text-sm font-medium ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>{branch.members.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
