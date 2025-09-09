@@ -355,6 +355,20 @@ const Navbar = ({
       </button>
     );
 
+    const transactionsButton = (
+      <button
+        key={`transactions-${isMobile ? 'mobile' : 'desktop'}`}
+        onClick={() => {
+          navigate('/viewAllTransactions');
+          if (isMobile) setMobileMenuOpen(false);
+        }}
+        className={commonButtonClasses}
+      >
+        <ArrowRightLeft className="h-4 w-4" />
+        <span>Transactions</span>
+      </button>
+    );
+
     // Student navigation
     if (user.role === 'student') {
       return (
@@ -382,22 +396,7 @@ const Navbar = ({
       return (
         <>
           {dashboardButton}
-           <DropdownComponent
-            key={`transactions-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
-            title="Transactions"
-            icon={ArrowRightLeft}
-            dropdownKey={`transactions-${isMobile ? 'mobile' : 'desktop'}`}
-            items={[
-              { label: 'All Transactions', path: '/viewAllTransactions', icon: BookUp },
-              { label: 'Return Book', path: '/returnBook', icon: BookDown },
-              { label: 'Transaction History', path: '/transactionHistory', icon: History },
-              { label: 'Active Loans', path: '/activeLoans', icon: Clock },
-              { label: 'Overdue Books', path: '/overdueBooks', icon: AlertCircle },
-              { label: 'Manage Fines', path: '/manageFines', icon: DollarSign },
-              { label: 'Renew Book', path: '/renewBook', icon: Calendar },
-              { label: 'Reports', path: '/transactionReports', icon: FileText }
-            ]}
-          />
+          {transactionsButton}
           <DropdownComponent
             key={`books-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Books"
@@ -427,22 +426,7 @@ const Navbar = ({
       return (
         <>
           {dashboardButton}
-           <DropdownComponent
-            key={`transactions-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
-            title="Transactions"
-            icon={ArrowRightLeft}
-            dropdownKey={`transactions-${isMobile ? 'mobile' : 'desktop'}`}
-            items={[
-              { label: 'Issue Book', path: '/issueBook', icon: BookUp },
-              { label: 'Return Book', path: '/returnBook', icon: BookDown },
-              { label: 'Transaction History', path: '/transactionHistory', icon: History },
-              { label: 'Active Loans', path: '/activeLoans', icon: Clock },
-              { label: 'Overdue Books', path: '/overdueBooks', icon: AlertCircle },
-              { label: 'Manage Fines', path: '/manageFines', icon: DollarSign },
-              { label: 'Renew Book', path: '/renewBook', icon: Calendar },
-              { label: 'Reports', path: '/transactionReports', icon: FileText }
-            ]}
-          />
+          {transactionsButton}
           <DropdownComponent
             key={`books-dropdown-${isMobile ? 'mobile' : 'desktop'}`}
             title="Books"

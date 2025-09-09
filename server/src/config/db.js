@@ -129,7 +129,7 @@ VALUES
             category_id INT DEFAULT NULL ,
             total_copies INT NOT NULL,
             issued_copies INT ,
-            image VARCHAR(255) DEFAULT NULL,
+            bookImage VARCHAR(255) ,
             added_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (book_id),
             FOREIGN KEY (category_id) REFERENCES categories(category_id) 
@@ -137,22 +137,22 @@ VALUES
             ON UPDATE CASCADE
         )`,
 
-        `INSERT INTO books (title, author, isbn, publisher, category_id, total_copies, issued_copies, image) VALUES
-            ('Introduction to Algorithms', 'Thomas H. Cormen', '9780262033848', 'MIT Press', 1, 10, 2, 'null'),
-            ('Database System Concepts', 'Abraham Silberschatz', '9780078022159', 'McGraw-Hill', 1, 8, 1, 'null'),
-            ('Operating System Concepts', 'Abraham Silberschatz', '9781118063330', 'Wiley', 1, 12, 3, 'null'),
-            ('Microelectronic Circuits', 'Adel S. Sedra', '9780199339136', 'Oxford University Press', 2, 7, 2, 'null'),
-            ('Signals and Systems', 'Alan V. Oppenheim', '9780138147570', 'Pearson', 2, 9, 1, 'null'),
-            ('Digital Design', 'M. Morris Mano', '9780132774208', 'Pearson', 2, 10, 4, 'null'),
-            ('Engineering Thermodynamics', 'P. K. Nag', '9780070151314', 'McGraw-Hill', 3, 11, 2, 'null'),
-            ('Strength of Materials', 'R. K. Bansal', '9788131808146', 'Laxmi Publications', 3, 8, 1, 'null'),
-            ('Theory of Machines', 'S. S. Rattan', '9789352602138', 'McGraw-Hill', 3, 9, 3, 'null'),
-            ('Basic Structural Analysis', 'C. S. Reddy', '9781259006395', 'McGraw-Hill', 4, 10, 2, 'null'),
-            ('Surveying Vol. 1', 'B. C. Punmia', '9789382335121', 'Laxmi Publications', 4, 7, 1, 'null'),
-            ('Soil Mechanics and Foundations', 'B. C. Punmia', '9789382335244', 'Laxmi Publications', 4, 8, 2, 'null'),
-            ('Principles of Management', 'P. C. Tripathi', '9781259026843', 'McGraw-Hill', 5, 12, 2, 'null'),
-            ('Marketing Management', 'Philip Kotler', '9789335518976', 'Pearson', 5, 10, 3, 'null'),
-            ('Financial Management', 'I. M. Pandey', '9789352601858', 'Vikas Publishing', 5, 9, 1, 'null')`,
+        `INSERT INTO books (title, author, isbn, publisher, category_id, total_copies, issued_copies) VALUES
+            ('Introduction to Algorithms', 'Thomas H. Cormen', '9780262033848', 'MIT Press', 1, 10, 2),
+            ('Database System Concepts', 'Abraham Silberschatz', '9780078022159', 'McGraw-Hill', 1, 8, 1),
+            ('Operating System Concepts', 'Abraham Silberschatz', '9781118063330', 'Wiley', 1, 12, 3),
+            ('Microelectronic Circuits', 'Adel S. Sedra', '9780199339136', 'Oxford University Press', 2, 7, 2),
+            ('Signals and Systems', 'Alan V. Oppenheim', '9780138147570', 'Pearson', 2, 9, 1),
+            ('Digital Design', 'M. Morris Mano', '9780132774208', 'Pearson', 2, 10, 4),
+            ('Engineering Thermodynamics', 'P. K. Nag', '9780070151314', 'McGraw-Hill', 3, 11, 2),
+            ('Strength of Materials', 'R. K. Bansal', '9788131808146', 'Laxmi Publications', 3, 8, 1),
+            ('Theory of Machines', 'S. S. Rattan', '9789352602138', 'McGraw-Hill', 3, 9, 3),
+            ('Basic Structural Analysis', 'C. S. Reddy', '9781259006395', 'McGraw-Hill', 4, 10, 2),
+            ('Surveying Vol. 1', 'B. C. Punmia', '9789382335121', 'Laxmi Publications', 4, 7, 1),
+            ('Soil Mechanics and Foundations', 'B. C. Punmia', '9789382335244', 'Laxmi Publications', 4, 8, 2),
+            ('Principles of Management', 'P. C. Tripathi', '9781259026843', 'McGraw-Hill', 5, 12, 2),
+            ('Marketing Management', 'Philip Kotler', '9789335518976', 'Pearson', 5, 10, 3),
+            ('Financial Management', 'I. M. Pandey', '9789352601858', 'Vikas Publishing', 5, 9, 1)`,
 
 
         `CREATE TABLE IF NOT EXISTS transactions (

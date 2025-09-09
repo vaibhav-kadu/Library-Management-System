@@ -54,10 +54,10 @@ routes.delete("/deleteCategory/:category_id", catCtrl.deleteCategory);
 
 
 // ---------------- Books ----------------
-routes.post('/addBook', upload.single('image'), bookCtrl.addBook);
+routes.post('/addBook', upload.single('bookImage'), bookCtrl.addBook);
+routes.put('/updateBook/:bookId', upload.single('bookImage'), bookCtrl.updateBook);
 routes.get('/getBooks', bookCtrl.getAllBooks);
 routes.get('/getBookById', bookCtrl.getBookBy);
-routes.put('/updateBook', upload2.single("profilephoto"), bookCtrl.updateBook);
 routes.delete('/deleteBook', bookCtrl.deleteBook);
 
 // ---------------- Transactions ----------------

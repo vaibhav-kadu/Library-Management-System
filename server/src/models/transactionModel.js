@@ -3,13 +3,28 @@ const db = require('../config/db.js');
 // Create
 exports.addTransaction = (book_id, sid) => {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO transactions (book_id, sid) VALUES (?, ?)`;
-        db.query(sql, [book_id, sid], (err, result) => {
+        // Step 1: Insert into transactions
+        const insertSql = `INSERT INTO transactions (book_id, sid) VALUES (?, ?)`;
+        db.query(insertSql, [book_id, sid], (err, result) => {
             if (err) return reject(err);
-            resolve(result);
+
+            // Step 2: Update issued_copies for that book
+            const updateSql = `UPDATE books 
+                               SET issued_copies = IFNULL(issued_copies, 0) + 1 
+                               WHERE book_id = ?`;
+            db.query(updateSql, [book_id], (updateErr, updateResult) => {
+                if (updateErr) return reject(updateErr);
+
+                // Combine both results
+                resolve({
+                    transaction: result,
+                    book_update: updateResult
+                });
+            });
         });
     });
 };
+
 
 // Read All Transactions with Joins
 exports.getAllTransactions = () => {
@@ -44,14 +59,51 @@ exports.issueBook = (lid,issue_date, due_date, transaction_id) => {
 };
 
 // Return Book
-exports.returnBook = (lid,return_date,transaction_id) => {
+exports.returnBook = (lid, return_date, transaction_id) => {
     return new Promise((resolve, reject) => {
-        db.query(`UPDATE transactions SET return_to=?, return_date=?, status=? WHERE transaction_id = ?`, [lid,return_date,'returned',transaction_id], (err, result) => {
+        // Step 1: Update the transaction to returned
+        const updateTxnSql = `
+            UPDATE transactions 
+            SET return_to = ?, return_date = ?, status = ? 
+            WHERE transaction_id = ?
+        `;
+        db.query(updateTxnSql, [lid, return_date, 'returned', transaction_id], (err, result) => {
             if (err) return reject(err);
-            resolve(result);
+
+            if (result.affectedRows === 0) {
+                return reject(new Error("Transaction not found"));
+            }
+
+            // Step 2: Get the book_id for that transaction
+            const getBookSql = `SELECT book_id FROM transactions WHERE transaction_id = ?`;
+            db.query(getBookSql, [transaction_id], (bookErr, bookResult) => {
+                if (bookErr) return reject(bookErr);
+
+                if (bookResult.length === 0) {
+                    return reject(new Error("Book not found for transaction"));
+                }
+
+                const book_id = bookResult[0].book_id;
+
+                // Step 3: Decrease issued_copies by 1
+                const updateBookSql = `
+                    UPDATE books 
+                    SET issued_copies = IF(issued_copies > 0, issued_copies - 1, 0) 
+                    WHERE book_id = ?
+                `;
+                db.query(updateBookSql, [book_id], (updateBookErr, updateBookResult) => {
+                    if (updateBookErr) return reject(updateBookErr);
+
+                    resolve({
+                        transaction: result,
+                        book_update: updateBookResult
+                    });
+                });
+            });
         });
     });
 };
+
 
 // Update
 

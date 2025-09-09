@@ -2,9 +2,9 @@ const bookModel=require('../models/bookModel');
 
 exports.addBook = (req, res) => {
     const { title, author, isbn, publisher, category_id, total_copies } = req.body;
-    const image = req.file ? req.file.filename : null; // Get uploaded image filename
+    const bookImage = req.file ? req.file.filename : null; // Get uploaded bookImage filename
 
-    const promise = bookModel.addBook(title, author, isbn, publisher, category_id, total_copies, image);
+    const promise = bookModel.addBook(title, author, isbn, publisher, category_id, total_copies, bookImage);
     promise
         .then(() => {
             res.status(200).json({ success: true, message: 'Book Added' });
@@ -14,13 +14,60 @@ exports.addBook = (req, res) => {
         });
 };
 
+exports.updateBook = async (req, res) => {
+  try {
+    const { bookId } = req.params;
+    const { title, author, isbn, publisher, category_id, total_copies, currentImage } = req.body;
+    let bookImage = currentImage; // Keep existing bookImage by default
+
+    // If a new bookImage is uploaded
+    if (req.file) {
+      bookImage = req.file.filename;
+      
+      // Optional: Delete old bookImage file
+      if (currentImage && currentImage !== 'null') {
+        const fs = require('fs');
+        const path = require('path');
+        const oldImagePath = path.join(__dirname, "..", "public", "book_images", currentImage);
+        if (fs.existsSync(oldImagePath)) {
+          try {
+            fs.unlinkSync(oldImagePath);
+          } catch (err) {
+            console.log('Could not delete old bookImage:', err);
+          }
+        }
+      }
+    }
+
+    const updateResult = await bookModel.updateBook(bookId, title, author, isbn, publisher, category_id, total_copies, bookImage);
+    
+    if (updateResult) {
+      res.status(200).json({ 
+        success: true, 
+        message: 'Book Updated'
+      });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        error: 'Failed to update book' 
+      });
+    }
+  } catch (error) {
+    console.error('Update book error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal Server Error' 
+    });
+  }
+};
+
 exports.getAllBooks = (req, res) => {
   let promise = bookModel.getBooks();
   promise
     .then((result) => {
       res.status(200).json({
         success: true,
-        books: result   // ✅ consistent with frontend
+        books: result   
       });
     })
     .catch((err) => {
@@ -44,18 +91,6 @@ exports.getBookBy=(req,res)=>{
 };
 
 
-
-exports.updateBook=(req,res)=>{
-    let {book_id,title,author,isbn,publisher,category_id,total_copies,issued_copies}=req.body;
-
-    let promise=bookModel.updateBook(book_id,title,author,isbn,publisher,category_id,total_copies,issued_copies);
-        promise.then((result)=>{
-            res.status(201).json({success:true,message:'Book Updated'});
-        });
-        promise.catch((err)=>{
-            res.catch(500).json({success:false,message:'Internal Server Error = '+err});
-        });
-};
 
 exports.deleteBook = (req, res) => {
     let { id } = req.body; // ✅ get book id from request body

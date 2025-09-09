@@ -68,29 +68,26 @@ export default function Login({ onClose, theme }) {
       const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, credentials);
 
       if (response.data.success) {
-        login(response.data.user);
-        // Note: Save Token In LocalStorage 
-        localStorage.setItem("token", response.data.token);
-
-        const role = response.data.user?.role;
-
-        // Note: Save Role In LocalStorage 
-        localStorage.setItem("role", role);
+        // ✅ Pass the entire response data to login function
+        login(response.data);
         
-        if (role === "student") navigate('/student-dashboard');
-        else if (role === "librarian") {
-          
-        const lid = response.data.user?.lid;
-        localStorage.setItem("lid", lid);
+        const role = response.data.user?.role;
+        
+        // Navigate based on role
+        if (role === "student") {
+          navigate('/student-dashboard');
+        } else if (role === "librarian") {
           navigate('/librarian-dashboard');
+        } else if (role === "admin") {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/');
         }
-        else if (role === "admin") navigate('/admin-dashboard');
-        else navigate('/');
         
         if (onClose) onClose();
       }
     } catch (error) {
-      console.error(error);
+      console.error('Login error:', error);
       setError(error.response?.data?.error || "Server Error. Please try again later.");
     } finally {
       setSubmitting(false);
@@ -215,8 +212,6 @@ export default function Login({ onClose, theme }) {
             : `Sign In as ${title}`
           }
         </button>
-
-       
       </form>
     );
   };

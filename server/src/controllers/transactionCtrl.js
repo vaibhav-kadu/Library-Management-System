@@ -2,11 +2,21 @@ const transactionModel = require('../models/transactionModel.js');
 
 // Add Transaction
 exports.addTransaction = (req, res) => {
-    const { book_id, sid} = req.body;
+    const { book_id, sid } = req.body;
+
     transactionModel.addTransaction(book_id, sid)
-        .then(result => res.status(201).json({success:true, message: 'Transaction Created', result }))
-        .catch(err => res.status(500).json({success:false,  message: 'Error Creating Transaction', error: err }));
+        .then(result => res.status(201).json({
+            success: true,
+            message: 'Transaction Created & Issued Copies Updated',
+            result
+        }))
+        .catch(err => res.status(500).json({
+            success: false,
+            message: 'Error Creating Transaction',
+            error: err
+        }));
 };
+
 
 // Get All Transactions
 exports.getAllTransactions = (req, res) => {
@@ -34,14 +44,24 @@ exports.issueBook = (req, res) => {
 
 
 // Return Book
+// Return Book
 exports.returnBook = (req, res) => {
   const { lid, transaction_id } = req.body;
-  const return_date = new Date().toISOString().slice(0, 19).replace('T', ' '); // current datetime
+  const return_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
   transactionModel.returnBook(lid, return_date, transaction_id)
-    .then(result => res.status(200).json({ success: true, result }))
-    .catch(err => res.status(404).json({ success: false, message: 'Transaction Not Found', error: err }));
+    .then(result => res.status(200).json({
+        success: true,
+        message: 'Book Returned & Issued Copies Updated',
+        result
+    }))
+    .catch(err => res.status(404).json({
+        success: false,
+        message: 'Transaction Not Found',
+        error: err
+    }));
 };
+
 
 
 // Update Transaction

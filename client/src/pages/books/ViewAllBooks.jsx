@@ -5,19 +5,20 @@ import {
   Loader,
   Edit2,
   Trash2,
-  Save,
-  X,
-  Search,
-  User,
-  Hash,
-  Filter,
-  Star,
-  BookUp,
-  BookDown,
+  Eye,
   CheckCircle,
-  AlertCircle,
+  User,
+  Package,
+  PackageCheck,
+  PackageMinus,
+  Search,
+  Filter,
+  Plus,
+  Building,
+  Hash
 } from "lucide-react";
 import { useAuth } from "../../context/authContext";
+import AddBook from "./AddBook";
 
 export default function ViewAllBook({ theme = "light" }) {
   const { user } = useAuth();
@@ -25,15 +26,16 @@ export default function ViewAllBook({ theme = "light" }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-  const [editingData, setEditingData] = useState({ title: "", author: "", isbn: "" });
   const [deleting, setDeleting] = useState(null);
-  const [updating, setUpdating] = useState(null);
   const [borrowing, setBorrowing] = useState(null);
-  const [issuing, setIssuing] = useState(null);
-  const [returning, setReturning] = useState(null);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("title");
+  
+  // Add Book Modal states
+  const [showAddBook, setShowAddBook] = useState(false);
+  const [editingBook, setEditingBook] = useState(null);
+
+  const isDark = theme === 'dark';
 
   // Fetch books
   const fetchBooks = async () => {
@@ -55,51 +57,26 @@ export default function ViewAllBook({ theme = "light" }) {
     fetchBooks();
   }, []);
 
-  // Edit handlers (for admin)
+  // View handler - Enhanced view modal (similar to student profile click)
+  const handleView = (book) => {
+    const availableCopies = book.total_copies - book.issued_copies;
+    alert(`Book Details:
+Title: ${book.title}
+Author: ${book.author}
+ISBN: ${book.isbn}
+Publisher: ${book.publisher}
+Total Copies: ${book.total_copies}
+Issued Copies: ${book.issued_copies}
+Available Copies: ${availableCopies}`);
+  };
+
+  // Edit handler
   const handleEdit = (book) => {
-    setEditingId(book.book_id || book.id);
-    setEditingData({ title: book.title, author: book.author, isbn: book.isbn });
+    setEditingBook(book);
+    setShowAddBook(true);
   };
 
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditingData({ title: "", author: "", isbn: "" });
-  };
-
-  const handleUpdate = async (bookId) => {
-    if (!editingData.title.trim() || !editingData.author.trim()) {
-      setError("Title and Author cannot be empty");
-      return;
-    }
-    setUpdating(bookId);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await axios.put("http://localhost:3000/updateBook", {
-        id: bookId,
-        ...editingData,
-      });
-      if (response.data.success) {
-        setBooks(
-          books.map((b) =>
-            (b.book_id || b.id) === bookId ? { ...b, ...editingData } : b
-          )
-        );
-        setEditingId(null);
-        setSuccess("Book updated successfully!");
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError("Failed to update book");
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to update book");
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  // DELETE handler (for admin)
+  // DELETE handler (for admin only)
   const handleDelete = async (bookId, bookTitle) => {
     if (!window.confirm(`Are you sure you want to delete "${bookTitle}"?`)) return;
 
@@ -108,16 +85,20 @@ export default function ViewAllBook({ theme = "light" }) {
     setSuccess(null);
 
     try {
-      const response = await axios.delete("http://localhost:3000/deleteBook", { data: { id: bookId } });
-      if (response.data.message === "Book Deleted") {
-        setBooks(books.filter((b) => (b.book_id || b.id) !== bookId));
+      // Fixed: Use URL parameter instead of request body
+      const response = await axios.delete(`http://localhost:3000/deleteBook/${bookId}`);
+      
+      if (response.data.success || response.data.message === "Book Deleted") {
+        setBooks(
+          books.filter((book) => (book.book_id || book.id) !== bookId)
+        );
         setSuccess("Book deleted successfully!");
         setTimeout(() => setSuccess(null), 3000);
       } else {
         setError("Failed to delete book");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete book");
+      setError(err.response?.data?.error || err.response?.data?.message || "Failed to delete book");
     } finally {
       setDeleting(null);
     }
@@ -135,7 +116,7 @@ export default function ViewAllBook({ theme = "light" }) {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:3000/borrowBook",
-        { book_id: bookId , sid: user.sid},
+        { book_id: bookId, sid: user.sid },
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -144,8 +125,7 @@ export default function ViewAllBook({ theme = "light" }) {
       if (response.data.success) {
         setSuccess(`Successfully borrowed "${bookTitle}"!`);
         setTimeout(() => setSuccess(null), 3000);
-        // Optionally refresh books to update availability
-        fetchBooks();
+        fetchBooks(); // Refresh to show updated counts
       } else {
         setError(response.data.message || "Failed to borrow book");
       }
@@ -156,84 +136,28 @@ export default function ViewAllBook({ theme = "light" }) {
     }
   };
 
-  // ISSUE handler (for librarian)
-  const handleIssue = async (bookId, bookTitle) => {
-    const studentId = prompt(`Enter Student ID to issue "${bookTitle}" to:`);
-    if (!studentId) return;
-
-    setIssuing(bookId);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:3000/issueBook",
-        { 
-          book_id: bookId,
-          student_id: parseInt(studentId)
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      
-      if (response.data.success) {
-        setSuccess(`Successfully issued "${bookTitle}" to student ${studentId}!`);
-        setTimeout(() => setSuccess(null), 3000);
-        fetchBooks();
-      } else {
-        setError(response.data.message || "Failed to issue book");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to issue book");
-    } finally {
-      setIssuing(null);
-    }
+  // Handle close AddBook modal
+  const handleCloseAddBook = () => {
+    setShowAddBook(false);
+    setEditingBook(null);
   };
 
-  // RETURN handler (for librarian)
-  const handleReturn = async (bookId, bookTitle) => {
-    const transactionId = prompt(`Enter Transaction ID to return "${bookTitle}":`);
-    if (!transactionId) return;
-
-    setReturning(bookId);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:3000/returnBook",
-        { 
-          transaction_id: parseInt(transactionId),
-          book_id: bookId
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      
-      if (response.data.success) {
-        setSuccess(`Successfully returned "${bookTitle}"!`);
-        setTimeout(() => setSuccess(null), 3000);
-        fetchBooks();
-      } else {
-        setError(response.data.message || "Failed to return book");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to return book");
-    } finally {
-      setReturning(null);
-    }
+  // Handle successful update
+  const handleUpdateSuccess = () => {
+    setShowAddBook(false);
+    setEditingBook(null);
+    fetchBooks(); // Refresh the list
+    setSuccess("Book updated successfully!");
+    setTimeout(() => setSuccess(null), 3000);
   };
 
+  // Filter and sort books
   const filteredAndSortedBooks = books
     .filter(
-      (b) =>
-        b.title.toLowerCase().includes(search.toLowerCase()) ||
-        b.author.toLowerCase().includes(search.toLowerCase()) ||
-        (b.isbn || "").toLowerCase().includes(search.toLowerCase())
+      (book) =>
+        book.title.toLowerCase().includes(search.toLowerCase()) ||
+        book.author.toLowerCase().includes(search.toLowerCase()) ||
+        (book.isbn || "").toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       switch (sortBy) {
@@ -241,38 +165,18 @@ export default function ViewAllBook({ theme = "light" }) {
           return a.author.localeCompare(b.author);
         case "recent":
           return (b.book_id || b.id) - (a.book_id || a.id);
+        case "available":
+          return (b.total_copies - b.issued_copies) - (a.total_copies - a.issued_copies);
         default:
           return a.title.localeCompare(b.title);
       }
     });
 
-  const BookCard = ({ book, index }) => {
+  const BookCard = ({ book }) => {
+    const availableCopies = book.total_copies - book.issued_copies;
     const bookId = book.book_id || book.id;
-    const isEditing = editingId === bookId;
 
     const renderActionButtons = () => {
-      if (isEditing) {
-        return (
-          <>
-            <button
-              onClick={() => handleUpdate(bookId)}
-              disabled={updating === bookId}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
-            >
-              {updating === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-              Save
-            </button>
-            <button
-              onClick={handleCancelEdit}
-              className="flex-1 px-4 py-2 bg-gray-500/80 hover:bg-gray-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors duration-200"
-            >
-              <X className="w-5 h-5" /> Cancel
-            </button>
-          </>
-        );
-      }
-
-      // Role-based buttons
       if (!user) {
         return (
           <div className="text-center text-gray-500 py-2">
@@ -284,56 +188,79 @@ export default function ViewAllBook({ theme = "light" }) {
       switch (user.role) {
         case 'student':
           return (
-            <button
-              onClick={() => handleBorrow(bookId, book.title)}
-              disabled={borrowing === bookId}
-              className="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
-            >
-              {borrowing === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-              Borrow Book
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleBorrow(bookId, book.title)}
+                disabled={borrowing === bookId || availableCopies === 0}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {borrowing === bookId ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                Borrow
+              </button>
+              <button
+                onClick={() => handleView(book)}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+              >
+                <Eye className="w-4 h-4" />
+                View
+              </button>
+            </div>
           );
 
         case 'librarian':
           return (
-            <>
+            <div className="flex gap-2">
               <button
-                onClick={() => handleIssue(bookId, book.title)}
-                disabled={issuing === bookId}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
-              >
-                {issuing === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <BookUp className="w-5 h-5" />}
-                Issue
-              </button>
-              <button
-                onClick={() => handleReturn(bookId, book.title)}
-                disabled={returning === bookId}
+                onClick={() => handleEdit(book)}
                 className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
               >
-                {returning === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <BookDown className="w-5 h-5" />}
-                Return
+                <Edit2 className="w-4 h-4" />
+                Update
               </button>
-            </>
+              <button
+                onClick={() => handleView(book)}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+              >
+                <Eye className="w-4 h-4" />
+                View
+              </button>
+            </div>
           );
 
         case 'admin':
           return (
-            <>
+            <div className="flex gap-2">
               <button
                 onClick={() => handleEdit(book)}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                className="flex-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl flex items-center justify-center gap-1 shadow-md hover:scale-105 transition-transform duration-200 text-sm"
               >
-                <Edit2 className="w-5 h-5" /> Edit
+                <Edit2 className="w-4 h-4" />
+                Update
+              </button>
+              <button
+                onClick={() => handleView(book)}
+                className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-1 shadow-md hover:scale-105 transition-transform duration-200 text-sm"
+              >
+                <Eye className="w-4 h-4" />
+                View
               </button>
               <button
                 onClick={() => handleDelete(bookId, book.title)}
                 disabled={deleting === bookId}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-1 shadow-md hover:scale-105 transition-transform duration-200 disabled:opacity-50 text-sm"
               >
-                {deleting === bookId ? <Loader className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                {deleting === bookId ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
                 Delete
               </button>
-            </>
+            </div>
           );
 
         default:
@@ -343,102 +270,118 @@ export default function ViewAllBook({ theme = "light" }) {
 
     return (
       <div
-        className={`group relative rounded-3xl shadow-xl transition-all duration-500 transform hover:-translate-y-2
-          ${theme === "dark" ? "bg-gray-800 border border-gray-600 text-white" : "bg-white border border-gray-200 text-gray-900"} overflow-hidden`}
+        className={`group relative rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer
+          ${isDark ? "bg-gray-800 border border-gray-600" : "bg-white border border-gray-200"} overflow-hidden`}
+        onClick={() => handleView(book)}
       >
-        {/* Book Cover */}
-        <div className="relative h-56 overflow-hidden rounded-t-3xl">
-          {book.image ? (
-            <img
-              src={book.image}
-              alt={book.title}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+        {/* Book Image */}
+        <div className="relative h-48 overflow-hidden rounded-t-2xl">
+          {book.bookImage && book.bookImage !== 'null' ? (
+            <div className="relative">
+              <img
+                src={`http://localhost:3000/book_images/${book.bookImage}?${Date.now()}`}
+                alt={book.title}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white hidden items-center justify-center">
+                <BookOpen className="w-16 h-16 opacity-80" />
+              </div>
+            </div>
           ) : (
             <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-              <BookOpen className="w-12 h-12 opacity-80" />
+              <BookOpen className="w-16 h-16 opacity-80" />
             </div>
           )}
 
-          <div className="absolute top-4 right-4">
-            <div className="px-3 py-1 bg-black/50 text-white rounded-full text-sm font-semibold">
-              #{String(index + 1).padStart(2, "0")}
+          {/* Available/Unavailable Badge */}
+          <div className="absolute top-3 right-3">
+            <div className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              availableCopies > 0 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}>
+              {availableCopies > 0 ? 'Available' : 'Unavailable'}
             </div>
           </div>
         </div>
 
         {/* Book Details */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 space-y-3">
           {/* Title */}
-          <div>
-            {isEditing ? (
-              <input
-                type="text"
-                value={editingData.title}
-                onChange={(e) => setEditingData({ ...editingData, title: e.target.value })}
-                className={`w-full px-4 py-3 border-2 rounded-xl font-bold text-lg ${
-                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                }`}
-                placeholder="Book Title"
-              />
-            ) : (
-              <h3 className={`${theme === "dark" ? "text-white" : "text-gray-900"} text-xl font-bold leading-tight`}>
-                {book.title}
-              </h3>
-            )}
-          </div>
+          <h3 className={`${isDark ? "text-white" : "text-gray-900"} text-lg font-bold leading-tight line-clamp-2`}>
+            {book.title}
+          </h3>
 
           {/* Author */}
-          <div className="flex items-center space-x-3">
-            <User className="w-4 h-4 text-gray-400" />
-            {isEditing ? (
-              <input
-                type="text"
-                value={editingData.author}
-                onChange={(e) => setEditingData({ ...editingData, author: e.target.value })}
-                className={`flex-1 px-3 py-2 border-2 rounded-xl ${
-                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                }`}
-                placeholder="Author Name"
-              />
-            ) : (
-              <span className={theme === "dark" ? "text-gray-200" : "text-gray-900"}>{book.author}</span>
-            )}
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"} truncate`}>
+              {book.author}
+            </span>
           </div>
 
           {/* ISBN */}
-          <div className="flex items-center space-x-3">
-            <Hash className="w-4 h-4 text-gray-400" />
-            {isEditing ? (
-              <input
-                type="text"
-                value={editingData.isbn}
-                onChange={(e) => setEditingData({ ...editingData, isbn: e.target.value })}
-                className={`flex-1 px-3 py-2 border-2 rounded-xl ${
-                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                }`}
-                placeholder="ISBN"
-              />
-            ) : (
-              <code className={`text-sm px-2 py-1 rounded-lg ${
-                theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
-              }`}>
-                {book.isbn || "N/A"}
-              </code>
-            )}
+          <div className="flex items-center gap-2">
+            <Hash className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"} truncate`}>
+              {book.isbn}
+            </span>
           </div>
 
-          {/* Book ID */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-700">
-            <span className="text-sm font-medium text-gray-300">Book ID: {bookId}</span>
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-gray-300">Available</span>
+          {/* Publisher */}
+          <div className="flex items-center gap-2">
+            <Building className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"} truncate`}>
+              {book.publisher}
+            </span>
+          </div>
+
+          {/* Copies Information */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-blue-500" />
+                <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                  Total: {book.total_copies}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <PackageCheck className="w-4 h-4 text-orange-500" />
+                <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                  Issued: {book.issued_copies}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <PackageMinus className="w-4 h-4 text-green-500" />
+              <span className={`text-sm font-semibold ${
+                availableCopies > 0 
+                  ? 'text-green-600' 
+                  : 'text-red-600'
+              }`}>
+                Available: {availableCopies}
+              </span>
             </div>
           </div>
 
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${book.total_copies > 0 ? ((book.total_copies - book.issued_copies) / book.total_copies) * 100 : 0}%` 
+              }}
+            ></div>
+          </div>
+
           {/* Action Buttons */}
-          <div className="flex justify-between mt-4 gap-2">
+          <div className="pt-2" onClick={(e) => e.stopPropagation()}>
             {renderActionButtons()}
           </div>
         </div>
@@ -447,72 +390,168 @@ export default function ViewAllBook({ theme = "light" }) {
   };
 
   return (
-    <div className={`${theme === "dark" ? "bg-gray-900" : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"} min-h-screen`}>
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
+    <>
+      <div className={`max-w-7xl mx-auto rounded-xl shadow-lg overflow-hidden ${
+        isDark ? "bg-gray-800" : "bg-white"
+      }`}>
         {/* Header */}
-        <div className={`rounded-3xl shadow-2xl p-8 mb-8 ${theme === "dark" ? "bg-gray-800 text-white border border-gray-700" : "bg-white text-gray-900 border border-gray-200"}`}>
-          <h1 className="text-4xl font-black mb-2">Book Collection</h1>
-          <p className="text-lg font-medium">{books.length} {books.length === 1 ? "book" : "books"} in your digital library</p>
-          {user && (
-            <p className="text-sm text-gray-500 mt-1">
-              Logged in as: <span className="font-semibold capitalize">{user.role}</span> - {user.name}
-            </p>
-          )}
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-          {success && <p className="text-green-500 mt-2">{success}</p>}
-        </div>
-
-        {/* Search & Sort */}
-        <div className={`rounded-3xl shadow-xl p-6 mb-8 ${theme === "dark" ? "bg-gray-800 text-white border border-gray-700" : "bg-white text-gray-900 border border-gray-200"}`}>
-          <div className="flex flex-col sm:flex-row gap-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-4 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className={`w-full pl-12 pr-6 py-4 rounded-2xl border-2 ${
-                  theme === "dark" ? "bg-gray-900 text-white border-gray-600 placeholder-gray-400" : "bg-white text-gray-900 border-gray-300 placeholder-gray-500"
-                }`}
-                placeholder="Search books by title, author, or ISBN..."
-              />
-            </div>
+        <div className={`px-6 py-4 border-b ${
+          isDark ? "border-gray-700" : "border-gray-200"
+        }`}>
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Filter className="w-5 h-5 text-gray-500" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className={`px-6 py-4 rounded-2xl border-2 ${
-                  theme === "dark" ? "bg-gray-900 text-white border-gray-600" : "bg-white text-gray-900 border-gray-300"
-                }`}
-              >
-                <option value="title">Sort by Title</option>
-                <option value="author">Sort by Author</option>
-                <option value="recent">Sort by Recent</option>
-              </select>
+              <div className={`p-2 rounded-lg ${
+                isDark ? "bg-green-600/20" : "bg-green-100"
+              }`}>
+                <BookOpen className={`w-5 h-5 ${
+                  isDark ? "text-green-400" : "text-green-600"
+                }`} />
+              </div>
+              <div>
+                <h1 className={`text-xl font-bold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}>
+                  Library Collection
+                </h1>
+                {user && (
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Logged in as: <span className="font-semibold capitalize">{user.role}</span> - {user.name}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            {/* Header Controls */}
+            <div className="flex items-center gap-4">
+              {/* Book Count */}
+              <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+              }`}>
+                Total: {filteredAndSortedBooks.length}
+              </div>
+              
+              {/* Search Bar */}
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className={`w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                    isDark 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                  placeholder="Search books..."
+                />
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-400" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={`px-3 py-1.5 text-sm rounded-lg border focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                    isDark 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                >
+                  <option value="title">Sort by Title</option>
+                  <option value="author">Sort by Author</option>
+                  <option value="recent">Sort by Recent</option>
+                  <option value="available">Sort by Available</option>
+                </select>
+              </div>
+
+              {/* Add Book Button - Only for Admin and Librarian */}
+              {user && (user.role === 'admin' || user.role === 'librarian') && (
+                <button
+                  onClick={() => {
+                    setEditingBook(null);
+                    setShowAddBook(true);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-200 text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Book
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Books */}
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader className={`w-12 h-12 animate-spin ${theme === "dark" ? "text-blue-400" : "text-blue-500"}`} />
-          </div>
-        ) : filteredAndSortedBooks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredAndSortedBooks.map((book, index) => (
-              <BookCard key={book.book_id || book.id} book={book} index={index} />
-            ))}
-          </div>
-        ) : (
-          <div className={`text-center py-20 rounded-3xl ${theme === "dark" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"}`}>
-            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">No books found</h3>
-            <p className="text-lg">{`Try adjusting your search terms or add your first book.`}</p>
-          </div>
-        )}
+        {/* Content */}
+        <div className="p-4">
+          {/* Error / Success Messages */}
+          {error && (
+            <div className={`mb-3 p-3 rounded-lg border text-sm ${
+              isDark
+                ? "bg-red-900/20 border-red-800 text-red-400"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}>
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className={`mb-3 p-3 rounded-lg border text-sm ${
+              isDark
+                ? "bg-green-900/20 border-green-800 text-green-400"
+                : "bg-green-50 border-green-200 text-green-700"
+            }`}>
+              {success}
+            </div>
+          )}
+
+          {/* Loading */}
+          {loading && (
+            <div className="flex justify-center py-8">
+              <Loader className={`w-5 h-5 animate-spin ${
+                isDark ? "text-green-400" : "text-green-500"
+              }`} />
+              <span className={`ml-2 text-sm ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}>
+                Loading books...
+              </span>
+            </div>
+          )}
+
+          {/* Books Grid */}
+          {!loading && !error && (
+            <>
+              {filteredAndSortedBooks.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredAndSortedBooks.map((book) => (
+                    <BookCard key={book.book_id || book.id} book={book} />
+                  ))}
+                </div>
+              ) : (
+                <div className={`text-center py-20 rounded-2xl ${
+                  isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
+                }`}>
+                  <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-2">No books found</h3>
+                  <p className="text-lg">
+                    {search ? "Try adjusting your search terms." : "No books available in the library."}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* AddBook Modal */}
+      {showAddBook && (
+        <AddBook
+          onClose={handleCloseAddBook}
+          theme={theme}
+          editingBook={editingBook}
+          onUpdateSuccess={handleUpdateSuccess}
+        />
+      )}
+    </>
   );
 }
