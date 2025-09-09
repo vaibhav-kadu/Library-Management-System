@@ -127,3 +127,26 @@ exports.deleteTransaction = (transaction_id) => {
         });
     });
 };
+
+
+
+// Get all transactions for a given student
+exports.getTransactionsByStudent = async (sid) => {
+  try {
+    const [rows] = await db.execute(
+      `SELECT t.transaction_id, t.book_id, t.sid, t.issued_by, t.issue_date, t.due_date,
+              t.return_to, t.return_date, t.status, t.fine,
+              b.title AS book_title, b.author AS book_author
+       FROM transactions t
+       LEFT JOIN books b ON t.book_id = b.book_id
+       WHERE t.sid = ? 
+       ORDER BY t.issue_date DESC`,
+      [sid]
+    );
+    return rows;
+  } catch (err) {
+    console.error("Error in getTransactionsByStudent:", err);
+    throw err;
+  }
+};
+

@@ -123,3 +123,24 @@ exports.deleteTransaction = (req, res) => {
         .then(result => res.status(200).json({ message: 'Transaction Deleted', result }))
         .catch(err => res.status(500).json({ message: 'Delete Failed', error: err }));
 };
+
+
+
+
+// GET /getTransactionsByStudent/:sid
+exports.getTransactionsByStudent = async (req, res) => {
+  const { sid } = req.params;
+
+  if (!sid) {
+    return res.status(400).json({ success: false, message: "Student ID (sid) is required" });
+  }
+
+  try {
+    const transactions = await transactionModel.getTransactionsByStudent(sid);
+    return res.json({ success: true, transactions });
+  } catch (err) {
+    console.error("Controller error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+

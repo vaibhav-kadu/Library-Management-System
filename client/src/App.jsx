@@ -61,6 +61,7 @@ function AppContent() {
         <Route path="/student-profile" element={<StudentProfile theme={theme} />} />
         <Route path="/signup" element={<SignUp theme={theme} />} />
 
+        {/* Admin Dashboard */}
         <Route
           path="/admin-dashboard"
           element={
@@ -72,6 +73,7 @@ function AppContent() {
           }
         />
 
+        {/* Librarian Dashboard */}
         <Route
           path="/librarian-dashboard"
           element={
@@ -83,6 +85,7 @@ function AppContent() {
           }
         />
 
+        {/* Student Dashboard */}
         <Route
           path="/student-dashboard"
           element={
@@ -94,6 +97,7 @@ function AppContent() {
           }
         />
 
+        {/* Add Librarian */}
         <Route
           path="/addLibrarian"
           element={
@@ -105,6 +109,7 @@ function AppContent() {
           }
         />
 
+        {/* Add Student (admin or librarian) */}
         <Route
           path="/addStudents"
           element={
@@ -116,6 +121,7 @@ function AppContent() {
           }
         />
 
+        {/* View Librarians */}
         <Route
           path="/viewLibrarians"
           element={
@@ -127,6 +133,7 @@ function AppContent() {
           }
         />
 
+        {/* View Students */}
         <Route
           path="/viewStudents"        // ✅ corrected route
           element={
@@ -138,6 +145,7 @@ function AppContent() {
           }
         />
 
+        {/* Other routes */}
         <Route path="/viewAllBooks" element={<ViewAllBooks theme={theme} />} />
         <Route path="/viewAllTransactions" element={<ViewAllTransactions theme={theme} />} />
         <Route path="/profileAccountManagement" element={<ProfileAccountManagement theme={theme} />} />
@@ -148,7 +156,6 @@ function AppContent() {
         {/* Additional CRUD operation routes */}
         <Route path="/updateBook" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Book Page - Coming Soon</div>} />
         <Route path="/deleteBook" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Book Page - Coming Soon</div>} />
-        {/* ✅ removed duplicate /viewStudents placeholder */}
         <Route path="/updateStudent" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Student Page - Coming Soon</div>} />
         <Route path="/deleteStudent" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Student Page - Coming Soon</div>} />
         <Route path="/updateCategory" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Category Page - Coming Soon</div>} />
@@ -156,7 +163,6 @@ function AppContent() {
         <Route path="/updateLibrarian" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Librarian Page - Coming Soon</div>} />
         <Route path="/deleteLibrarian" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Librarian Page - Coming Soon</div>} />
         <Route path="/settings" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Settings Page - Coming Soon</div>} />
-        
       </Routes>
     </BackgroundWrapper>
   );

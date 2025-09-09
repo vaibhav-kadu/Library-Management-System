@@ -67,5 +67,6 @@ routes.put('/issueBook', transCtrl.issueBook);
 routes.put('/returnBook', transCtrl.returnBook);
 routes.put('/updateTransaction', transCtrl.updateTransaction);
 routes.delete('/deleteTransaction', transCtrl.deleteTransaction);
+routes.get('/getTransactionsByStudent/:sid', transCtrl.getTransactionsByStudent);
 
 module.exports = routes;
