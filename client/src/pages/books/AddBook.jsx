@@ -134,9 +134,9 @@ export default function AddBook({ onClose, theme = 'light', editingBook = null, 
           formDataToSend.append('currentImage', editingBook.bookImage);
         }
 
-        // Add new image if selected
+        // FIXED: Use correct field name 'bookImage' instead of 'book_images'
         if (bookImage) {
-          formDataToSend.append('book_images', bookImage);
+          formDataToSend.append('bookImage', bookImage);
         }
 
         // Use PUT method with book_id parameter in URL
@@ -167,8 +167,9 @@ export default function AddBook({ onClose, theme = 'light', editingBook = null, 
         formDataToSend.append('category_id', formData.category_id);
         formDataToSend.append('total_copies', formData.total_copies);
         
+        // FIXED: Use correct field name 'bookImage' instead of 'book_images'
         if (bookImage) {
-          formDataToSend.append('book_images', bookImage);
+          formDataToSend.append('bookImage', bookImage);
         }
 
         const response = await axios.post('http://localhost:3000/addBook', formDataToSend, {

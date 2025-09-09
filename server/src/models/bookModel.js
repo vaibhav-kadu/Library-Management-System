@@ -24,15 +24,17 @@ exports.updateBook = (bookId, title, author, isbn, publisher, category_id, total
     });
 };
 
-exports.getBooks=()=>{
-    return new Promise((resolve,reject)=>{
-        db.query('select * from books',(err,result)=>{
-            if(err) return reject(err);
-            resolve(result);
-        });
+exports.getBooks = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'SELECT b.*, c.name as category_name, COALESCE(t.issued_count, 0) as issued_copies FROM books b LEFT JOIN categories c ON b.category_id = c.category_id LEFT JOIN (SELECT book_id, COUNT(*) as issued_count FROM transactions WHERE return_date IS NULL GROUP BY book_id) t ON b.book_id = t.book_id ORDER BY b.book_id DESC',
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
     });
 };
-
 
 exports.getBookBy=(id)=>{
     return new Promise((resolve,reject)=>{

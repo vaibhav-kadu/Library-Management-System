@@ -7,11 +7,12 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = path.join(__dirname, "..", "public", "uploads"); // default fallback
 
-    if (req.originalUrl.includes("addBook")) {
+    // FIXED: Better route detection for proper folder assignment
+    if (req.originalUrl.includes("addBook") || req.originalUrl.includes("updateBook")) {
       uploadPath = path.join(__dirname, "..", "public", "book_images");
-    } else if (req.originalUrl.includes("Student")) { 
+    } else if (req.originalUrl.includes("Student") || req.originalUrl.includes("student")) { 
       uploadPath = path.join(__dirname, "..", "public", "student_images");
-    } else if (req.originalUrl.includes("Librarian")) { 
+    } else if (req.originalUrl.includes("Librarian") || req.originalUrl.includes("librarian")) { 
       uploadPath = path.join(__dirname, "..", "public", "librarian_images");
     }
 
@@ -37,6 +38,22 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+// FIXED: Add file filter and size limits
+const fileFilter = (req, file, cb) => {
+  // Check if file is an image
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  }
+});
 
 module.exports = upload;
