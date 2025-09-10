@@ -2,6 +2,8 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const cron = require("node-cron");
+const db = require("./config/db");
 const bodyParser = require('body-parser');
 const multer = require('multer'); // For handling file uploads
 const routes = require('./routes/routes'); // Your routes
@@ -16,6 +18,29 @@ app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS
 app.use(cors());
+
+// Run every day at 6 AM
+cron.schedule("* * * * *", () => {      //"0 6 * * *"
+  console.log("📅 Running daily fine update job...");
+  //SQL to test data=> UPDATE transactions SET due_date = CURDATE() - INTERVAL 1 DAY WHERE transaction_id = 2;
+
+
+  const sql = `
+    UPDATE transactions
+    SET fine = fine + 10 * DATEDIFF(CURDATE(), due_date),
+        status = 'overdue'
+    WHERE status = 'issued'
+      AND due_date < CURDATE()
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("❌ Error updating fines:", err);
+    } else {
+      console.log(`✅ Fines updated for ${result.affectedRows} overdue transactions`);
+    }
+  });
+});
 
 // Set view engine (optional if you use EJS)
 app.set('view engine', 'ejs');

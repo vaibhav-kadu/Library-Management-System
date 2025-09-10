@@ -131,22 +131,41 @@ exports.deleteTransaction = (transaction_id) => {
 
 
 // Get all transactions for a given student
-exports.getTransactionsByStudent = async (sid) => {
-  try {
-    const [rows] = await db.execute(
-      `SELECT t.transaction_id, t.book_id, t.sid, t.issued_by, t.issue_date, t.due_date,
-              t.return_to, t.return_date, t.status, t.fine,
-              b.title AS book_title, b.author AS book_author
-       FROM transactions t
-       LEFT JOIN books b ON t.book_id = b.book_id
-       WHERE t.sid = ? 
-       ORDER BY t.issue_date DESC`,
-      [sid]
-    );
-    return rows;
-  } catch (err) {
-    console.error("Error in getTransactionsByStudent:", err);
-    throw err;
-  }
+exports.getTransactionsByStudent = (sid) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        t.transaction_id, 
+        s.name AS student_name, 
+        s.sid, 
+        b.title AS book_name, 
+        b.author AS book_author, 
+        b.book_id, 
+        l1.name AS issued_by, 
+        l1.lid AS issue_lid, 
+        t.issue_date, 
+        t.due_date, 
+        l2.name AS return_to, 
+        l2.lid AS return_lid, 
+        t.return_date, 
+        t.status,  
+        t.fine
+      FROM transactions t
+      INNER JOIN students s ON t.sid = s.sid
+      INNER JOIN books b ON t.book_id = b.book_id
+      LEFT JOIN librarians l1 ON t.issued_by = l1.lid
+      LEFT JOIN librarians l2 ON t.return_to = l2.lid
+      WHERE t.sid = ?
+      ORDER BY t.issue_date DESC
+    `;
+    db.query(sql, [sid], (err, result) => {
+      if (err) {
+        console.error("Error in getTransactionsByStudent:", err);
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
 };
+
 

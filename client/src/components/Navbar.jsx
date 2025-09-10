@@ -172,14 +172,7 @@ const Navbar = ({
       return [
         ...common,
         { type: 'dropdown', label: 'Transactions', icon: ArrowRightLeft, dropdownKey: 'transactions-sidebar', items: [
-          { label: 'All Transactions', path: '/viewAllTransactions', icon: BookUp },
-          { label: 'Return Book', path: '/returnBook', icon: BookDown },
-          { label: 'Transaction History', path: '/transactionHistory', icon: History },
-          { label: 'Active Loans', path: '/activeLoans', icon: Clock },
-          { label: 'Overdue Books', path: '/overdueBooks', icon: AlertCircle },
-          { label: 'Manage Fines', path: '/manageFines', icon: DollarSign },
-          { label: 'Renew Book', path: '/renewBook', icon: Calendar },
-          { label: 'Reports', path: '/transactionReports', icon: FileText }
+          { label: 'All Transactions', path: '/viewAllTransactions', icon: BookUp }
         ]},
         { type: 'dropdown', label: 'Books', icon: BookOpen, dropdownKey: 'books-sidebar', items: [
           { label: 'Add Book', path: '/addBook', icon: Plus },
@@ -196,14 +189,7 @@ const Navbar = ({
       return [
         ...common,
         { type: 'dropdown', label: 'Transactions', icon: ArrowRightLeft, dropdownKey: 'transactions-sidebar', items: [
-          { label: 'Issue Book', path: '/issueBook', icon: BookUp },
-          { label: 'Return Book', path: '/returnBook', icon: BookDown },
-          { label: 'Transaction History', path: '/transactionHistory', icon: History },
-          { label: 'Active Loans', path: '/activeLoans', icon: Clock },
-          { label: 'Overdue Books', path: '/overdueBooks', icon: AlertCircle },
-          { label: 'Manage Fines', path: '/manageFines', icon: DollarSign },
-          { label: 'Renew Book', path: '/renewBook', icon: Calendar },
-          { label: 'Reports', path: '/transactionReports', icon: FileText }
+          { label: 'All Transactions', path: '/viewAllTransactions', icon: BookUp }
         ]},
         { type: 'dropdown', label: 'Books', icon: BookOpen, dropdownKey: 'books-sidebar', items: [
           { label: 'Add Book', path: '/addBook', icon: Plus },
