@@ -34,6 +34,7 @@ function initializeTables(connection) {
         `CREATE TABLE IF NOT EXISTS categories (
             category_id INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
+            status ENUM('active','inactive') ,
             PRIMARY KEY (category_id),
             UNIQUE KEY (name)
         )`,
@@ -53,7 +54,8 @@ function initializeTables(connection) {
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
             profileImage VARCHAR(100),
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,            
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (lid),
             UNIQUE KEY (email)
         )`,
@@ -61,10 +63,7 @@ function initializeTables(connection) {
         `INSERT INTO librarians (name, contact, email, password)
 VALUES
 ('Ravi Sharma', '9876543210', 'ravi.sharma@example.com', '9876543210'),
-('Anita Desai', '9123456789', 'anita.desai@example.com', '9123456789'),
-('Vikram Patel', '9012345678', 'vikram.patel@example.com', '9012345678'),
-('Sunita Reddy', '9988776655', 'sunita.reddy@example.com', '9988776655'),
-('Aman Kapoor', '9090909090', 'aman.kapoor@example.com', '9090909090')`
+('Sunita Reddy', '9090909090', 'sunita.reddy@example.com', '9090909090')`
         ,
 
         `CREATE TABLE IF NOT EXISTS admin (
@@ -73,7 +72,9 @@ VALUES
             contact VARCHAR(15) NOT NULL,
             email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
+            profileImage VARCHAR(100),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY (email)
         )`,
@@ -92,12 +93,11 @@ VALUES
             address TEXT,
             lid INT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (sid),
             UNIQUE KEY (email),
             FOREIGN KEY (lid) REFERENCES librarians(lid)
-            ON DELETE CASCADE
-            ON UPDATE CASCADE
-        
+            ON DELETE CASCADE ON UPDATE CASCADE       
 
         )`,
 
@@ -105,19 +105,19 @@ VALUES
 VALUES
 ('Aarav Mehta', '9000000001', 'aarav.mehta@example.com', '9000000001', 'Mumbai, India', 1),
 ('Sneha Sharma', '9000000002', 'sneha.sharma@example.com', '9000000002', 'Pune, India', 2),
-('Ishaan Verma', '9000000003', 'ishaan.verma@example.com', '9000000003', 'Delhi, India', 3),
-('Ananya Joshi', '9000000004', 'ananya.joshi@example.com', '9000000004', 'Bengaluru, India', 4),
-('Vivaan Deshmukh', '9000000005', 'vivaan.deshmukh@example.com', '9000000005', 'Chennai, India', 5),
+('Ishaan Verma', '9000000003', 'ishaan.verma@example.com', '9000000003', 'Delhi, India', 2),
+('Ananya Joshi', '9000000004', 'ananya.joshi@example.com', '9000000004', 'Bengaluru, India', 1),
+('Vivaan Deshmukh', '9000000005', 'vivaan.deshmukh@example.com', '9000000005', 'Chennai, India', 1),
 ('Kavya Nair', '9000000006', 'kavya.nair@example.com', '9000000006', 'Kochi, India', 1),
 ('Arjun Gupta', '9000000007', 'arjun.gupta@example.com', '9000000007', 'Ahmedabad, India', 2),
-('Diya Reddy', '9000000008', 'diya.reddy@example.com', '9000000008', 'Hyderabad, India', 3),
-('Rahul Kapoor', '9000000009', 'rahul.kapoor@example.com', '9000000009', 'Lucknow, India', 4),
-('Meera Iyer', '9000000010', 'meera.iyer@example.com', '9000000010', 'Nagpur, India', 5),
+('Diya Reddy', '9000000008', 'diya.reddy@example.com', '9000000008', 'Hyderabad, India', 2),
+('Rahul Kapoor', '9000000009', 'rahul.kapoor@example.com', '9000000009', 'Lucknow, India', 2),
+('Meera Iyer', '9000000010', 'meera.iyer@example.com', '9000000010', 'Nagpur, India', 1),
 ('Nikhil Jain', '9000000011', 'nikhil.jain@example.com', '9000000011', 'Indore, India', 1),
 ('Tanya Saxena', '9000000012', 'tanya.saxena@example.com', '9000000012', 'Bhopal, India', 2),
-('Aditya Singh', '9000000013', 'aditya.singh@example.com', '9000000013', 'Varanasi, India', 3),
-('Pooja Dey', '9000000014', 'pooja.dey@example.com', '9000000014', 'Kolkata, India', 4),
-('Rohan Nair', '9000000015', 'rohan.nair@example.com', '9000000015', 'Trivandrum, India', 5)`
+('Aditya Singh', '9000000013', 'aditya.singh@example.com', '9000000013', 'Varanasi, India', 1),
+('Pooja Dey', '9000000014', 'pooja.dey@example.com', '9000000014', 'Kolkata, India', 1),
+('Rohan Nair', '9000000015', 'rohan.nair@example.com', '9000000015', 'Trivandrum, India', 1)`
         ,
 
         `CREATE TABLE IF NOT EXISTS books (
@@ -131,6 +131,7 @@ VALUES
             issued_copies INT ,
             bookImage VARCHAR(255) ,
             added_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (book_id),
             FOREIGN KEY (category_id) REFERENCES categories(category_id) 
             ON DELETE CASCADE
@@ -175,15 +176,15 @@ VALUES
 (book_id, sid, issued_by, issue_date, due_date, return_to, return_date, status, fine) 
 VALUES
 (1, 3, 2, '2025-09-01 10:30:00', '2025-09-07', NULL, NULL, 'issued', 0.0),
-(2, 5, 1, '2025-08-25 14:00:00', '2025-08-31', 3, '2025-08-30', 'returned', 0.0),
-(4, 8, 4, '2025-08-20 09:15:00', '2025-08-26', NULL, NULL, 'overdue', 50.0),
-(6, 10, 5, '2025-09-08 11:45:00', '2025-09-14', NULL, NULL, 'issued', 0.0),
-(3, 2, 2, '2025-08-15 12:00:00', '2025-08-21', 1, '2025-08-24', 'returned', 30.0),
-(7, 6, 3, '2025-09-07 15:00:00', '2025-09-13', NULL, NULL, 'pending', 0.0),
-(9, 12, 1, '2025-09-02 10:00:00', '2025-09-08', 4, '2025-09-08', 'returned', 0.0),
-(5, 14, 5, '2025-08-10 16:00:00', '2025-08-16', NULL, NULL, 'overdue', 120.0),
+(2, 5, 1, '2025-08-25 14:00:00', '2025-08-31', 1, '2025-08-30', 'returned', 0.0),
+(4, 8, 1, '2025-08-20 09:15:00', '2025-08-26', NULL, NULL, 'overdue', 50.0),
+(6, 10, 1, '2025-09-08 11:45:00', '2025-09-14', NULL, NULL, 'issued', 0.0),
+(3, 2, 2, '2025-08-15 12:00:00', '2025-08-21', 2, '2025-08-24', 'returned', 30.0),
+(7, 6, 1, '2025-09-07 15:00:00', '2025-09-13', NULL, NULL, 'pending', 0.0),
+(9, 12, 2, '2025-09-02 10:00:00', '2025-09-08', 2, '2025-09-08', 'returned', 0.0),
+(5, 14, 2, '2025-08-10 16:00:00', '2025-08-16', NULL, NULL, 'overdue', 120.0),
 (8, 7, 2, '2025-09-06 13:20:00', '2025-09-12', NULL, NULL, 'issued', 0.0),
-(10, 1, 3, '2025-08-28 09:40:00', '2025-09-03', 2, '2025-09-05', 'returned', 20.0);
+(10, 1, 1, '2025-08-28 09:40:00', '2025-09-03', 1, '2025-09-05', 'returned', 20.0);
 `
     ];
 

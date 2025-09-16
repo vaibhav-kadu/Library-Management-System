@@ -49,8 +49,8 @@ routes.delete('/deleteStudent/:sid', studentCtrl.deleteStudent);
 routes.post('/addCategory', catCtrl.addCategory);
 routes.get("/getCategory", catCtrl.getCategory);
 routes.get("/categories", catCtrl.getCategoriesForDropdown);
-routes.put("/updateCategory/:categoryId", catCtrl.updateCategory);
-routes.delete("/deleteCategory/:category_id", catCtrl.deleteCategory);
+routes.put("/updateCategory", catCtrl.updateCategory);
+routes.delete("/deleteCategory", catCtrl.deleteCategory);
 
 
 // ---------------- Books ----------------
@@ -58,6 +58,7 @@ routes.post('/addBook', upload.single('bookImage'), bookCtrl.addBook);
 routes.put('/updateBook/:bookId', upload.single('bookImage'), bookCtrl.updateBook);
 routes.get('/getBooks', bookCtrl.getAllBooks);
 routes.get('/getBookById', bookCtrl.getBookBy);
+routes.get('/getBooksByCategoryId', bookCtrl.getBooksByCategory);
 routes.delete('/deleteBook', bookCtrl.deleteBook);
 
 // ---------------- Transactions ----------------

@@ -22,7 +22,7 @@ exports.getCategoriesForDropdown = () => {
   return new Promise((resolve, reject) => {
     db.query("SELECT category_id, name FROM categories", (err, results) => {
       if (err) return reject(err);
-      resolve(results);   // ✅ just return data
+      resolve(results);   //  just return data
     });
   });
 };
@@ -44,6 +44,18 @@ exports.updateCategory=(category_id,name)=>{
                 reject(err);
             }else{
                 resolve("UPDATED");
+            }
+        });
+    });
+};
+
+exports.inactiveCategory=(status,category_id)=>{
+    return new Promise((resolve,reject)=>{
+        db.query('update categories set status=? where category_id=?',[status,category_id],(err,result)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(result);
             }
         });
     });

@@ -1,3 +1,4 @@
+//librarianModel.js
 const db=require('../config/db.js');
 
 exports.addLibrarian=(name,contact,email,password,profileImage)=>{

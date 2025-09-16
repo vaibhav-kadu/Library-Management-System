@@ -50,7 +50,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
   // Issue book
   const handleIssueBook = async (transactionId) => {
     if (!user.lid) {
-      setError("Please log in as a librarian to issue books");
+      alert("Please log in as a librarian to issue books");
       return;
     }
 
@@ -80,7 +80,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
   // Return book
   const handleReturnBook = async (transactionId) => {
     if (!user.lid) {
-      setError("Please log in as a librarian to return books");
+      alert("Please log in as a librarian to return books");
       return;
     }
 
@@ -91,7 +91,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
       const response = await axios.put('http://localhost:3000/returnBook', {
         lid: user.lid,
         transaction_id: transactionId
-      });
+      }); 
 
       if (response.data.success) {
         setSuccess("Book returned successfully!");
@@ -211,7 +211,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
         isDark ? "bg-gray-800" : "bg-white"
       }`}>
         {/* Header */}
-        <div className={`px-6 py-4 border-b ${
+        <div className={`px-6 py-3 border-b ${
           isDark ? "border-gray-700" : "border-gray-200"
         }`}>
           <div className="flex items-center justify-between">

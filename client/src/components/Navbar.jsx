@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Profiler } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { 
@@ -18,7 +18,8 @@ import {
   Library,
   Tag,
   ArrowRightLeft,
-  ChevronRight
+  ChevronRight,
+  User2Icon
 } from 'lucide-react';
 
 const Navbar = ({ 
@@ -84,6 +85,16 @@ const Navbar = ({
     if (isMobile) setSidebarOpen(false);
   };
 
+  const handleProfile = () => {
+    if(user.role === 'admin') {
+      navigate('/admin-profile');
+    } else if(user.role === 'librarian') {
+      navigate('/librarian-profile');
+    } else {
+      navigate('/student-profile');
+    }
+  };
+
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDropdown = (key) => setOpenDropdowns(prev => ({ ...prev, [key]: !prev[key] }));
@@ -98,7 +109,7 @@ const Navbar = ({
     if (onDropdownItemClick) onDropdownItemClick(item);
     else navigate(item.path);
     closeAllDropdowns();
-    if (isMobile) setSidebarOpen(false);
+    setSidebarOpen(false);
   };
 
   // Role Badge
@@ -179,7 +190,7 @@ const Navbar = ({
           { label: 'View Books', path: '/viewAllBooks', icon: Eye }
         ]},
         { type: 'dropdown', label: 'Students', icon: Users, dropdownKey: 'students-sidebar', items: [
-          { label: 'Add Student', path: '/addStudents', icon: Plus },
+          { label: 'Add Student', path: '/addStudent', icon: Plus },
           { label: 'View Students', path: '/viewStudents', icon: Eye }
         ]}
       ];
@@ -200,7 +211,7 @@ const Navbar = ({
           { label: 'View Categories', path: '/viewCategory', icon: Eye }
         ]},
         { type: 'dropdown', label: 'Students', icon: Users, dropdownKey: 'students-sidebar', items: [
-          { label: 'Add Student', path: '/addStudents', icon: Plus },
+          { label: 'Add Student', path: '/addStudent', icon: Plus },
           { label: 'View Students', path: '/viewStudents', icon: Eye }
         ]},
         { type: 'dropdown', label: 'Librarians', icon: Library, dropdownKey: 'librarians-sidebar', items: [
@@ -256,6 +267,16 @@ const Navbar = ({
 
             {/* Right Side - Theme Toggle & User Info */}
             <div className="flex items-center space-x-2">
+              <div>
+                <button
+                  onClick={() => navigate('/contact')}
+                  className={`text-lg font-semibold ${
+                    theme === 'dark' ? 'text-white hover:text-gray-300' : 'text-gray-900 hover:text-gray-700'
+                  }`}
+                >
+                  Contact Us
+                </button>
+              </div>
               <button
                 onClick={toggleTheme}
                 className={`p-2 rounded-lg transition-all duration-200 ${
@@ -311,6 +332,17 @@ const Navbar = ({
                         }`}
                         style={{ zIndex: 9999 }}
                       >
+                                                <div className="py-2">
+                          <button
+                            onClick={handleProfile}
+                            className={`w-full text-left px-4 py-3 text-sm text-green-600 dark:text-green-400 flex items-center space-x-3 transition-colors duration-200 ${
+                              theme === 'dark' ? 'hover:bg-green-900/20' : 'hover:bg-green-50'
+                            }`}
+                          >
+                            <User2Icon className="h-4 w-4" />
+                            <span>Profile</span>
+                          </button>
+                        </div>
                         <div className="py-2">
                           <button
                             onClick={handleLogout}

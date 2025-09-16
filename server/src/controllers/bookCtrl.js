@@ -1,3 +1,4 @@
+const { log } = require('console');
 const bookModel=require('../models/bookModel');
 
 exports.addBook = (req, res) => {
@@ -63,6 +64,25 @@ exports.updateBook = async (req, res) => {
 
 exports.getAllBooks = (req, res) => {
   let promise = bookModel.getBooks();
+  promise
+    .then((result) => {
+      res.status(200).json({
+        success: true,
+        books: result   
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        success: false,
+        message: "Internal Server Error = " + err,
+      });
+    });
+};
+
+exports.getBooksByCategory = (req, res) => {
+  const {category_id} = req.query;
+  console.log(category_id);
+  let promise = bookModel.getBooksByCategory(category_id);
   promise
     .then((result) => {
       res.status(200).json({

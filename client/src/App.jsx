@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import AddStudent from './pages/students/AddStudent';
 import Login from './pages/Login';
 import LibrarianDashboard from './pages/librarian/LibrarianDashboard';
-import ProfileAccountManagement from './pages/admin/ProfileAccountManagement';
+import AdminProfile from './pages/admin/AdminProfile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import PrivateRoutes from './utils/PrivateRoutes';
 import RoleBaseRoutes from './utils/RoleBaseRoutes';
@@ -20,9 +20,10 @@ import LandingPage from './pages/LandingPage';
 import BackgroundWrapper from './components/BackgroundWrapper';
 import SignUp from './pages/SignUp';
 import ViewLibrarian from './pages/librarian/ViewLibrarian';
-import ViewStudent from './pages/students/ViewStudent';   // ✅ import
+import ViewStudent from './pages/students/ViewStudent';   
 import StudentProfile from './pages/students/StudentProfile';
 import ViewAllTransactions from './pages/transactions/ViewAllTransactions';
+import ContactUsPage from './pages/others/ContactUsPage';
 
 function AppContent() {
   const current_theme = localStorage.getItem('current_theme');
@@ -55,9 +56,8 @@ function AppContent() {
 
       <Routes>
         <Route path="/" element={<LandingPage theme={theme} />} />
-        <Route path="/login" element={<LandingPage theme={theme} />} />
+        <Route path="/login" element={<Login theme={theme} />} />
         <Route path="/home" element={<Home theme={theme} />} />
-        <Route path="/addStudent" element={<AddStudent theme={theme} />} />
         <Route path="/student-profile" element={<StudentProfile theme={theme} />} />
         <Route path="/signup" element={<SignUp theme={theme} />} />
 
@@ -111,7 +111,7 @@ function AppContent() {
 
         {/* Add Student (admin or librarian) */}
         <Route
-          path="/addStudents"
+          path="/addStudent"
           element={
             <PrivateRoutes>
               <RoleBaseRoutes requiredRole={['admin', 'librarian']}>
@@ -145,10 +145,21 @@ function AppContent() {
           }
         />
 
+                {/* View Transactions */}
+        <Route
+          path="/viewAllTransactions"       
+          element={
+            <PrivateRoutes>
+              <RoleBaseRoutes requiredRole={['admin', 'librarian']}>
+                <ViewAllTransactions theme={theme} />
+              </RoleBaseRoutes>
+            </PrivateRoutes>
+          }
+        />
+
         {/* Other routes */}
         <Route path="/viewAllBooks" element={<ViewAllBooks theme={theme} />} />
-        <Route path="/viewAllTransactions" element={<ViewAllTransactions theme={theme} />} />
-        <Route path="/profileAccountManagement" element={<ProfileAccountManagement theme={theme} />} />
+        <Route path="/admin-profile" element={<AdminProfile theme={theme} />} />
         <Route path="/addCategory" element={<AddCategory theme={theme} />} />
         <Route path="/viewCategory" element={<ViewCategories theme={theme} />} />
         <Route path="/addBook" element={<AddBook theme={theme} />} />
@@ -162,7 +173,7 @@ function AppContent() {
         <Route path="/deleteCategory" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Category Page - Coming Soon</div>} />
         <Route path="/updateLibrarian" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Librarian Page - Coming Soon</div>} />
         <Route path="/deleteLibrarian" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Librarian Page - Coming Soon</div>} />
-        <Route path="/settings" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Settings Page - Coming Soon</div>} />
+        <Route path="/contact" element={<ContactUsPage theme={theme}/>} />
       </Routes>
     </BackgroundWrapper>
   );

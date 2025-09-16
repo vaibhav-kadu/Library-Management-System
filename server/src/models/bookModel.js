@@ -45,6 +45,15 @@ exports.getBookBy=(id)=>{
     });
 };
 
+exports.getBooksByCategory=(category_id)=>{    
+    return new Promise((resolve,reject)=>{
+        db.query('select * from books where category_id=?',[category_id],(err,result)=>{
+            if(err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
 
 exports.deleteBook=(book_id)=>{
     return new Promise((resolve,reject)=>{

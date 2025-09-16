@@ -239,47 +239,6 @@ const LandingPage = ({ theme }) => {
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className={`backdrop-blur-sm rounded-3xl p-12 border ${
-            theme === 'dark' 
-              ? 'bg-gradient-to-r from-blue-600/10 to-purple-600/10 border-white/20' 
-              : 'bg-gradient-to-r from-blue-600/10 to-purple-600/10 border-white/20'
-          }`}>
-            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>
-              Ready to Transform Your Library?
-            </h2>
-            <p className={`text-xl mb-8 max-w-2xl mx-auto ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-            }`}>
-              Join thousands of libraries worldwide who trust our management system to streamline their operations.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate('/admin-dashboard')}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-              >
-                Start Free Trial
-              </button>
-              <button
-                onClick={() => navigate('/viewAllBooks')}
-                className={`px-8 py-4 border-2 rounded-xl font-semibold text-lg transition-all duration-300 backdrop-blur-sm ${
-                  theme === 'dark' 
-                    ? 'border-gray-600/50 text-white hover:bg-gray-800/50' 
-                    : 'border-gray-300/50 text-gray-900 hover:bg-white/50'
-                }`}
-              >
-                View Demo
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

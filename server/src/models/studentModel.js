@@ -1,7 +1,6 @@
+//studentModel.js
 const db=require('../config/db.js');
 
-
-//Students Model
 
 exports.findStudentById=(sid)=>{
     return new Promise((resolve,reject)=>{
@@ -12,7 +11,7 @@ exports.findStudentById=(sid)=>{
     });
 };
 
-//Students Model
+
 
 exports.findStudentByEmail=(email)=>{
     return new Promise((resolve,reject)=>{

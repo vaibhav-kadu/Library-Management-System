@@ -1,3 +1,4 @@
+//authCtrl.js
 const bcrypt=require('bcrypt');
 const studentModel=require('../models/studentModel.js');
 const libmodel = require("../models/librarianModel.js");

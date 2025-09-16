@@ -56,9 +56,7 @@ export default function ViewCategories({ theme = 'light' }) {
 
     try {
       // Updated to pass id and name in request body
-      const response = await axios.put(`http://localhost:3000/updateCategory/${category_id}`, {
-  name: editingName.trim()
-});
+      const response = await axios.put("http://localhost:3000/updateCategory",{category_id:category_id, name: editingName.trim()});
 
       if (response.data.success) {
         setCategories(categories.map(cat => 
@@ -91,7 +89,9 @@ const handleDelete = async (category_id, categoryName) => {
 
   try {
     // Fixed: Send ID as URL parameter to match backend route
-    const response = await axios.delete(`http://localhost:3000/deleteCategory/${category_id}`);
+    const response = await axios.delete("http://localhost:3000/deleteCategory",{
+      params:{category_id:category_id}
+    });
 
     if (response.data.success) {
       setCategories(categories.filter(cat => (cat.category_id || cat.id) !== category_id));
@@ -100,6 +100,7 @@ const handleDelete = async (category_id, categoryName) => {
     } else {
       setError('Failed to delete category');
     }
+    
   } catch (err) {
     setError(err.response?.data?.error || 'Failed to delete category');
   } finally {
@@ -158,20 +159,12 @@ const handleDelete = async (category_id, categoryName) => {
           <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
             Book Categories
           </h2>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-8">
-        {/* Search and Count */}
-        <div className="mb-6 flex items-center justify-between gap-4">
           <div className={`px-4 py-2 rounded-lg border font-medium ${
             isDark ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-gray-50 border-gray-300 text-gray-600'
           }`}>
             Total: {filteredCategories.length}
           </div>
-          
-          <div className="flex-1 max-w-md relative">
+                    <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
@@ -184,6 +177,10 @@ const handleDelete = async (category_id, categoryName) => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-8">
 
         {/* Messages */}
         {error && showMessage(error, 'error')}
@@ -199,6 +196,9 @@ const handleDelete = async (category_id, categoryName) => {
                 </th>
                 <th className={`py-4 px-6 text-left text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Category Name
+                </th>
+                <th className={`py-4 px-6 text-center text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Status
                 </th>
                 <th className={`py-4 px-6 text-center text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Actions
@@ -231,6 +231,16 @@ const handleDelete = async (category_id, categoryName) => {
                         ) : (
                           <span className="text-sm font-medium">{cat.name}</span>
                         )}
+                      </td>
+                      <td className={`py-4 px-6 text-center ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          cat.status === 'active'
+                            ? isDark ? 'bg-green-600/20 text-green-400' : 'bg-green-100 text-green-600'
+                            :cat.status === 'inactive'? isDark ? 'bg-red-600/20 text-red-400' : 'bg-red-100 text-red-600'
+                            : isDark ? 'bg-gray-600/20 text-gray-400' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {cat.status || 'N/A'}
+                        </span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-center gap-3">
