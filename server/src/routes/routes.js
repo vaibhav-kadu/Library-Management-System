@@ -11,7 +11,10 @@ let transCtrl = require('../controllers/transactionCtrl.js');
 let upload = require("../middleware/fileupload.js");
 let upload2 = require("../middleware/upnewphoto.js");
 
-
+// Default welcome page
+routes.get('/', (req, res) => {
+    res.render('welcome.ejs'); // Renders views/welcome.ejs
+});
 
 // ---------------- Authentication ----------------
 routes.get('/verify', authMiddleware.verifyUser, authctrl.verify);
