@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, Profiler } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../context/AuthContext';
 import { 
   Sun, Moon, 
   User, BookUp, BookDown, History, 
