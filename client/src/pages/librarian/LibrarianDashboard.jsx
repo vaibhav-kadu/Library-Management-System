@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 import {
   BookOpen, Users, Book, AlertCircle,
   CheckCircle, Clock
@@ -29,7 +30,7 @@ const LibrarianDashboard = ({ theme }) => {
   // ✅ Fetch totalBooks
   const fetchBooks = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getBooks");
+      const res = await api.get('/getBooks');
       if (res.data.success) {
         const books = res.data.books || [];
         setLibrarianStats((prev) => ({
@@ -45,7 +46,7 @@ const LibrarianDashboard = ({ theme }) => {
   // ✅ Fetch total students
   const fetchStudents = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getStudents");
+      const res = await api.get('/getStudents');
       if (res.data.success) {
         const students = res.data.students || [];
         setLibrarianStats((prev) => ({
@@ -61,7 +62,7 @@ const LibrarianDashboard = ({ theme }) => {
   // ✅ Fetch transactions
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getAllTransactions");
+      const res = await api.get('/getAllTransactions');
       if (res.data.success) {
         const transactions = res.data.result || [];
 

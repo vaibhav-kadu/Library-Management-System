@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Eye, EyeOff, Mail, Lock, X, Phone, Camera, User, Save, Edit2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AddLibrarian({ onClose, theme = 'light', editingLibrarian = null, onUpdateSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,7 @@ export default function AddLibrarian({ onClose, theme = 'light', editingLibraria
 
       // Set existing profile image preview
       if (editingLibrarian.profileImage) {
-        setImagePreview(`http://localhost:3000/librarian_images/${editingLibrarian.profileImage}?${Date.now()}`);
+        setImagePreview(`${BASE_URL}/librarian_images/${editingLibrarian.profileImage}?${Date.now()}`);
       }
     }
   }, [editingLibrarian]);
@@ -151,7 +152,7 @@ export default function AddLibrarian({ onClose, theme = 'light', editingLibraria
           formDataToSend.append('profileImage', profileImage);
         }
 
-        const response = await axios.put('http://localhost:3000/updateLibrarian', formDataToSend, {
+        const response = await api.put('/updateLibrarian', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -182,7 +183,7 @@ export default function AddLibrarian({ onClose, theme = 'light', editingLibraria
           formDataToSend.append('profileImage', profileImage);
         }
 
-        const response = await axios.post('http://localhost:3000/addLibrarian', formDataToSend, {
+        const response = await api.post('/addLibrarian', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }

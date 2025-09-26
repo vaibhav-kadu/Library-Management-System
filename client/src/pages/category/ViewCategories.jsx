@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { Folder, Loader, Edit2, Trash2, Save, X, Search } from 'lucide-react';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function ViewCategories({ theme = 'light' }) {
   const [categories, setCategories] = useState([]);
@@ -17,7 +18,7 @@ export default function ViewCategories({ theme = 'light' }) {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/getCategory');
+      const response = await api.get('/getCategory');
       if (response.data.success) {
         setCategories(response.data.categories);
       } else {
@@ -56,7 +57,7 @@ export default function ViewCategories({ theme = 'light' }) {
 
     try {
       // Updated to pass id and name in request body
-      const response = await axios.put("http://localhost:3000/updateCategory",{category_id:category_id, name: editingName.trim()});
+      const response = await api.put(`/updateCategory`,{category_id:category_id, name: editingName.trim()});
 
       if (response.data.success) {
         setCategories(categories.map(cat => 
@@ -89,7 +90,7 @@ const handleDelete = async (category_id, categoryName) => {
 
   try {
     // Fixed: Send ID as URL parameter to match backend route
-    const response = await axios.delete("http://localhost:3000/deleteCategory",{
+    const response = await api.delete('/deleteCategory',{
       params:{category_id:category_id}
     });
 

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { User, BookOpen, Eye, EyeOff, Mail, Lock, X, UserPlus, Phone, Calendar, MapPin, Upload, Camera } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function SignUp({ onClose, theme }) {
   const [activeTab, setActiveTab] = useState('student');
@@ -114,7 +115,7 @@ export default function SignUp({ onClose, theme }) {
         formDataToSend.append('profileImage', profileImages[userType]);
       }
 
-      const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, formDataToSend, {
+      const response = await api.post(`/${apiEndpoint}`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

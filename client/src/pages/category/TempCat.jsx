@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Tag, X, RotateCcw, Save } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AddCategory() {
   const [error, setError] = useState(null);
@@ -48,7 +49,7 @@ export default function AddCategory() {
     setSuccess(null);
 
     try {
-      const response = await axios.post('http://localhost:3000/addCategory', {
+      const response = await api.post('/addCategory', {
         name: formData.name.trim()
       });
 

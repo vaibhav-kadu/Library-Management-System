@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Camera, Save, X, User, Hash, Building, Layers, Package, Edit2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AddBook({ onClose, theme = 'light', editingBook = null, onUpdateSuccess }) {
   const [error, setError] = useState(null);
@@ -39,7 +40,7 @@ export default function AddBook({ onClose, theme = 'light', editingBook = null, 
 
       // Set existing book image preview
       if (editingBook.bookImage && editingBook.bookImage !== 'null') {
-        setImagePreview(`http://localhost:3000/book_images/${editingBook.bookImage}?${Date.now()}`);
+        setImagePreview(`${BASE_URL}/book_images/${editingBook.bookImage}?${Date.now()}`);
       }
     }
   }, [editingBook]);
@@ -48,7 +49,7 @@ export default function AddBook({ onClose, theme = 'light', editingBook = null, 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/categories");
+        const response = await api.get('/categories');
         setCategories(response.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -140,7 +141,7 @@ export default function AddBook({ onClose, theme = 'light', editingBook = null, 
         }
 
         // Use PUT method with book_id parameter in URL
-        const response = await axios.put(`http://localhost:3000/updateBook/${bookId}`, formDataToSend, {
+        const response = await api.put(`/updateBook/${bookId}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -172,7 +173,7 @@ export default function AddBook({ onClose, theme = 'light', editingBook = null, 
           formDataToSend.append('bookImage', bookImage);
         }
 
-        const response = await axios.post('http://localhost:3000/addBook', formDataToSend, {
+        const response = await api.post('/addBook', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }

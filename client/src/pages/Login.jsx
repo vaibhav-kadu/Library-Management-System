@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { User, BookOpen, Shield, Eye, EyeOff, Mail, Lock, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function Login({ onClose, theme }) {
   const [activeTab, setActiveTab] = useState('student');
@@ -65,7 +66,7 @@ export default function Login({ onClose, theme }) {
       const apiEndpoint = userType === 'student' ? 'loginStudent' :
                          userType === 'librarian' ? 'loginLibrarian' : 'loginAdmin';
 
-      const response = await axios.post(`http://localhost:3000/${apiEndpoint}`, credentials);
+      const response = await api.post(`/${apiEndpoint}`, credentials);
 
       if (response.data.success) {
         // ✅ Pass the entire response data to login function

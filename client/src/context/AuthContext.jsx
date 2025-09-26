@@ -1,6 +1,7 @@
 // AuthContext.jsx - Updated
-import axios from 'axios'
+import api from '../utils/api';
 import React, { createContext, useContext, useEffect, useState } from "react";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const userContext = createContext()
 
@@ -14,7 +15,7 @@ const authContext = ({children}) => {
                 const token = localStorage.getItem("token");
 
                 if (token) {
-                    const response = await axios.get("http://localhost:3000/verify", {
+                    const response = await api.get('/verify', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
 

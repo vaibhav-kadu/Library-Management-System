@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { X, User, Mail, Phone, MapPin, Calendar, UserCircle, Loader, CheckCircle, XCircle } from "lucide-react";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function StudentDetails({ studentId, onClose, theme = "light" }) {
     const [student, setStudent] = useState(null);
@@ -13,7 +14,7 @@ export default function StudentDetails({ studentId, onClose, theme = "light" }) 
         const fetchStudentDetails = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://localhost:3000/getStudentById", {
+                const response = await api.get('/getStudentById', {
                     params: { sid: studentId }
                 });
 
@@ -105,7 +106,7 @@ export default function StudentDetails({ studentId, onClose, theme = "light" }) 
                                 <div className="flex-shrink-0">
                                     {student.profileImage ? (
                                         <img
-                                            src={`http://localhost:3000/student_images/${student.profileImage}?${Date.now()}`}
+                                            src={`${BASE_URL}/student_images/${student.profileImage}?${Date.now()}`}
                                             alt={student.name}
                                             className={`w-24 h-24 rounded-full object-cover border-4 shadow-lg ${isDark ? 'border-gray-600' : 'border-gray-300'
                                                 }`}

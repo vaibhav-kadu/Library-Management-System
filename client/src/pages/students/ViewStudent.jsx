@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { User, Loader, Edit2, Trash2, Search, UserCircle, CheckCircle, XCircle } from "lucide-react";
 import AddStudent from "./AddStudent";
 import StudentProfile from "./StudentProfile";
 import { useAuth } from "../../context/authContext";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function ViewStudent({ theme = "light" }) {
     const { user} = useAuth();
@@ -29,7 +30,7 @@ export default function ViewStudent({ theme = "light" }) {
   // Fetch students
   const fetchStudents = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/getStudents");
+      const response = await api.get('/getStudents');
       if (response.data.success) {
         setStudents(response.data.students);
       } else {
@@ -70,7 +71,7 @@ export default function ViewStudent({ theme = "light" }) {
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:3000/verifyStudent', {
+      const response = await api.post('/verifyStudent', {
         sid: sid,
         lid: lid
       });
@@ -106,7 +107,7 @@ const handleDelete = async (sid, studentName) => {
 
   try {
     // Fixed: Use URL parameter instead of request body
-    const response = await axios.delete(`http://localhost:3000/deleteStudent/${sid}`);
+    const response = await api.delete(`/deleteStudent/${sid}`);
 
     if (response.data.success || response.data.message === "Student Deleted") {
       setStudents(
@@ -311,7 +312,7 @@ const handleDelete = async (sid, studentName) => {
                               {stu.profileImage ? (
                                 <div className="relative">
                                   <img
-                                    src={`http://localhost:3000/student_images/${stu.profileImage}?${Date.now()}`}
+                                    src={`${BASE_URL}/student_images/${stu.profileImage}?${Date.now()}`}
                                     alt={stu.name}
                                     className={`w-16 h-16 rounded-lg object-cover border-2 shadow-md transition-transform group-hover:scale-105 ${
                                       isDark ? 'border-gray-600' : 'border-gray-300'

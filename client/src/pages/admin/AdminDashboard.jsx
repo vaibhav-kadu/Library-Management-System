@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 import { 
   Shield, Users, BookOpen, Layers, BookUp, Folder 
 } from 'lucide-react';
@@ -22,7 +23,7 @@ const AdminDashboard = ({ theme }) => {
   // Fetch students
   const fetchStudents = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getStudents");
+      const res = await api.get('/getStudents');
       if (res.data.success) {
         const students = res.data.students || [];
         setSystemStats(prev => ({ ...prev, totalStudents: students.length }));
@@ -35,7 +36,7 @@ const AdminDashboard = ({ theme }) => {
   // Fetch librarians
   const fetchLibrarians = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getLibrarian");
+      const res = await api.get('/getLibrarian');
       if (res.data.success) {
         const librarians = res.data.librarians || [];
         setSystemStats(prev => ({ ...prev, totalLibrarians: librarians.length }));
@@ -48,7 +49,7 @@ const AdminDashboard = ({ theme }) => {
   // Fetch books
   const fetchBooks = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getBooks");
+      const res = await api.get('/getBooks');
       if (res.data.success) {
         const books = res.data.books || [];
         let totalCopies = 0, issuedCopies = 0;
@@ -73,7 +74,7 @@ const AdminDashboard = ({ theme }) => {
   // ✅ Fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getCategory");
+      const res = await api.get('/getCategory');
       if (res.data.success) {
         const categories = res.data.categories || [];
         setSystemStats(prev => ({ ...prev, totalCategories: categories.length }));

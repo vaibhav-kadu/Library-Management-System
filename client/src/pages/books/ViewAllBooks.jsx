@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 import {
   BookOpen,
   Loader,
@@ -40,7 +41,7 @@ export default function ViewAllBook({ theme = "light" }) {
   // Fetch books
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/getBooks");
+      const response = await api.get('/getBooks');
       if (response.data.success) {
         setBooks(response.data.books);
       } else {
@@ -86,7 +87,7 @@ Available Copies: ${availableCopies}`);
 
     try {
       // Fixed: Use URL parameter instead of request body
-      const response = await axios.delete(`http://localhost:3000/deleteBook/${bookId}`);
+      const response = await api.delete(`/deleteBook/${bookId}`);
       
       if (response.data.success || response.data.message === "Book Deleted") {
         setBooks(
@@ -114,8 +115,7 @@ Available Copies: ${availableCopies}`);
     
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:3000/borrowBook",
+      const response = await api.post('/borrowBook',
         { book_id: bookId, sid: user.sid },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -274,7 +274,7 @@ Available Copies: ${availableCopies}`);
         <div className="relative h-72 w-48 mx-auto mt-4 overflow-hidden rounded-lg">
           {book.bookImage && book.bookImage !== 'null' ? (
             <img
-              src={`http://localhost:3000/book_images/${book.bookImage}?${Date.now()}`}
+              src={`${BASE_URL}/book_images/${book.bookImage}?${Date.now()}`}
               alt={book.title}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e)=>{e.target.onerror=null; e.target.style.display='none'}}

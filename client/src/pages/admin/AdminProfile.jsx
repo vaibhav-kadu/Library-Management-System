@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Camera, Edit3, Save, X, Eye, EyeOff } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../context/authContext';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminProfile({ theme }) {
   const { user } = useAuth();
@@ -30,7 +31,7 @@ export default function AdminProfile({ theme }) {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:3000/getAdminById`, {
+      const response = await api.get(`/getAdminById`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
@@ -121,7 +122,7 @@ export default function AdminProfile({ theme }) {
         formDataToSend.append('profileImage', profileImageFile);
       }
 
-      const response = await axios.put('http://localhost:3000/updateAdmin', formDataToSend, {
+      const response = await api.put(`/updateAdmin`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -193,7 +194,7 @@ export default function AdminProfile({ theme }) {
                     <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
                   ) : admin.profileImage ? (
                     <img 
-                      src={`http://localhost:3000/admin_images/${admin.profileImage}?${Date.now()}`} 
+                      src={`${BASE_URL}/admin_images/${admin.profileImage}?${Date.now()}`} 
                       alt={admin.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {

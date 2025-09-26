@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { User, Loader, Edit2, Trash2, Search, UserCircle } from "lucide-react";
 import AddLibrarian from "./AddLibrarian"; // Import the AddLibrarian component
 
@@ -12,13 +12,14 @@ export default function ViewLibrarian({ theme = "light" }) {
   const [search, setSearch] = useState("");
   const [showAddLibrarian, setShowAddLibrarian] = useState(false);
   const [editingLibrarian, setEditingLibrarian] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_URL;
   
   const isDark = theme === 'dark';
 
   // Fetch librarians
   const fetchLibrarians = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/getLibrarian");
+      const response = await api.get('/getLibrarian');
       if (response.data.success) {
         setLibrarians(response.data.librarians);
       } else {
@@ -56,8 +57,8 @@ export default function ViewLibrarian({ theme = "light" }) {
     setSuccess(null);
 
     try {
-      const response = await axios.delete(
-        `http://localhost:3000/deleteLibrarian?lid=${lid}`
+      const response = await api.delete(
+        `/deleteLibrarian?lid=${lid}`
       );
 
       if (response.data.success) {
@@ -251,7 +252,7 @@ export default function ViewLibrarian({ theme = "light" }) {
                               {lib.profileImage ? (
                                 <div className="relative">
                                   <img
-                                    src={`http://localhost:3000/librarian_images/${lib.profileImage}?${Date.now()}`}
+                                    src={`${BASE_URL}/librarian_images/${lib.profileImage}?${Date.now()}`}
                                     alt={lib.name}
                                     className={`w-16 h-16 rounded-lg object-cover border-2 shadow-md transition-transform group-hover:scale-105 ${
                                       isDark ? 'border-gray-600' : 'border-gray-300'

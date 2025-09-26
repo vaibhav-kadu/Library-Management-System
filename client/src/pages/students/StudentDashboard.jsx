@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 import { 
   BookOpen, 
   Search, 
@@ -52,7 +53,7 @@ const StudentDashboard = ({ theme }) => {
   // Fetch total books
   const fetchBooks = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/getBooks");
+      const res = await api.get('/getBooks');
       if (res.data.success) {
         const books = res.data.books || [];
         setStudentStats((prev) => ({
@@ -71,7 +72,7 @@ const StudentDashboard = ({ theme }) => {
     
     try {
       // Assuming you have an API endpoint to get transactions by student ID
-      const res = await axios.get(`http://localhost:3000/getTransactionsByStudent/${user.sid}`);
+      const res = await api.get(`/getTransactionsByStudent/${user.sid}`);
       if (res.data.success) {
         const studentTransactions = res.data.transactions || [];
         setTransactions(studentTransactions);
@@ -122,8 +123,8 @@ const StudentDashboard = ({ theme }) => {
 
     for (const transaction of activeTransactions) {
       try {
-        const bookRes = await axios.get(
-          `http://localhost:3000/getBook/${transaction.book_id}`
+        const bookRes = await api.get(
+          `/getBook/${transaction.book_id}`
         );
         if (bookRes.data.success) {
           const book = bookRes.data.book;

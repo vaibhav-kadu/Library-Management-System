@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { X, UserCheck, Mail, Phone, Calendar, UserCircle, Loader, Shield } from "lucide-react";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function LibrarianDetails({ librarianId, onClose, theme = "light" }) {
   const [librarian, setLibrarian] = useState(null);
@@ -13,7 +14,7 @@ export default function LibrarianDetails({ librarianId, onClose, theme = "light"
     const fetchLibrarianDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/getLibrarianById",{params:{lid:librarianId}});
+        const response = await api.get('/getLibrarianById',{params:{lid:librarianId}});
         
         if (response.data.success) {          
           setLibrarian(response.data.librarian);
@@ -112,7 +113,7 @@ export default function LibrarianDetails({ librarianId, onClose, theme = "light"
                 <div className="flex-shrink-0">
                   {librarian.profileImage ? (
                     <img
-                      src={`http://localhost:3000/librarian_images/${librarian.profileImage}?${Date.now()}`}
+                      src={`${BASE_URL}/librarian_images/${librarian.profileImage}?${Date.now()}`}
                       alt={librarian.name}
                       className={`w-24 h-24 rounded-full object-cover border-4 shadow-lg ${
                         isDark ? 'border-gray-600' : 'border-gray-300'

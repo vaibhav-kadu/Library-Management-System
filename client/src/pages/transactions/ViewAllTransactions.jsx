@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { BookOpen, Loader, Search, User, Calendar, FileText, DollarSign } from "lucide-react";
 import BookDetails from "../books/BookDetails";
 import StudentDetails from "../students/StudentDetails";
 import LibrarianDetails from "../librarian/LibrarianDetails";
 import { useAuth } from "../../context/authContext";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function ViewAllTransactions({ theme = "light" }) {
   const { user } = useAuth();
@@ -30,7 +31,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:3000/getAllTransactions");
+      const response = await api.get('/getAllTransactions');
       if (response.data.success) {
         setTransactions(response.data.result);
       } else {
@@ -58,7 +59,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
     setError(null);
 
     try {
-      const response = await axios.put('http://localhost:3000/issueBook', {
+      const response = await api.put('/issueBook', {
         lid: user.lid,
         transaction_id: transactionId
       });
@@ -88,7 +89,7 @@ export default function ViewAllTransactions({ theme = "light" }) {
     setError(null);
 
     try {
-      const response = await axios.put('http://localhost:3000/returnBook', {
+      const response = await api.put('/returnBook', {
         lid: user.lid,
         transaction_id: transactionId
       }); 

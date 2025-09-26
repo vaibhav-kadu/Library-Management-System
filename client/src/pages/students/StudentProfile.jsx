@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle, UserCircle, Shield } from 'lucide-react';
 import { useAuth } from '../../context/authContext';
-import axios from 'axios';
+import api from '../../utils/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function StudentProfile({ student, onClose, theme = 'light', onVerificationSuccess }) {
   const { user } = useAuth();
@@ -34,7 +35,7 @@ export default function StudentProfile({ student, onClose, theme = 'light', onVe
     setVerificationError(null);
 
     try {
-      const response = await axios.post('http://localhost:3000/verifyStudent', {
+      const response = await api.post('/verifyStudent', {
         sid: sid,
         lid: lid
       });
@@ -85,7 +86,7 @@ export default function StudentProfile({ student, onClose, theme = 'light', onVe
             <div className="relative mb-4">
               {student.profileImage ? (
                 <img
-                  src={`http://localhost:3000/student_images/${student.profileImage}?${Date.now()}`}
+                  src={`${BASE_URL}/student_images/${student.profileImage}?${Date.now()}`}
                   alt={student.name}
                   className={`w-24 h-24 rounded-full object-cover border-4 shadow-lg ${
                     isDark ? 'border-gray-600' : 'border-gray-200'

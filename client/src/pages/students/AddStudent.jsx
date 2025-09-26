@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Eye, EyeOff, Mail, Lock, X, Phone, MapPin, Camera, Save, Edit2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AddStudent({ onClose, theme = 'light', editingStudent = null, onUpdateSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +41,7 @@ export default function AddStudent({ onClose, theme = 'light', editingStudent = 
 
       // Set existing profile image preview
       if (editingStudent.profileImage) {
-        setImagePreview(`http://localhost:3000/student_images/${editingStudent.profileImage}?${Date.now()}`);
+        setImagePreview(`${BASE_URL}/student_images/${editingStudent.profileImage}?${Date.now()}`);
       }
     }
   }, [editingStudent]);
@@ -155,7 +156,7 @@ export default function AddStudent({ onClose, theme = 'light', editingStudent = 
         }
 
         // FIXED: Use PUT method with sid parameter in URL
-        const response = await axios.put(`http://localhost:3000/updateStudent/${sid}`, formDataToSend, {
+        const response = await api.put(`/updateStudent/${sid}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -185,7 +186,7 @@ export default function AddStudent({ onClose, theme = 'light', editingStudent = 
           formDataToSend.append('profileImage', profileImage);
         }
 
-        const response = await axios.post('http://localhost:3000/addStudent', formDataToSend, {
+        const response = await api.post('/addStudent', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { X, BookOpen, User, Calendar, Hash, Building2, Tag, Copy, Loader, Image as ImageIcon } from "lucide-react";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function BookDetails({ bookId, onClose, theme = "light" }) {
   const [book, setBook] = useState(null);
@@ -13,7 +14,7 @@ export default function BookDetails({ bookId, onClose, theme = "light" }) {
     const fetchBookDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/getBookById",{params:{book_id:bookId}});
+        const response = await api.get('/getBookById',{params:{book_id:bookId}});
         if (response.data.success) {            
           setBook(response.data.book);
         } else {
@@ -109,7 +110,7 @@ export default function BookDetails({ bookId, onClose, theme = "light" }) {
                 <div className="flex-shrink-0">
                   {book.image ? (
                     <img
-                      src={`http://localhost:3000/book_images/${book.image}`}
+                      src={`${BASE_URL}/book_images/${book.image}`}
                       alt={book.title}
                       className={`w-32 h-40 object-cover rounded-lg border-2 shadow-md ${
                         isDark ? 'border-gray-600' : 'border-gray-300'
