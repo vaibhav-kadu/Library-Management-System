@@ -16,7 +16,7 @@ import AddCategory from './pages/category/AddCategory';
 import ViewCategories from './pages/category/ViewCategories';
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
-import LandingPage from './pages/LandingPage';
+import LandingPage from './pages/landingpage';
 import BackgroundWrapper from './components/BackgroundWrapper';
 import SignUp from './pages/SignUp';
 import ViewLibrarian from './pages/librarian/ViewLibrarian';
