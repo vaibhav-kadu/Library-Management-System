@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Run every day at 6 AM
-cron.schedule("* * * * *", () => {      //"0 6 * * *"
+cron.schedule("0 6 * * *", () => {      //"* * * * *"
   console.log("📅 Running daily fine update job...");
   //SQL to test data=> UPDATE Transactions SET due_date = CURDATE() - INTERVAL 1 DAY WHERE transaction_id = 2;
 
