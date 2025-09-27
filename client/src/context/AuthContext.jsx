@@ -5,7 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
 const userContext = createContext()
 
-const authContext = ({children}) => {
+const AuthContext = ({children}) => {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -64,4 +64,4 @@ const authContext = ({children}) => {
 }
 
 export const useAuth = () => useContext(userContext);
-export default authContext;
+export default AuthContext;

@@ -4,7 +4,7 @@ import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export default function AddCategory() {
+export default function TempCat() {
   const [error, setError] = useState(null);
   const [success,setSuccess] = useState(null);
   const [submitting, setSubmitting] = useState(false);

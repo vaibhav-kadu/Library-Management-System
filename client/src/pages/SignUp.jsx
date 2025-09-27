@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, BookOpen, Eye, EyeOff, Mail, Lock, X, UserPlus, Phone, Calendar, MapPin, Upload, Camera } from 'lucide-react';
 import api from '../utils/api';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 const BASE_URL = import.meta.env.VITE_API_URL;
 

@@ -18,7 +18,7 @@ import {
   Building,
   Hash
 } from "lucide-react";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
 import AddBook from "./AddBook";
 
 export default function ViewAllBook({ theme = "light" }) {

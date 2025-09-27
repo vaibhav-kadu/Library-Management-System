@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Camera, Edit3, Save, X, Eye, EyeOff } from 'lucide-react';
 import api from '../../utils/api';
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminProfile({ theme }) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle, UserCircle, Shield } from 'lucide-react';
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 const BASE_URL = import.meta.env.VITE_API_URL;
 

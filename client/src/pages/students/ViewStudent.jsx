@@ -3,7 +3,7 @@ import api from '../../utils/api';
 import { User, Loader, Edit2, Trash2, Search, UserCircle, CheckCircle, XCircle } from "lucide-react";
 import AddStudent from "./AddStudent";
 import StudentProfile from "./StudentProfile";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function ViewStudent({ theme = "light" }) {

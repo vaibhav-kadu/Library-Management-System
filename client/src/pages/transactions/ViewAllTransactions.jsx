@@ -4,7 +4,7 @@ import { BookOpen, Loader, Search, User, Calendar, FileText, DollarSign } from "
 import BookDetails from "../books/BookDetails";
 import StudentDetails from "../students/StudentDetails";
 import LibrarianDetails from "../librarian/LibrarianDetails";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function ViewAllTransactions({ theme = "light" }) {
