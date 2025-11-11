@@ -43,23 +43,23 @@ db.connect(err => {
 async function initializeTables(connection) {
     const queries = [
 
-        // Categories
-        `CREATE TABLE IF NOT EXISTS Categories (
+        // categories
+        `CREATE TABLE IF NOT EXISTS categories (
             category_id INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             status ENUM('active','inactive'),
             PRIMARY KEY (category_id),
             UNIQUE KEY (name)
         )`,
-        `INSERT IGNORE INTO Categories (name) VALUES
+        `INSERT IGNORE INTO categories (name) VALUES
             ('Computer Science & Engineering'),
             ('Electronics & Communication'),
             ('Mechanical Engineering'),
             ('Civil Engineering'),
             ('Management & Commerce')`,
 
-        // Librarians
-        `CREATE TABLE IF NOT EXISTS Librarians (
+        // librarians
+        `CREATE TABLE IF NOT EXISTS librarians (
             lid INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
@@ -71,12 +71,12 @@ async function initializeTables(connection) {
             PRIMARY KEY (lid),
             UNIQUE KEY (email)
         )`,
-        `INSERT IGNORE INTO Librarians (name, contact, email, password) VALUES
+        `INSERT IGNORE INTO librarians (name, contact, email, password) VALUES
             ('Ravi Sharma', '9876543210', 'ravi.sharma@example.com', '9876543210'),
             ('Sunita Reddy', '9090909090', 'sunita.reddy@example.com', '9090909090')`,
 
-        // Admin
-        `CREATE TABLE IF NOT EXISTS Admin (
+        // admin
+        `CREATE TABLE IF NOT EXISTS admin (
             id INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
@@ -88,12 +88,12 @@ async function initializeTables(connection) {
             PRIMARY KEY (id),
             UNIQUE KEY (email)
         )`,
-        `INSERT IGNORE INTO Admin (name, contact, email, password) VALUES
-            ('Admin','00000','Admin@123','Admin'),
+        `INSERT IGNORE INTO admin (name, contact, email, password) VALUES
+            ('admin','00000','admin@123','admin'),
             ('ad','00','ad@','ad')`,
 
-        // Students
-        `CREATE TABLE IF NOT EXISTS Students (
+        // students
+        `CREATE TABLE IF NOT EXISTS students (
             sid INT NOT NULL AUTO_INCREMENT,
             name VARCHAR(200) NOT NULL,
             contact VARCHAR(15) NOT NULL,
@@ -106,15 +106,15 @@ async function initializeTables(connection) {
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (sid),
             UNIQUE KEY (email),
-            FOREIGN KEY (lid) REFERENCES Librarians(lid)
+            FOREIGN KEY (lid) REFERENCES librarians(lid)
             ON DELETE CASCADE ON UPDATE CASCADE
         )`,
-        `INSERT IGNORE INTO Students (name, contact, email, password, address, lid) VALUES
+        `INSERT IGNORE INTO students (name, contact, email, password, address, lid) VALUES
             ('Aarav Mehta', '9000000001', 'aarav.mehta@example.com', '9000000001', 'Mumbai, India', 1),
             ('Sneha Sharma', '9000000002', 'sneha.sharma@example.com', '9000000002', 'Pune, India', 2)`,
 
-        // Books
-        `CREATE TABLE IF NOT EXISTS Books (
+        // books
+        `CREATE TABLE IF NOT EXISTS books (
             book_id INT NOT NULL AUTO_INCREMENT,
             title VARCHAR(255) NOT NULL,
             author VARCHAR(100) DEFAULT NULL,
@@ -127,15 +127,15 @@ async function initializeTables(connection) {
             added_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             updated_on TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (book_id),
-            FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+            FOREIGN KEY (category_id) REFERENCES categories(category_id)
             ON DELETE CASCADE ON UPDATE CASCADE
         )`,
-        `INSERT IGNORE INTO Books (title, author, isbn, publisher, category_id, total_copies, issued_copies) VALUES
+        `INSERT IGNORE INTO books (title, author, isbn, publisher, category_id, total_copies, issued_copies) VALUES
             ('Introduction to Algorithms', 'Thomas H. Cormen', '9780262033848', 'MIT Press', 1, 10, 2),
             ('Database System Concepts', 'Abraham Silberschatz', '9780078022159', 'McGraw-Hill', 1, 8, 1)`,
 
-        // Transactions
-        `CREATE TABLE IF NOT EXISTS Transactions (
+        // transactions
+        `CREATE TABLE IF NOT EXISTS transactions (
             transaction_id INT NOT NULL AUTO_INCREMENT,
             book_id INT NOT NULL,
             sid INT NOT NULL,
@@ -147,12 +147,12 @@ async function initializeTables(connection) {
             status ENUM('pending','issued','returned','overdue') DEFAULT 'pending',
             fine DOUBLE DEFAULT 0.0,
             PRIMARY KEY (transaction_id),
-            FOREIGN KEY (book_id) REFERENCES Books(book_id),
-            FOREIGN KEY (sid) REFERENCES Students(sid),
-            FOREIGN KEY (issued_by) REFERENCES Librarians(lid),
-            FOREIGN KEY (return_to) REFERENCES Librarians(lid)
+            FOREIGN KEY (book_id) REFERENCES books(book_id),
+            FOREIGN KEY (sid) REFERENCES students(sid),
+            FOREIGN KEY (issued_by) REFERENCES librarians(lid),
+            FOREIGN KEY (return_to) REFERENCES librarians(lid)
         )`,
-        `INSERT IGNORE INTO Transactions 
+        `INSERT IGNORE INTO transactions 
             (book_id, sid, issued_by, issue_date, due_date, status, fine) VALUES
             (1, 1, 2, '2025-09-01 10:30:00', '2025-09-07', 'issued', 0.0)`
     ];

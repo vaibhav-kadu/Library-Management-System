@@ -1,38 +1,38 @@
 //adminModel.js
 const db=require('../config/db.js');
 
-// ADMIN
+// admin
 
-exports.addAdmin=(name,contact,email,password)=>{
+exports.addadmin=(name,contact,email,password)=>{
     return new Promise((resolve,reject)=>{
-        db.query('INSERT INTO Admin (name,contact,email,password) values(?,?,?,?)',[name,contact,email,password],(err,result)=>{
-            if(err) return reject("Admin Not Added because "+err);
+        db.query('INSERT INTO admin (name,contact,email,password) values(?,?,?,?)',[name,contact,email,password],(err,result)=>{
+            if(err) return reject("admin Not Added because "+err);
             resolve(result);
         });
     }); 
 };
 
-exports.findAdminById=(id)=>{
+exports.findadminById=(id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from Admin where id=?',[id],(err,results)=>{
+        db.query('select * from admin where id=?',[id],(err,results)=>{
             if(err) return reject("Data Not Get Because"+err);
             resolve(results[0]);
         });
     });
 };
 
-exports.findAdminByEmail=(email)=>{
+exports.findadminByEmail=(email)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from Admin where email = ? ',[email],(err,results)=>{
+        db.query('select * from admin where email = ? ',[email],(err,results)=>{
             if(err) return reject("Data Not Get Because"+err);
             resolve(results[0]);
         });
     });
 };
 
-exports.updateAdmin=(id,name,contact,email,password)=>{
+exports.updateadmin=(id,name,contact,email,password)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update Admin set name=?,contact=?,email=?,password=? where id=?',[name,contact,email,password,id],(err,result)=>{
+        db.query('update admin set name=?,contact=?,email=?,password=? where id=?',[name,contact,email,password,id],(err,result)=>{
             if(err){
                 reject(err);
             }else{

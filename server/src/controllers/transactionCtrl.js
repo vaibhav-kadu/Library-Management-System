@@ -20,7 +20,7 @@ exports.addTransaction = (req, res) => {
 
 // Get All Transactions
 exports.getAllTransactions = (req, res) => {
-    transactionModel.getAllTransactions()
+    transactionModel.getAlltransactions()
         .then(result => res.status(200).json({success:true,result}))
         .catch(err => res.status(500).json({success:false, message: 'Error Fetching Transactions', error: err }));
 };

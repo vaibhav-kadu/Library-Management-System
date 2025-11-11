@@ -22,11 +22,11 @@ app.use(cors());
 // Run every day at 6 AM
 cron.schedule("0 6 * * *", () => {      //"* * * * *"
   console.log("📅 Running daily fine update job...");
-  //SQL to test data=> UPDATE Transactions SET due_date = CURDATE() - INTERVAL 1 DAY WHERE transaction_id = 2;
+  //SQL to test data=> UPDATE transactions SET due_date = CURDATE() - INTERVAL 1 DAY WHERE transaction_id = 2;
 
 
   const sql = `
-    UPDATE Transactions
+    UPDATE transactions
     SET fine = fine + 10 * DATEDIFF(CURDATE(), due_date),
         status = 'overdue'
     WHERE status = 'issued'

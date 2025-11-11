@@ -2,7 +2,7 @@ const db=require('../config/db.js');
 
 exports.addCategory=(name)=>{
     return new Promise((resolve,reject)=>{
-        db.query('INSERT INTO Categories (name) values(?)',[name],(err,result)=>{
+        db.query('INSERT INTO categories (name) values(?)',[name],(err,result)=>{
             if(err) return reject("Category Not Added because "+err);
             resolve(result);
         });
@@ -11,16 +11,16 @@ exports.addCategory=(name)=>{
 
 exports.getCategory=()=>{
     return new Promise((resolve,reject)=>{
-        db.query("select * from Categories",(err,result)=>{
+        db.query("select * from categories",(err,result)=>{
             if(err) return reject(err);
             resolve(result);
         });
     });
 }
 
-exports.getCategoriesForDropdown = () => {
+exports.getcategoriesForDropdown = () => {
   return new Promise((resolve, reject) => {
-    db.query("SELECT category_id, name FROM Categories", (err, results) => {
+    db.query("SELECT category_id, name FROM categories", (err, results) => {
       if (err) return reject(err);
       resolve(results);   //  just return data
     });
@@ -30,7 +30,7 @@ exports.getCategoriesForDropdown = () => {
 
 exports.findCategoryByName=(name)=>{
     return new Promise((resolve,reject)=>{
-        db.query('select * from Categories where name=? ',[name],(err,results)=>{
+        db.query('select * from categories where name=? ',[name],(err,results)=>{
             if(err) return reject("category Not Get because= "+err);
            resolve(results[0]);
         });
@@ -39,7 +39,7 @@ exports.findCategoryByName=(name)=>{
 
 exports.updateCategory=(category_id,name)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update Categories set name=? where category_id=?',[name,category_id],(err,result)=>{
+        db.query('update categories set name=? where category_id=?',[name,category_id],(err,result)=>{
             if(err){
                 reject(err);
             }else{
@@ -51,7 +51,7 @@ exports.updateCategory=(category_id,name)=>{
 
 exports.inactiveCategory=(status,category_id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('update Categories set status=? where category_id=?',[status,category_id],(err,result)=>{
+        db.query('update categories set status=? where category_id=?',[status,category_id],(err,result)=>{
             if(err){
                 reject(err);
             }else{
@@ -63,7 +63,7 @@ exports.inactiveCategory=(status,category_id)=>{
 
 exports.deleteCategory=(category_id)=>{
     return new Promise((resolve,reject)=>{
-        db.query('delete from Categories where category_id=?',[category_id],(err,result)=>{
+        db.query('delete from categories where category_id=?',[category_id],(err,result)=>{
             if(err){
                 reject(err);
             }else{

@@ -63,7 +63,7 @@ exports.updateBook = async (req, res) => {
 };
 
 exports.getAllBooks = (req, res) => {
-  let promise = bookModel.getBooks();
+  let promise = bookModel.getbooks();
   promise
     .then((result) => {
       res.status(200).json({

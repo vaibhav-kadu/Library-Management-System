@@ -7,17 +7,17 @@ const LandingPage = ({ theme }) => {
 
   const features = [
     {
-      icon: <BookOpen className="h-8 w-8 text-blue-500" />,
+      icon: <BookOpen className="h-8 w-8 text-primary" />,
       title: "Book Management",
       description: "Efficiently manage your library's book collection with advanced search and categorization."
     },
     {
-      icon: <Users className="h-8 w-8 text-green-500" />,
+      icon: <Users className="h-8 w-8" style={{color: 'var(--bs-success)'}} />,
       title: "User Management", 
       description: "Handle student and librarian accounts with role-based access control."
     },
     {
-      icon: <Shield className="h-8 w-8 text-purple-500" />,
+      icon: <Shield className="h-8 w-8" style={{color: '#8B5CF6'}} />,
       title: "Secure Access",
       description: "Multi-level authentication ensures data security and proper access management."
     }
@@ -31,122 +31,123 @@ const LandingPage = ({ theme }) => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-vh-100">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* Hero Content */}
-          <div className="space-y-6">
-            <div className={`inline-flex items-center px-4 py-2 border rounded-full text-sm font-medium backdrop-blur-sm ${
-              theme === 'dark' 
-                ? 'bg-blue-900/30 border-blue-700/50 text-blue-400' 
-                : 'bg-blue-50/80 border-blue-200/50 text-blue-600'
-            }`}>
-              <Star className="h-4 w-4 mr-2" />
-              #1 Library Management System
-            </div>
-            
-            <h1 className={`text-5xl md:text-7xl font-bold leading-tight ${
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>
-              Modern{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Library
-              </span>{' '}
-              Management
-            </h1>
-            
-            <p className={`text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-            }`}>
-              Streamline your library operations with our comprehensive management system. 
-              Handle books, users, and transactions with ease.
-            </p>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              onClick={() => navigate('/admin-dashboard')}
-              className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-            >
-              Get Started
-              <ArrowRight className="inline-block ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-            
-            <button
-              onClick={() => navigate('/viewAllBooks')}
-              className={`px-8 py-4 border-2 rounded-xl font-semibold text-lg transition-all duration-300 backdrop-blur-sm ${
-                theme === 'dark' 
-                  ? 'border-gray-600/50 text-white hover:bg-gray-800/50' 
-                  : 'border-gray-300/50 text-gray-900 hover:bg-white/50'
-              }`}
-            >
-              Browse Books
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className={`text-3xl md:text-4xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+      <section className="position-relative min-vh-100 d-flex align-items-center justify-content-center px-3 px-md-4">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-12 col-lg-10 text-center">
+              {/* Hero Content */}
+              <div className="mb-4 mb-md-5">
+                <div className={`d-inline-flex align-items-center px-4 py-2 border rounded-pill mb-4 ${
+                  theme === 'dark' 
+                    ? 'bg-opacity-25 border-primary text-primary' 
+                    : 'bg-light border-primary text-primary'
                 }`}>
-                  {stat.number}
+                  <Star className="me-2" size={16} />
+                  <span className="small fw-medium">#1 Library Management System</span>
                 </div>
-                <div className={`mt-1 ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                
+                <h1 className={`display-3 display-md-1 fw-bold mb-4 ${
+                  theme === 'dark' ? 'text-white' : 'text-dark'
                 }`}>
-                  {stat.label}
-                </div>
+                  Modern{' '}
+                  <span className="text-primary">
+                    Library
+                  </span>{' '}
+                  Management
+                </h1>
+                
+                <p className={`lead fs-4 mb-4 ${
+                  theme === 'dark' ? 'text-white-50' : 'text-muted'
+                }`}>
+                  Streamline your library operations with our comprehensive management system. 
+                  Handle books, users, and transactions with ease.
+                </p>
               </div>
-            ))}
+
+              {/* CTA Buttons */}
+              <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+                <button
+                  onClick={() => navigate('/admin-dashboard')}
+                  className="btn btn-primary btn-lg shadow-lg hover-lift"
+                >
+                  Get Started
+                  <ArrowRight className="ms-2" size={20} />
+                </button>
+                
+                <button
+                  onClick={() => navigate('/viewAllBooks')}
+                  className={`btn btn-outline-primary btn-lg ${
+                    theme === 'dark' ? 'btn-outline-light' : ''
+                  }`}
+                >
+                  Browse Books
+                </button>
+              </div>
+
+              {/* Stats */}
+              <div className="row g-4 mt-5">
+                {stats.map((stat, index) => (
+                  <div key={index} className="col-6 col-md-3">
+                    <div className="text-center">
+                      <div className={`display-4 fw-bold mb-2 ${
+                        theme === 'dark' ? 'text-white' : 'text-dark'
+                      }`}>
+                        {stat.number}
+                      </div>
+                      <div className="text-muted">
+                        {stat.label}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
+      <section className="py-5">
+        <div className="container">
+          <div className="text-center mb-5">
+            <h2 className={`display-5 fw-bold mb-4 ${
+              theme === 'dark' ? 'text-white' : 'text-dark'
             }`}>
               Powerful Features
             </h2>
-            <p className={`text-xl max-w-3xl mx-auto ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+            <p className={`lead ${
+              theme === 'dark' ? 'text-white-50' : 'text-muted'
             }`}>
               Everything you need to manage your library efficiently in one comprehensive platform.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="row g-4">
             {features.map((feature, index) => (
-              <div
-                key={index}
-                className={`group p-8 backdrop-blur-sm rounded-2xl border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 ${
+              <div key={index} className="col-12 col-md-6 col-lg-4">
+                <div className={`card border h-100 hover-lift ${
                   theme === 'dark' 
-                    ? 'bg-gray-800/70 border-gray-700/50' 
-                    : 'bg-white/70 border-gray-200/50'
-                }`}
-              >
-                <div className={`mb-6 p-3 rounded-xl w-fit group-hover:scale-110 transition-transform duration-300 ${
-                  theme === 'dark' ? 'bg-gray-700/80' : 'bg-gray-100/80'
+                    ? 'bg-surface border-secondary' 
+                    : 'bg-light'
                 }`}>
-                  {feature.icon}
+                  <div className="card-body p-4">
+                    <div className={`d-inline-flex p-3 rounded-3 mb-3 ${
+                      theme === 'dark' ? 'bg-dark' : 'bg-white'
+                    }`}>
+                      {feature.icon}
+                    </div>
+                    <h3 className={`h4 fw-bold mb-3 ${
+                      theme === 'dark' ? 'text-white' : 'text-dark'
+                    }`}>
+                      {feature.title}
+                    </h3>
+                    <p className="text-muted mb-0">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className={`text-2xl font-bold mb-4 ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>
-                  {feature.title}
-                </h3>
-                <p className={`leading-relaxed ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                }`}>
-                  {feature.description}
-                </p>
               </div>
             ))}
           </div>
@@ -154,17 +155,17 @@ const LandingPage = ({ theme }) => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className={`text-4xl md:text-5xl font-bold mb-8 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
+      <section className="py-5">
+        <div className="container">
+          <div className="row g-5 align-items-center">
+            <div className="col-12 col-lg-6">
+              <h2 className={`display-5 fw-bold mb-4 ${
+                theme === 'dark' ? 'text-white' : 'text-dark'
               }`}>
                 Why Choose Our System?
               </h2>
               
-              <div className="space-y-6">
+              <div className="d-flex flex-column gap-3">
                 {[
                   "Intuitive interface designed for librarians",
                   "Real-time book availability tracking", 
@@ -173,10 +174,10 @@ const LandingPage = ({ theme }) => {
                   "Mobile-responsive design",
                   "24/7 customer support"
                 ].map((benefit, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <CheckCircle className="h-6 w-6 text-green-500 mt-0.5 flex-shrink-0" />
-                    <p className={`text-lg ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  <div key={index} className="d-flex align-items-start">
+                    <CheckCircle className="text-success flex-shrink-0 me-3 mt-1" size={24} />
+                    <p className={`mb-0 fs-5 ${
+                      theme === 'dark' ? 'text-white-50' : 'text-muted'
                     }`}>
                       {benefit}
                     </p>
@@ -185,52 +186,52 @@ const LandingPage = ({ theme }) => {
               </div>
             </div>
 
-            <div className="relative">
-              <div className={`rounded-3xl p-8 backdrop-blur-sm border ${
+            <div className="col-12 col-lg-6">
+              <div className={`card border p-4 ${
                 theme === 'dark' 
-                  ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-white/20' 
-                  : 'bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-white/20'
+                  ? 'bg-surface border-secondary' 
+                  : 'bg-light'
               }`}>
-                <div className="space-y-6">
-                  <div className={`flex items-center space-x-4 p-4 rounded-xl ${
-                    theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'
+                <div className="d-flex flex-column gap-3">
+                  <div className={`card p-3 ${
+                    theme === 'dark' ? 'bg-dark' : 'bg-white'
                   }`}>
-                    <TrendingUp className="h-8 w-8 text-blue-500" />
-                    <div>
-                      <h4 className={`font-semibold ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>Improved Efficiency</h4>
-                      <p className={`text-sm ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}>85% faster book management</p>
+                    <div className="d-flex align-items-center">
+                      <TrendingUp className="text-primary me-3" size={32} />
+                      <div>
+                        <h5 className={`mb-1 ${
+                          theme === 'dark' ? 'text-white' : 'text-dark'
+                        }`}>Improved Efficiency</h5>
+                        <p className="text-muted small mb-0">85% faster book management</p>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className={`flex items-center space-x-4 p-4 rounded-xl ${
-                    theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'
+                  <div className={`card p-3 ${
+                    theme === 'dark' ? 'bg-dark' : 'bg-white'
                   }`}>
-                    <Users className="h-8 w-8 text-green-500" />
-                    <div>
-                      <h4 className={`font-semibold ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>Better User Experience</h4>
-                      <p className={`text-sm ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}>Simplified borrowing process</p>
+                    <div className="d-flex align-items-center">
+                      <Users className="text-success me-3" size={32} />
+                      <div>
+                        <h5 className={`mb-1 ${
+                          theme === 'dark' ? 'text-white' : 'text-dark'
+                        }`}>Better User Experience</h5>
+                        <p className="text-muted small mb-0">Simplified borrowing process</p>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className={`flex items-center space-x-4 p-4 rounded-xl ${
-                    theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'
+                  <div className={`card p-3 ${
+                    theme === 'dark' ? 'bg-dark' : 'bg-white'
                   }`}>
-                    <Shield className="h-8 w-8 text-purple-500" />
-                    <div>
-                      <h4 className={`font-semibold ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>Enhanced Security</h4>
-                      <p className={`text-sm ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}>Role-based access control</p>
+                    <div className="d-flex align-items-center">
+                      <Shield style={{color: '#8B5CF6'}} className="me-3" size={32} />
+                      <div>
+                        <h5 className={`mb-1 ${
+                          theme === 'dark' ? 'text-white' : 'text-dark'
+                        }`}>Enhanced Security</h5>
+                        <p className="text-muted small mb-0">Role-based access control</p>
+                      </div>
                     </div>
                   </div>
                 </div>

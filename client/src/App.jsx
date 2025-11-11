@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './theme.css'; // Custom theme CSS
 
 import AddStudent from './pages/students/AddStudent';
 import Login from './pages/Login';
@@ -34,6 +36,8 @@ function AppContent() {
 
   useEffect(() => {
     localStorage.setItem('current_theme', theme);
+    // Apply theme to body
+    document.body.className = theme === 'dark' ? 'theme-dark' : 'theme-light';
   }, [theme]);
 
   return (
@@ -60,8 +64,10 @@ function AppContent() {
         <Route path="/home" element={<Home theme={theme} />} />
         <Route path="/student-profile" element={<StudentProfile theme={theme} />} />
         <Route path="/signup" element={<SignUp theme={theme} />} />
+        <Route path="/contact" element={<ContactUsPage theme={theme}/>} />
+        <Route path="/viewAllBooks" element={<ViewAllBooks theme={theme} />} />
 
-        {/* Admin Dashboard */}
+        {/* Admin Routes */}
         <Route
           path="/admin-dashboard"
           element={
@@ -72,8 +78,9 @@ function AppContent() {
             </PrivateRoutes>
           }
         />
+        <Route path="/admin-profile" element={<AdminProfile theme={theme} />} />
 
-        {/* Librarian Dashboard */}
+        {/* Librarian Routes */}
         <Route
           path="/librarian-dashboard"
           element={
@@ -84,20 +91,6 @@ function AppContent() {
             </PrivateRoutes>
           }
         />
-
-        {/* Student Dashboard */}
-        <Route
-          path="/student-dashboard"
-          element={
-            <PrivateRoutes>
-              <RoleBaseRoutes requiredRole={['student']}>
-                <StudentDashboard theme={theme} />
-              </RoleBaseRoutes>
-            </PrivateRoutes>
-          }
-        />
-
-        {/* Add Librarian */}
         <Route
           path="/addLibrarian"
           element={
@@ -108,20 +101,6 @@ function AppContent() {
             </PrivateRoutes>
           }
         />
-
-        {/* Add Student (admin or librarian) */}
-        <Route
-          path="/addStudent"
-          element={
-            <PrivateRoutes>
-              <RoleBaseRoutes requiredRole={['admin', 'librarian']}>
-                <AddStudent theme={theme} />
-              </RoleBaseRoutes>
-            </PrivateRoutes>
-          }
-        />
-
-        {/* View Librarians */}
         <Route
           path="/viewLibrarians"
           element={
@@ -133,9 +112,29 @@ function AppContent() {
           }
         />
 
-        {/* View Students */}
+        {/* Student Routes */}
         <Route
-          path="/viewStudents"        // ✅ corrected route
+          path="/student-dashboard"
+          element={
+            <PrivateRoutes>
+              <RoleBaseRoutes requiredRole={['student']}>
+                <StudentDashboard theme={theme} />
+              </RoleBaseRoutes>
+            </PrivateRoutes>
+          }
+        />
+        <Route
+          path="/addStudent"
+          element={
+            <PrivateRoutes>
+              <RoleBaseRoutes requiredRole={['admin', 'librarian']}>
+                <AddStudent theme={theme} />
+              </RoleBaseRoutes>
+            </PrivateRoutes>
+          }
+        />
+        <Route
+          path="/viewStudents"
           element={
             <PrivateRoutes>
               <RoleBaseRoutes requiredRole={['admin', 'librarian']}>
@@ -145,7 +144,7 @@ function AppContent() {
           }
         />
 
-                {/* View Transactions */}
+        {/* Transaction Routes */}
         <Route
           path="/viewAllTransactions"       
           element={
@@ -157,23 +156,12 @@ function AppContent() {
           }
         />
 
-        {/* Other routes */}
-        <Route path="/viewAllBooks" element={<ViewAllBooks theme={theme} />} />
-        <Route path="/admin-profile" element={<AdminProfile theme={theme} />} />
-        <Route path="/addCategory" element={<AddCategory theme={theme} />} />
-        <Route path="/viewCategory" element={<ViewCategories theme={theme} />} />
+        {/* Book Routes */}
         <Route path="/addBook" element={<AddBook theme={theme} />} />
 
-        {/* Additional CRUD operation routes */}
-        <Route path="/updateBook" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Book Page - Coming Soon</div>} />
-        <Route path="/deleteBook" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Book Page - Coming Soon</div>} />
-        <Route path="/updateStudent" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Student Page - Coming Soon</div>} />
-        <Route path="/deleteStudent" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Student Page - Coming Soon</div>} />
-        <Route path="/updateCategory" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Category Page - Coming Soon</div>} />
-        <Route path="/deleteCategory" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Category Page - Coming Soon</div>} />
-        <Route path="/updateLibrarian" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Update Librarian Page - Coming Soon</div>} />
-        <Route path="/deleteLibrarian" element={<div className={`p-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Delete Librarian Page - Coming Soon</div>} />
-        <Route path="/contact" element={<ContactUsPage theme={theme}/>} />
+        {/* Category Routes */}
+        <Route path="/addCategory" element={<AddCategory theme={theme} />} />
+        <Route path="/viewCategory" element={<ViewCategories theme={theme} />} />
       </Routes>
     </BackgroundWrapper>
   );
