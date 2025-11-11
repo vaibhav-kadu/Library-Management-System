@@ -3,7 +3,6 @@ import { User, BookOpen, Shield, Eye, EyeOff, Mail, Lock, X } from 'lucide-react
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function Login({ onClose, theme }) {
   const [activeTab, setActiveTab] = useState('student');
@@ -13,23 +12,14 @@ export default function Login({ onClose, theme }) {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const isDark = theme === 'dark';
 
   const [formData, setFormData] = useState({
-    student: { 
-      email: '', 
-      password: ''
-    },
-    librarian: { 
-      email: '', 
-      password: ''
-    },
-    admin: { 
-      email: '', 
-      password: ''
-    }
+    student: { email: '', password: '' },
+    librarian: { email: '', password: '' },
+    admin: { email: '', password: '' }
   });
 
-  // Handle input changes
   const handleInputChange = (tab, field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -40,7 +30,6 @@ export default function Login({ onClose, theme }) {
     }));
   };
 
-  // Toggle password visibility
   const togglePasswordVisibility = (tab) => {
     setShowPassword(prev => ({
       ...prev,
@@ -48,12 +37,10 @@ export default function Login({ onClose, theme }) {
     }));
   };
 
-  // Submit login request
   const handleSubmit = async (e, userType) => {
     e.preventDefault();
     const credentials = formData[userType];
 
-    // Login validation
     if (!credentials.email || !credentials.password) {
       setError("Please fill in both email and password");
       return;
@@ -69,12 +56,10 @@ export default function Login({ onClose, theme }) {
       const response = await api.post(`/${apiEndpoint}`, credentials);
 
       if (response.data.success) {
-        // ✅ Pass the entire response data to login function
         login(response.data);
         
         const role = response.data.user?.role;
         
-        // Navigate based on role
         if (role === "student") {
           navigate('/student-dashboard');
         } else if (role === "librarian") {
@@ -95,41 +80,18 @@ export default function Login({ onClose, theme }) {
     }
   };
 
-  // Dynamic styling helpers
   const tabColors = {
-    student: 'blue',
-    librarian: 'green',
-    admin: 'purple',
+    student: 'primary',
+    librarian: 'success',
+    admin: 'danger',
   };
 
   const getTabClasses = (tabId) => {
-    const base = "flex items-center space-x-2 px-4 py-3 rounded-t-lg transition-all duration-200 flex-1 justify-center border-b-2 font-medium";
     const color = tabColors[tabId];
     if (activeTab === tabId) {
-      return `${base} ${
-        theme === 'dark' 
-          ? `bg-gray-700 text-${color}-400 border-${color}-500`
-          : `bg-white text-${color}-600 border-${color}-500`
-      } shadow-sm`;
+      return `flex-fill btn btn-${color}`;
     }
-    return `${base} ${
-      theme === 'dark'
-        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-    } border-transparent`;
-  };
-
-  const getButtonClasses = (tabId) => {
-    const color = tabColors[tabId];
-    return `w-full text-white py-3 rounded-lg font-medium transition duration-200 bg-${color}-600 hover:bg-${color}-700 disabled:opacity-50 disabled:cursor-not-allowed`;
-  };
-
-  const getInputClasses = () => {
-    return `w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
-      theme === 'dark'
-        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-    }`;
+    return `flex-fill btn ${isDark ? 'btn-outline-light' : 'btn-outline-secondary'}`;
   };
 
   const renderForm = (userType, title) => {
@@ -138,145 +100,110 @@ export default function Login({ onClose, theme }) {
     return (
       <form
         onSubmit={(e) => handleSubmit(e, userType)}
-        className={`${activeTab === userType ? 'block' : 'hidden'}`}
+        className={activeTab === userType ? '' : 'd-none'}
       >
         {error && (
-          <div className={`mb-4 text-sm p-3 rounded-lg border ${
-            theme === 'dark'
-              ? 'text-red-400 bg-red-900/20 border-red-800'
-              : 'text-red-700 bg-red-50 border-red-200'
-          }`}>
+          <div className={`alert alert-danger ${isDark ? 'bg-danger bg-opacity-10' : ''}`}>
             {error}
           </div>
         )}
 
-        {/* Email Input */}
-        <div className="mb-4 relative">
-          <Mail className={`absolute left-3 top-3.5 h-5 w-5 ${
-            theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-          }`} />
-          <input
-            type="email"
-            value={data.email}
-            onChange={(e) => handleInputChange(userType, 'email', e.target.value)}
-            className={getInputClasses()}
-            placeholder="Email"
-            required
-          />
+        <div className="mb-3">
+          <label className="form-label">Email</label>
+          <div className="input-group">
+            <span className="input-group-text">
+              <Mail size={20} />
+            </span>
+            <input
+              type="email"
+              value={data.email}
+              onChange={(e) => handleInputChange(userType, 'email', e.target.value)}
+              className={`form-control ${isDark ? 'bg-dark text-white' : ''}`}
+              placeholder="Email"
+              required
+            />
+          </div>
         </div>
 
-        {/* Password Input */}
-        <div className="mb-4 relative">
-          <Lock className={`absolute left-3 top-3.5 h-5 w-5 ${
-            theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-          }`} />
-          <input
-            type={showPassword[userType] ? 'text' : 'password'}
-            value={data.password}
-            onChange={(e) => handleInputChange(userType, 'password', e.target.value)}
-            className={getInputClasses()}
-            placeholder="Password"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => togglePasswordVisibility(userType)}
-            className={`absolute right-3 top-3.5 ${
-              theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {showPassword[userType] ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
+        <div className="mb-3">
+          <label className="form-label">Password</label>
+          <div className="input-group">
+            <span className="input-group-text">
+              <Lock size={20} />
+            </span>
+            <input
+              type={showPassword[userType] ? 'text' : 'password'}
+              value={data.password}
+              onChange={(e) => handleInputChange(userType, 'password', e.target.value)}
+              className={`form-control ${isDark ? 'bg-dark text-white' : ''}`}
+              placeholder="Password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => togglePasswordVisibility(userType)}
+              className="btn btn-outline-secondary"
+            >
+              {showPassword[userType] ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
         </div>
 
-        {/* Forgot Password */}
-        <div className="flex justify-end mb-6">
+        <div className="d-flex justify-content-end mb-3">
           <button
             type="button"
             onClick={() => alert('Forgot password flow not implemented')}
-            className={`text-sm hover:underline ${
-              theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
-            }`}
+            className="btn btn-link text-decoration-none p-0"
           >
             Forgot password?
           </button>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
-          className={getButtonClasses(userType)}
+          className={`btn btn-${tabColors[userType]} w-100`}
           disabled={submitting}
         >
-          {submitting 
-            ? "Signing In..." 
-            : `Sign In as ${title}`
-          }
+          {submitting ? "Signing In..." : `Sign In as ${title}`}
         </button>
       </form>
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
-      
-      {/* Modal */}
-      <div className={`relative rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto ${
-        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
-      }`}>
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-colors duration-200 ${
-            theme === 'dark' 
-              ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-          }`}
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        {/* Header */}
-        <div className="p-6 pb-0">
-          <h2 className={`text-2xl font-bold text-center mb-2 ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}>
-            Welcome Back
-          </h2>
-          <p className={`text-center mb-6 ${
-            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-          }`}>
-            Sign in to your account
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="px-6">
-          <div className={`rounded-lg p-1 flex space-x-1 mb-6 ${
-            theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
-          }`}>
-            <button onClick={() => setActiveTab('student')} className={getTabClasses('student')}>
-              <User className="w-4 h-4" />
-              <span className="text-sm">Student</span>
-            </button>
-            <button onClick={() => setActiveTab('librarian')} className={getTabClasses('librarian')}>
-              <BookOpen className="w-4 h-4" />
-              <span className="text-sm">Librarian</span>
-            </button>
-            <button onClick={() => setActiveTab('admin')} className={getTabClasses('admin')}>
-              <Shield className="w-4 h-4" />
-              <span className="text-sm">Admin</span>
-            </button>
+    <div className="modal show d-block" style={{backgroundColor: 'rgba(0,0,0,0.5)'}} onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+        <div className={`modal-content ${isDark ? 'bg-surface text-white' : ''}`}>
+          <div className={`modal-header border-bottom ${isDark ? 'border-secondary' : ''}`}>
+            <div className="w-100 text-center">
+              <h5 className={`modal-title ${isDark ? 'text-white' : 'text-dark'}`}>
+                Welcome Back
+              </h5>
+              <p className="text-muted mb-0">Sign in to your account</p>
+            </div>
+            <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
-        </div>
 
-        {/* Form */}
-        <div className="px-6 pb-6">
-          {renderForm('student', 'Student')}
-          {renderForm('librarian', 'Librarian')}
-          {renderForm('admin', 'Admin')}
+          <div className="modal-body p-4">
+            <div className={`btn-group w-100 mb-4 ${isDark ? 'bg-dark' : 'bg-light'} p-1 rounded`}>
+              <button onClick={() => setActiveTab('student')} className={getTabClasses('student')}>
+                <User size={16} className="me-2" />
+                Student
+              </button>
+              <button onClick={() => setActiveTab('librarian')} className={getTabClasses('librarian')}>
+                <BookOpen size={16} className="me-2" />
+                Librarian
+              </button>
+              <button onClick={() => setActiveTab('admin')} className={getTabClasses('admin')}>
+                <Shield size={16} className="me-2" />
+                Admin
+              </button>
+            </div>
+
+            {renderForm('student', 'Student')}
+            {renderForm('librarian', 'Librarian')}
+            {renderForm('admin', 'Admin')}
+          </div>
         </div>
       </div>
     </div>

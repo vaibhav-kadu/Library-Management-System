@@ -1,2 +1,265 @@
 
 @import "tailwindcss";
+
+/* Light Theme */
+.theme-light {
+  --bs-body-bg: #FFFFFF;
+  --bs-body-color: #212121;
+  --bs-card-bg: #F8F9FA;
+  --bs-primary: #1E88E5;
+  --bs-secondary: #FBC02D;
+  --bs-success: #43A047;
+  --bs-warning: #FB8C00;
+  --bs-danger: #E53935;
+  --bs-text-muted: #616161;
+  --bs-border-color: #E0E0E0;
+  --bs-surface: #F8F9FA;
+}
+
+/* Dark Theme */
+.theme-dark {
+  --bs-body-bg: #121212;
+  --bs-body-color: #FFFFFF;
+  --bs-card-bg: #1E1E1E;
+  --bs-primary: #90CAF9;
+  --bs-secondary: #FFD54F;
+  --bs-success: #81C784;
+  --bs-warning: #FFB74D;
+  --bs-danger: #E57373;
+  --bs-text-muted: #B0B0B0;
+  --bs-border-color: #333333;
+  --bs-surface: #1E1E1E;
+}
+
+/* Apply theme colors */
+body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.card, .modal-content, .offcanvas {
+  background-color: var(--bs-card-bg);
+  border-color: var(--bs-border-color);
+}
+
+.text-muted {
+  color: var(--bs-text-muted) !important;
+}
+
+.border {
+  border-color: var(--bs-border-color) !important;
+}
+
+/* Bootstrap overrides for theme */
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  opacity: 0.9;
+}
+
+.btn-success {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+}
+
+.btn-success:hover {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+  opacity: 0.9;
+}
+
+.btn-warning {
+  background-color: var(--bs-warning);
+  border-color: var(--bs-warning);
+}
+
+.btn-danger {
+  background-color: var(--bs-danger);
+  border-color: var(--bs-danger);
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.bg-success {
+  background-color: var(--bs-success) !important;
+}
+
+.bg-warning {
+  background-color: var(--bs-warning) !important;
+}
+
+.bg-danger {
+  background-color: var(--bs-danger) !important;
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.text-success {
+  color: var(--bs-success) !important;
+}
+
+.text-warning {
+  color: var(--bs-warning) !important;
+}
+
+.text-danger {
+  color: var(--bs-danger) !important;
+}
+
+/* Form controls */
+.form-control, .form-select {
+  background-color: var(--bs-card-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--bs-card-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(30, 136, 229, 0.25);
+}
+
+.theme-dark .form-control:focus, 
+.theme-dark .form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(144, 202, 249, 0.25);
+}
+
+.theme-dark .form-control::placeholder,
+.theme-dark .form-select::placeholder {
+  color: var(--bs-text-muted);
+}
+
+/* Table */
+.table {
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--bs-surface);
+}
+
+.theme-dark .table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
+}
+
+/* Modal */
+.modal-header, .modal-footer {
+  border-color: var(--bs-border-color);
+}
+
+.theme-dark .modal-content {
+  background-color: var(--bs-card-bg);
+  color: var(--bs-body-color);
+}
+
+.theme-dark .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Dropdown */
+.dropdown-menu {
+  background-color: var(--bs-card-bg);
+  border-color: var(--bs-border-color);
+}
+
+.dropdown-item {
+  color: var(--bs-body-color);
+}
+
+.dropdown-item:hover {
+  background-color: var(--bs-primary);
+  color: white;
+}
+
+/* Input groups */
+.theme-dark .input-group-text {
+  background-color: var(--bs-card-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+
+/* Alerts */
+.theme-dark .alert-danger {
+  color: var(--bs-danger);
+  background-color: rgba(229, 57, 53, 0.1);
+  border-color: var(--bs-danger);
+}
+
+.theme-dark .alert-success {
+  color: var(--bs-success);
+  background-color: rgba(129, 199, 132, 0.1);
+  border-color: var(--bs-success);
+}
+
+.theme-dark .alert-warning {
+  color: var(--bs-warning);
+  background-color: rgba(255, 183, 77, 0.1);
+  border-color: var(--bs-warning);
+}
+
+/* Custom utilities */
+.bg-surface {
+  background-color: var(--bs-surface) !important;
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+}
+
+.hover-lift {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark theme specific overrides */
+.theme-dark .bg-light {
+  background-color: var(--bs-surface) !important;
+}
+
+.theme-dark .text-dark {
+  color: var(--bs-body-color) !important;
+}
+
+.theme-dark .border-secondary {
+  border-color: var(--bs-border-color) !important;
+}
+
+/* Additional custom classes */
+.text-white-50 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.bg-opacity-10 {
+  opacity: 0.1;
+}
+
+.bg-opacity-25 {
+  opacity: 0.25;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}

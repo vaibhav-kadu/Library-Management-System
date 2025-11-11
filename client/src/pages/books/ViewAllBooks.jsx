@@ -14,7 +14,6 @@ import {
   PackageMinus,
   Search,
   Filter,
-  Plus,
   Building,
   Hash
 } from "lucide-react";
@@ -32,13 +31,11 @@ export default function ViewAllBook({ theme = "light" }) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("title");
   
-  // Add Book Modal states
   const [showAddBook, setShowAddBook] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
 
   const isDark = theme === 'dark';
 
-  // Fetch books
   const fetchBooks = async () => {
     try {
       const response = await api.get('/getBooks');
@@ -58,7 +55,6 @@ export default function ViewAllBook({ theme = "light" }) {
     fetchBooks();
   }, []);
 
-  // View handler - Enhanced view modal (similar to student profile click)
   const handleView = (book) => {
     const availableCopies = book.total_copies - book.issued_copies;
     alert(`Book Details:
@@ -71,13 +67,11 @@ Issued Copies: ${book.issued_copies}
 Available Copies: ${availableCopies}`);
   };
 
-  // Edit handler
   const handleEdit = (book) => {
     setEditingBook(book);
     setShowAddBook(true);
   };
 
-  // DELETE handler (for admin only)
   const handleDelete = async (bookId, bookTitle) => {
     if (!window.confirm(`Are you sure you want to delete "${bookTitle}"?`)) return;
 
@@ -86,7 +80,6 @@ Available Copies: ${availableCopies}`);
     setSuccess(null);
 
     try {
-      // Fixed: Use URL parameter instead of request body
       const response = await api.delete(`/deleteBook/${bookId}`);
       
       if (response.data.success || response.data.message === "Book Deleted") {
@@ -105,7 +98,6 @@ Available Copies: ${availableCopies}`);
     }
   };
 
-  // BORROW handler (for student)
   const handleBorrow = async (bookId, bookTitle) => {
     if (!window.confirm(`Do you want to borrow "${bookTitle}"?`)) return;
 
@@ -125,7 +117,7 @@ Available Copies: ${availableCopies}`);
       if (response.data.success) {
         setSuccess(`Successfully borrowed "${bookTitle}"!`);
         setTimeout(() => setSuccess(null), 3000);
-        fetchBooks(); // Refresh to show updated counts
+        fetchBooks();
       } else {
         setError(response.data.message || "Failed to borrow book");
       }
@@ -136,22 +128,19 @@ Available Copies: ${availableCopies}`);
     }
   };
 
-  // Handle close AddBook modal
   const handleCloseAddBook = () => {
     setShowAddBook(false);
     setEditingBook(null);
   };
 
-  // Handle successful update
   const handleUpdateSuccess = () => {
     setShowAddBook(false);
     setEditingBook(null);
-    fetchBooks(); // Refresh the list
+    fetchBooks();
     setSuccess("Book updated successfully!");
     setTimeout(() => setSuccess(null), 3000);
   };
 
-  // Filter and sort books
   const filteredAndSortedBooks = books
     .filter(
       (book) =>
@@ -179,8 +168,8 @@ Available Copies: ${availableCopies}`);
     const renderActionButtons = () => {
       if (!user) {
         return (
-          <div className="text-center text-gray-500 py-2">
-            <span className="text-sm">Login to interact with books</span>
+          <div className="text-center text-muted py-2">
+            <small>Login to interact with books</small>
           </div>
         );
       }
@@ -188,24 +177,26 @@ Available Copies: ${availableCopies}`);
       switch (user.role) {
         case 'student':
           return (
-            <div className="flex gap-2">
+            <div className="d-flex gap-2">
               <button
                 onClick={() => handleBorrow(bookId, book.title)}
                 disabled={borrowing === bookId || availableCopies === 0}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-primary btn-sm flex-fill"
               >
                 {borrowing === bookId ? (
-                  <Loader className="w-4 h-4 animate-spin" />
+                  <Loader className="spinner-border spinner-border-sm" />
                 ) : (
-                  <CheckCircle className="w-4 h-4" />
+                  <>
+                    <CheckCircle size={16} className="me-1" />
+                    Borrow
+                  </>
                 )}
-                Borrow
               </button>
               <button
                 onClick={() => handleView(book)}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                className="btn btn-info btn-sm flex-fill"
               >
-                <Eye className="w-4 h-4" />
+                <Eye size={16} className="me-1" />
                 View
               </button>
             </div>
@@ -213,19 +204,19 @@ Available Copies: ${availableCopies}`);
 
         case 'librarian':
           return (
-            <div className="flex gap-2">
+            <div className="d-flex gap-2">
               <button
                 onClick={() => handleEdit(book)}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                className="btn btn-success btn-sm flex-fill"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 size={16} className="me-1" />
                 Update
               </button>
               <button
                 onClick={() => handleView(book)}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-md hover:scale-105 transition-transform duration-200"
+                className="btn btn-info btn-sm flex-fill"
               >
-                <Eye className="w-4 h-4" />
+                <Eye size={16} className="me-1" />
                 View
               </button>
             </div>
@@ -233,32 +224,29 @@ Available Copies: ${availableCopies}`);
 
         case 'admin':
           return (
-            <div className="flex gap-2">
+            <div className="d-flex gap-1">
               <button
                 onClick={() => handleEdit(book)}
-                className="flex-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl flex items-center justify-center gap-1 shadow-md hover:scale-105 transition-transform duration-200 text-sm"
+                className="btn btn-success btn-sm flex-fill"
               >
-                <Edit2 className="w-4 h-4" />
-                Update
+                <Edit2 size={14} />
               </button>
               <button
                 onClick={() => handleView(book)}
-                className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-1 shadow-md hover:scale-105 transition-transform duration-200 text-sm"
+                className="btn btn-info btn-sm flex-fill"
               >
-                <Eye className="w-4 h-4" />
-                View
+                <Eye size={14} />
               </button>
               <button
                 onClick={() => handleDelete(bookId, book.title)}
                 disabled={deleting === bookId}
-                className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-1 shadow-md hover:scale-105 transition-transform duration-200 disabled:opacity-50 text-sm"
+                className="btn btn-danger btn-sm flex-fill"
               >
                 {deleting === bookId ? (
-                  <Loader className="w-4 h-4 animate-spin" />
+                  <Loader className="spinner-border spinner-border-sm" size={14} />
                 ) : (
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 size={14} />
                 )}
-                Delete
               </button>
             </div>
           );
@@ -269,89 +257,76 @@ Available Copies: ${availableCopies}`);
     };
 
     return (
-         <div className={`group relative rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer ${isDark ? "bg-gray-800 border-gray-600" : "bg-white border-gray-200"} overflow-hidden`}>
-        {/* Book Image */}
-        <div className="relative h-72 w-48 mx-auto mt-4 overflow-hidden rounded-lg">
+      <div className={`card h-100 border hover-lift ${isDark ? "bg-surface" : "bg-light"}`}>
+        <div className="position-relative" style={{height: '288px'}}>
           {book.bookImage && book.bookImage !== 'null' ? (
             <img
               src={`${BASE_URL}/book_images/${book.bookImage}?${Date.now()}`}
               alt={book.title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              onError={(e)=>{e.target.onerror=null; e.target.style.display='none'}}
+              className="card-img-top h-100 object-fit-cover"
+              onError={(e)=>{e.target.style.display='none'}}
             />
           ) : (
-            <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-              <BookOpen className="w-16 h-16 opacity-80" />
+            <div className="d-flex align-items-center justify-center h-100 bg-gradient-primary text-white">
+              <BookOpen size={64} className="opacity-75" />
             </div>
           )}
-          {/* Available Badge */}
-          <div className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold bg-green-500 text-white">
+          <span className={`position-absolute top-0 end-0 m-2 badge ${availableCopies > 0 ? 'bg-success' : 'bg-danger'}`}>
             {availableCopies > 0 ? 'Available' : 'Unavailable'}
-          </div>
+          </span>
         </div>
-        {/* Book Details */}
-        <div className="p-4 space-y-3">
-          {/* Title */}
-          <h3 className={`${isDark ? "text-white" : "text-gray-900"} text-lg font-bold leading-tight line-clamp-2`}>
+
+        <div className="card-body">
+          <h5 className={`card-title ${isDark ? "text-white" : "text-dark"} text-truncate`} title={book.title}>
             {book.title}
-          </h3>
+          </h5>
 
-          {/* Author */}
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"} truncate`}>
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <User size={16} className="text-muted" />
+            <small className={`${isDark ? "text-white-50" : "text-muted"} text-truncate`}>
               {book.author}
-            </span>
+            </small>
           </div>
 
-          {/* ISBN */}
-          <div className="flex items-center gap-2">
-            <Hash className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"} truncate`}>
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <Hash size={16} className="text-muted" />
+            <small className={`${isDark ? "text-white-50" : "text-muted"} text-truncate`}>
               {book.isbn}
-            </span>
+            </small>
           </div>
 
-          {/* Publisher */}
-          <div className="flex items-center gap-2">
-            <Building className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"} truncate`}>
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <Building size={16} className="text-muted" />
+            <small className={`${isDark ? "text-white-50" : "text-muted"} text-truncate`}>
               {book.publisher}
-            </span>
+            </small>
           </div>
 
-          {/* Copies Information */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-blue-500" />
-                <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+          <div className="mb-3">
+            <div className="d-flex justify-content-between mb-2">
+              <div className="d-flex align-items-center gap-1">
+                <Package size={16} className="text-primary" />
+                <small className={isDark ? "text-white-50" : "text-muted"}>
                   Total: {book.total_copies}
-                </span>
+                </small>
               </div>
-              <div className="flex items-center gap-2">
-                <PackageCheck className="w-4 h-4 text-orange-500" />
-                <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+              <div className="d-flex align-items-center gap-1">
+                <PackageCheck size={16} className="text-warning" />
+                <small className={isDark ? "text-white-50" : "text-muted"}>
                   Issued: {book.issued_copies}
-                </span>
+                </small>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <PackageMinus className="w-4 h-4 text-green-500" />
-              <span className={`text-sm font-semibold ${
-                availableCopies > 0 
-                  ? 'text-green-600' 
-                  : 'text-red-600'
-              }`}>
+            <div className="d-flex align-items-center gap-1">
+              <PackageMinus size={16} className="text-success" />
+              <small className={`fw-bold ${availableCopies > 0 ? 'text-success' : 'text-danger'}`}>
                 Available: {availableCopies}
-              </span>
+              </small>
             </div>
           </div>
 
-
-          {/* Action Buttons */}
-          <div className="pt-2" onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()}>
             {renderActionButtons()}
           </div>
         </div>
@@ -361,72 +336,48 @@ Available Copies: ${availableCopies}`);
 
   return (
     <>
-      <div className={`max-w-7xl mx-auto rounded-xl shadow-lg overflow-hidden ${
-        isDark ? "bg-gray-800" : "bg-white"
-      }`}>
+      <div className={`container-fluid rounded-3 shadow-lg ${isDark ? "bg-surface" : "bg-white"}`}>
         {/* Header */}
-        <div className={`px-6 py-4 border-b ${
-          isDark ? "border-gray-700" : "border-gray-200"
-        }`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-lg ${
-                isDark ? "bg-green-600/20" : "bg-green-100"
-              }`}>
-                <BookOpen className={`w-5 h-5 ${
-                  isDark ? "text-green-400" : "text-green-600"
-                }`} />
+        <div className={`px-4 py-3 border-bottom ${isDark ? "border-secondary" : "border"}`}>
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div className="d-flex align-items-center gap-3">
+              <div className={`p-2 rounded ${isDark ? "bg-success bg-opacity-25" : "bg-success bg-opacity-10"}`}>
+                <BookOpen size={20} className={isDark ? "text-success" : "text-success"} />
               </div>
               <div>
-                <h1 className={`text-xl font-bold ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}>
+                <h2 className={`h4 mb-0 ${isDark ? "text-white" : "text-dark"}`}>
                   Library Collection
-                </h1>
+                </h2>
                 {user && (
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Logged in as: <span className="font-semibold capitalize">{user.role}</span> - {user.name}
-                  </p>
+                  <small className="text-muted">
+                    Logged in as: <span className="fw-semibold text-capitalize">{user.role}</span> - {user.name}
+                  </small>
                 )}
               </div>
             </div>
             
-            {/* Header Controls */}
-            <div className="flex items-center gap-4">
-              {/* Book Count */}
-              <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-              }`}>
+            <div className="d-flex flex-wrap align-items-center gap-3">
+              <span className={`badge ${isDark ? 'bg-secondary' : 'bg-light text-dark'} px-3 py-2`}>
                 Total: {filteredAndSortedBooks.length}
-              </div>
+              </span>
               
-              {/* Search Bar */}
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <div className="position-relative" style={{minWidth: '250px'}}>
+                <Search className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" size={16} />
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className={`w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                    isDark 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                  }`}
+                  className={`form-control form-control-sm ps-5 ${isDark ? 'bg-dark text-white' : ''}`}
                   placeholder="Search books..."
                 />
               </div>
 
-              {/* Sort Dropdown */}
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-400" />
+              <div className="d-flex align-items-center gap-2">
+                <Filter size={16} className="text-muted" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className={`px-3 py-1.5 text-sm rounded-lg border focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                    isDark 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className={`form-select form-select-sm ${isDark ? 'bg-dark text-white' : ''}`}
                 >
                   <option value="title">Sort by Title</option>
                   <option value="author">Sort by Author</option>
@@ -434,63 +385,49 @@ Available Copies: ${availableCopies}`);
                   <option value="available">Sort by Available</option>
                 </select>
               </div>
-
             </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="p-4">
-          {/* Error / Success Messages */}
           {error && (
-            <div className={`mb-3 p-3 rounded-lg border text-sm ${
-              isDark
-                ? "bg-red-900/20 border-red-800 text-red-400"
-                : "bg-red-50 border-red-200 text-red-700"
-            }`}>
+            <div className={`alert ${isDark ? "alert-danger bg-danger bg-opacity-10" : "alert-danger"} mb-3`}>
               {error}
             </div>
           )}
           {success && (
-            <div className={`mb-3 p-3 rounded-lg border text-sm ${
-              isDark
-                ? "bg-green-900/20 border-green-800 text-green-400"
-                : "bg-green-50 border-green-200 text-green-700"
-            }`}>
+            <div className={`alert ${isDark ? "alert-success bg-success bg-opacity-10" : "alert-success"} mb-3`}>
               {success}
             </div>
           )}
 
-          {/* Loading */}
           {loading && (
-            <div className="flex justify-center py-8">
-              <Loader className={`w-5 h-5 animate-spin ${
-                isDark ? "text-green-400" : "text-green-500"
-              }`} />
-              <span className={`ml-2 text-sm ${
-                isDark ? "text-gray-300" : "text-gray-600"
-              }`}>
+            <div className="d-flex justify-content-center py-5">
+              <div className="spinner-border text-success me-2" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <span className={isDark ? "text-white-50" : "text-muted"}>
                 Loading books...
               </span>
             </div>
           )}
 
-          {/* Books Grid */}
           {!loading && !error && (
             <>
               {filteredAndSortedBooks.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
                   {filteredAndSortedBooks.map((book) => (
-                    <BookCard key={book.book_id || book.id} book={book} />
+                    <div className="col" key={book.book_id || book.id}>
+                      <BookCard book={book} />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <div className={`text-center py-20 rounded-2xl ${
-                  isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
-                }`}>
-                  <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold mb-2">No books found</h3>
-                  <p className="text-lg">
+                <div className={`text-center py-5 rounded-3 ${isDark ? "bg-dark" : "bg-light"}`}>
+                  <BookOpen size={64} className="text-muted mb-3" />
+                  <h3 className={`h4 ${isDark ? "text-white" : "text-dark"} mb-2`}>No books found</h3>
+                  <p className="text-muted">
                     {search ? "Try adjusting your search terms." : "No books available in the library."}
                   </p>
                 </div>
@@ -500,7 +437,6 @@ Available Copies: ${availableCopies}`);
         </div>
       </div>
 
-      {/* AddBook Modal */}
       {showAddBook && (
         <AddBook
           onClose={handleCloseAddBook}

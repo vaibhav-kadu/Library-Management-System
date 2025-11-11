@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './theme.css'; // Custom theme CSS
+import './index.css'; // Custom theme CSS
 
 import AddStudent from './pages/students/AddStudent';
 import Login from './pages/Login';

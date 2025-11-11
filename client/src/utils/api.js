@@ -18,7 +18,7 @@ api.interceptors.response.use(
       import.meta.env.VITE_API_URL &&
       import.meta.env.VITE_API_URL_LOCAL
     ) {
-      console.warn("⚠️ Railway not reachable, falling back to localhost...");
+      console.warn("⚠️ Render not reachable, falling back to localhost...");
       return axios({
         ...error.config,
         baseURL: import.meta.env.VITE_API_URL_LOCAL,
